@@ -7,7 +7,7 @@ class AuthRepository {
    * @returns {Promise<User|null>}
    */
   async findByEmail(email) {
-    return User.findOne({ email });
+    return User.findOne({ email }).select("+password +refreshToken");
   }
 
   /**

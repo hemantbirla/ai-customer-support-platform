@@ -4,6 +4,8 @@ import ApiError from "../utils/ApiError.js";
 import { STATUS_CODES } from "../constants/statusCodes.js";
 import { MESSAGES } from "../constants/messages.js";
 
+import { generateAccessToken, generateRefreshToken } from "../utils/jwt.js";
+
 const SALT_ROUNDS = 12;
 
 class AuthService {
@@ -43,6 +45,52 @@ class AuthService {
     delete userObject.refreshToken;
 
     return userObject;
+  }
+
+  /**
+   * Login user
+   * @param {Object} payload
+   * @returns {Promise<Object>}
+   */
+  async login(payload) {
+    const { email, password } = payload;
+
+    const user = await authRepository.findByEmail(email.toLowerCase());
+
+    if (!user) {
+      throw new ApiError(
+        STATUS_CODES.UNAUTHORIZED,
+        MESSAGES.AUTH.INVALID_CREDENTIALS,
+      );
+    }
+
+    const isPasswordMatched = await bcrypt.compare(password, user.password);
+
+    if (!isPasswordMatched) {
+      throw new ApiError(
+        STATUS_CODES.UNAUTHORIZED,
+        MESSAGES.AUTH.INVALID_CREDENTIALS,
+      );
+    }
+
+    const accessToken = generateAccessToken(user);
+
+    const refreshToken = generateRefreshToken(user);
+
+    await authRepository.updateRefreshToken(user._id, refreshToken);
+
+    await authRepository.updateLastLogin(user._id);
+
+    const userResponse = user.toObject();
+
+    delete userResponse.password;
+    delete userResponse.refreshToken;
+
+    return {
+      user: userResponse,
+      accessToken,
+      refreshToken,
+    };
   }
 }
 

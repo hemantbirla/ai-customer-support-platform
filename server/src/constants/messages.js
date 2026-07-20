@@ -3,6 +3,12 @@ export const MESSAGES = Object.freeze({
     EMAIL_ALREADY_EXISTS: "An account with this email address already exists.",
     REGISTER_SUCCESS: "User registered successfully.",
     LOGIN_SUCCESS: "Logged in successfully.",
-    UNAUTHORIZED: "Invalid credentials.",
+    INVALID_CREDENTIALS: "Invalid email or password.",
+    LOGOUT_SUCCESS: "Logged out successfully.",
+    TOKEN_REFRESH_SUCCESS: "Access token refreshed successfully.",
+    USER_NOT_FOUND: "User not found.",
+    ACCOUNT_NOT_VERIFIED: "Please verify your email address before logging in.",
+    ACCESS_DENIED: "You are not authorized to perform this action.",
+    INVALID_TOKEN: "Invalid or expired token.",
   },
 });

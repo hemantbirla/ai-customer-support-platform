@@ -1,5 +1,5 @@
 import express from "express";
-import { register } from "../controllers/auth.controller.js";
+import { register, login } from "../controllers/auth.controller.js";
 import { validate } from "../middleware/validate.middleware.js";
 import { registerSchema, loginSchema } from "../validators/auth.validator.js";
 
@@ -7,7 +7,7 @@ const router = express.Router();
 
 router.post("/register", validate(registerSchema), register);
 
-router.post("/login", (req, res) => res.send("Login route"));
+router.post("/login", validate(loginSchema), login);
 
 router.post("/logout", (req, res) => res.send("Logout route"));
 
