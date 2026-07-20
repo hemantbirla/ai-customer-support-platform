@@ -4,7 +4,11 @@ import ApiError from "../utils/ApiError.js";
 import { STATUS_CODES } from "../constants/statusCodes.js";
 import { MESSAGES } from "../constants/messages.js";
 
-import { generateAccessToken, generateRefreshToken } from "../utils/jwt.js";
+import {
+  generateAccessToken,
+  generateRefreshToken,
+  verifyRefreshToken,
+} from "../utils/jwt.js";
 
 const SALT_ROUNDS = 12;
 
@@ -90,6 +94,46 @@ class AuthService {
       user: userResponse,
       accessToken,
       refreshToken,
+    };
+  }
+
+  // Logout user
+  async logout(userId) {
+    await authRepository.clearRefreshToken(userId);
+    return true;
+  }
+
+  // Refresh Token
+  async refreshAccessToken(refreshToken) {
+    if (!refreshToken) {
+      throw new ApiError(
+        STATUS_CODES.UNAUTHORIZED,
+        MESSAGES.AUTH.INVALID_TOKEN,
+      );
+    }
+
+    const decoded = verifyRefreshToken(refreshToken);
+
+    const user = await authRepository.findById(decoded.id);
+
+    if (!user) {
+      throw new ApiError(
+        STATUS_CODES.UNAUTHORIZED,
+        MESSAGES.AUTH.INVALID_TOKEN,
+      );
+    }
+
+    if (user.refreshToken !== refreshToken) {
+      throw new ApiError(
+        STATUS_CODES.UNAUTHORIZED,
+        MESSAGES.AUTH.INVALID_TOKEN,
+      );
+    }
+
+    const accessToken = generateAccessToken(user);
+
+    return {
+      accessToken,
     };
   }
 }

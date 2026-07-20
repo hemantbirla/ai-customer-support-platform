@@ -15,8 +15,16 @@ class AuthRepository {
    * @param {string} userId
    * @returns {Promise<User|null>}
    */
-  async findById(userId) {
-    return User.findById(userId);
+  async findById(id) {
+    return User.findById(id).select("+refreshToken");
+  }
+
+  async clearRefreshToken(userId) {
+    return User.findByIdAndUpdate(
+      userId,
+      { refreshToken: null },
+      { new: true },
+    );
   }
 
   /**

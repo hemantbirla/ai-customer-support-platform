@@ -17,6 +17,30 @@ export const login = asyncHandler(async (req, res) => {
   return res.json(new ApiResponse(200, "Login successful", result));
 });
 
+export const logout = asyncHandler(async (req, res) => {
+  if (!req.user) {
+    throw new ApiError(STATUS_CODES.UNAUTHORIZED, "You are not logged in");
+  }
+
+  const userId = req.user.id;
+  await authService.logout(userId);
+
+  // Clear cookies if you use them
+  res.clearCookie("refreshToken");
+
+  return res.status(200).json(new ApiResponse(200, "Logged out successfully"));
+});
+
+export const refresh = asyncHandler(async (req, res) => {
+  const { refreshToken } = req.body;
+
+  const result = await authService.refreshAccessToken(refreshToken);
+
+  return res.json(
+    new ApiResponse(200, "Access token refreshed successfully", result),
+  );
+});
+
 // export const login = async (req, res) => {};
 
 // export const logout = async (req, res) => {};

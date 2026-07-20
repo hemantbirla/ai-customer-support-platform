@@ -1,5 +1,10 @@
 import express from "express";
-import { register, login } from "../controllers/auth.controller.js";
+import {
+  register,
+  login,
+  refresh,
+  logout,
+} from "../controllers/auth.controller.js";
 import { validate } from "../middleware/validate.middleware.js";
 import { registerSchema, loginSchema } from "../validators/auth.validator.js";
 
@@ -9,9 +14,9 @@ router.post("/register", validate(registerSchema), register);
 
 router.post("/login", validate(loginSchema), login);
 
-router.post("/logout", (req, res) => res.send("Logout route"));
+router.post("/logout", logout);
 
-router.post("/refresh", (req, res) => res.send("Refresh token route"));
+router.post("/refresh", refresh);
 
 router.get("/profile", (req, res) => res.send("Get profile route"));
 
