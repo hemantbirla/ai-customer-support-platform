@@ -1,5 +1,6 @@
-const mongoose = require("mongoose");
-const ROLES = require("../constants/roles");
+import mongoose from "mongoose";
+// Make sure to add the .js extension to your local constants file!
+import ROLES from "../constants/roles.js";
 
 const userSchema = new mongoose.Schema(
   {
@@ -59,4 +60,5 @@ const userSchema = new mongoose.Schema(
   },
 );
 
-module.exports = mongoose.model("User", userSchema);
+const User = mongoose.model("User", userSchema);
+export default User;

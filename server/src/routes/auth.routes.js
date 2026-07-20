@@ -1,13 +1,11 @@
-import { Router } from "express";
-// 1. Import your controllers (we'll assume they will be here)
-// import { register, login, logout, refresh, getProfile, updateProfile } from "../controllers/auth.controller.js";
+import express from "express";
+import { register } from "../controllers/auth.controller.js";
+import { validate } from "../middleware/validate.middleware.js";
+import { registerSchema, loginSchema } from "../validators/auth.validator.js";
 
-const router = Router();
+const router = express.Router();
 
-// For now, using inline dummy handlers so the app boots up successfully.
-// Replace these with your actual controller functions once you write them!
-
-router.post("/register", (req, res) => res.send("Register route"));
+router.post("/register", validate(registerSchema), register);
 
 router.post("/login", (req, res) => res.send("Login route"));
 

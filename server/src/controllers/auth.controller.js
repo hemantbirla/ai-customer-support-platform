@@ -1,11 +1,22 @@
-export const register = async (req, res) => {};
+import asyncHandler from "../utils/asyncHandler.js";
+// 💡 FIX: Import it as a default export instead of * as authService
+import authService from "../services/auth.service.js";
+import ApiResponse from "../utils/ApiResponse.js";
 
-export const login = async (req, res) => {};
+export const register = asyncHandler(async (req, res) => {
+  const user = await authService.register(req.body);
 
-export const logout = async (req, res) => {};
+  return res
+    .status(201)
+    .json(new ApiResponse(201, "User registered successfully", user));
+});
 
-export const refresh = async (req, res) => {};
+// export const login = async (req, res) => {};
 
-export const getProfile = async (req, res) => {};
+// export const logout = async (req, res) => {};
 
-export const updateProfile = async (req, res) => {};
+// export const refresh = async (req, res) => {};
+
+// export const getProfile = async (req, res) => {};
+
+// export const updateProfile = async (req, res) => {};
