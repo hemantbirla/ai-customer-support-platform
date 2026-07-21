@@ -41,6 +41,13 @@ export const refresh = asyncHandler(async (req, res) => {
   );
 });
 
+export const getProfile = asyncHandler(async (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: "Profile fetched successfully",
+    data: req.user,
+  });
+});
 // export const login = async (req, res) => {};
 
 // export const logout = async (req, res) => {};
