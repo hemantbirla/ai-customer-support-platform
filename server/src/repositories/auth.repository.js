@@ -15,10 +15,15 @@ class AuthRepository {
    * @param {string} userId
    * @returns {Promise<User|null>}
    */
-  async findById(id) {
-    return User.findById(id).select("+refreshToken");
+  async findById(userId) {
+    return User.findById(userId).select("+refreshToken");
   }
 
+  /**
+   * Clear refresh token (Logout)
+   * @param {string} userId
+   * @returns {Promise<User|null>}
+   */
   async clearRefreshToken(userId) {
     return User.findByIdAndUpdate(
       userId,

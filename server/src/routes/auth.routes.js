@@ -16,12 +16,16 @@ router.post("/register", validate(registerSchema), register);
 
 router.post("/login", validate(loginSchema), login);
 
-router.post("/logout", logout);
+router.post("/logout", authMiddleware, logout);
 
 router.post("/refresh", refresh);
 
 router.get("/profile", authMiddleware, getProfile);
 
-router.put("/profile", (req, res) => res.send("Update profile route"));
+// router.post("/forgot-password", forgotPassword);
+
+// router.post("/reset-password", resetPassword);
+
+// router.post("/verify-email", verifyEmail);
 
 export default router;

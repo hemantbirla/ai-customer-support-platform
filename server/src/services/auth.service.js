@@ -3,7 +3,6 @@ import authRepository from "../repositories/auth.repository.js";
 import ApiError from "../utils/ApiError.js";
 import { STATUS_CODES } from "../constants/statusCodes.js";
 import { MESSAGES } from "../constants/messages.js";
-
 import {
   generateAccessToken,
   generateRefreshToken,
@@ -21,7 +20,6 @@ class AuthService {
   async register(payload) {
     const { name, email, password, role, avatar } = payload;
 
-    // Check if email already exists
     const existingUser = await authRepository.findByEmail(email);
 
     if (existingUser) {
@@ -31,10 +29,8 @@ class AuthService {
       );
     }
 
-    // Hash password
     const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
 
-    // Create user
     const user = await authRepository.create({
       name,
       email: email.toLowerCase(),
@@ -43,7 +39,6 @@ class AuthService {
       avatar,
     });
 
-    // Remove sensitive fields
     const userObject = user.toObject();
     delete userObject.password;
     delete userObject.refreshToken;
@@ -78,15 +73,12 @@ class AuthService {
     }
 
     const accessToken = generateAccessToken(user);
-
     const refreshToken = generateRefreshToken(user);
 
     await authRepository.updateRefreshToken(user._id, refreshToken);
-
     await authRepository.updateLastLogin(user._id);
 
     const userResponse = user.toObject();
-
     delete userResponse.password;
     delete userResponse.refreshToken;
 
@@ -97,19 +89,14 @@ class AuthService {
     };
   }
 
-  // Logout user
-  async logout(userId) {
-    await authRepository.clearRefreshToken(userId);
-    return true;
-  }
-
-  // Refresh Token
+  /**
+   * Refresh access token with token rotation
+   * @param {string} refreshToken
+   * @returns {Promise<Object>}
+   */
   async refreshAccessToken(refreshToken) {
     if (!refreshToken) {
-      throw new ApiError(
-        STATUS_CODES.UNAUTHORIZED,
-        MESSAGES.AUTH.INVALID_TOKEN,
-      );
+      throw new ApiError(STATUS_CODES.BAD_REQUEST, "Refresh token is required");
     }
 
     const decoded = verifyRefreshToken(refreshToken);
@@ -117,36 +104,37 @@ class AuthService {
     const user = await authRepository.findById(decoded.id);
 
     if (!user) {
-      throw new ApiError(
-        STATUS_CODES.UNAUTHORIZED,
-        MESSAGES.AUTH.INVALID_TOKEN,
-      );
+      throw new ApiError(STATUS_CODES.UNAUTHORIZED, "User not found");
     }
 
     if (user.refreshToken !== refreshToken) {
       throw new ApiError(
         STATUS_CODES.UNAUTHORIZED,
-        MESSAGES.AUTH.INVALID_TOKEN,
+        MESSAGES.AUTH?.INVALID_TOKEN || "Invalid refresh token",
       );
     }
 
-    const accessToken = generateAccessToken(user);
+    // Generate new Access and Refresh tokens (Rotation)
+    const newAccessToken = generateAccessToken(user);
+    const newRefreshToken = generateRefreshToken(user);
+
+    await authRepository.updateRefreshToken(user._id, newRefreshToken);
 
     return {
-      accessToken,
+      accessToken: newAccessToken,
+      refreshToken: newRefreshToken,
     };
+  }
+
+  /**
+   * Logout user by clearing their refresh token
+   * @param {string} userId
+   * @returns {Promise<void>}
+   */
+  async logout(userId) {
+    await authRepository.clearRefreshToken(userId);
   }
 }
 
 const authServiceInstance = new AuthService();
 export default authServiceInstance;
-
-// export const loginUser = async () => {};
-
-// export const logoutUser = async () => {};
-
-// export const refreshAccessToken = async () => {};
-
-// export const getUserProfile = async () => {};
-
-// export const updateUserProfile = async () => {};
