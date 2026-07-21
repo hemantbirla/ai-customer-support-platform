@@ -1,9 +1,9 @@
 import React from "react";
+import { RouterProvider } from "react-router-dom";
+import router from "./routes/AppRoutes";
 
-export default function App() {
-  return (
-    <div>
-      <h1>AI CUSTOMER SUPPORT PLATFORM</h1>
-    </div>
-  );
+function App() {
+  return <RouterProvider router={router} />;
 }
+
+export default App;
