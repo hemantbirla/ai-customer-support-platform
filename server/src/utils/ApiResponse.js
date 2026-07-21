@@ -1,7 +1,11 @@
-export default class ApiResponse {
-  constructor(success, message, data = null) {
-    this.success = success;
+class ApiResponse {
+  constructor(statusCode, message, data = null) {
+    this.success = true;
+    this.statusCode = statusCode;
     this.message = message;
     this.data = data;
+    this.timestamp = new Date().toISOString();
   }
 }
+
+export default ApiResponse;
