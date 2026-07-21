@@ -16,7 +16,7 @@ class AuthRepository {
    * @returns {Promise<User|null>}
    */
   async findById(userId) {
-    return User.findById(userId);
+    return User.findById(userId).select("+refreshToken");
   }
 
   /**

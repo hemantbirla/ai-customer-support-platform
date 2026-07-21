@@ -1,7 +1,14 @@
 import express from "express";
-import { register, login } from "../controllers/auth.controller.js";
+import {
+  register,
+  login,
+  refresh,
+  logout,
+  getProfile,
+} from "../controllers/auth.controller.js";
 import { validate } from "../middleware/validate.middleware.js";
 import { registerSchema, loginSchema } from "../validators/auth.validator.js";
+import authMiddleware from "../middleware/auth.middleware.js";
 
 const router = express.Router();
 
@@ -9,12 +16,16 @@ router.post("/register", validate(registerSchema), register);
 
 router.post("/login", validate(loginSchema), login);
 
-router.post("/logout", (req, res) => res.send("Logout route"));
+router.post("/logout", authMiddleware, logout);
 
-router.post("/refresh", (req, res) => res.send("Refresh token route"));
+router.post("/refresh", refresh);
 
-router.get("/profile", (req, res) => res.send("Get profile route"));
+router.get("/profile", authMiddleware, getProfile);
 
-router.put("/profile", (req, res) => res.send("Update profile route"));
+// router.post("/forgot-password", forgotPassword);
+
+// router.post("/reset-password", resetPassword);
+
+// router.post("/verify-email", verifyEmail);
 
 export default router;

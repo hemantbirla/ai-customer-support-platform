@@ -3,8 +3,11 @@ import authRepository from "../repositories/auth.repository.js";
 import ApiError from "../utils/ApiError.js";
 import { STATUS_CODES } from "../constants/statusCodes.js";
 import { MESSAGES } from "../constants/messages.js";
-
-import { generateAccessToken, generateRefreshToken } from "../utils/jwt.js";
+import {
+  generateAccessToken,
+  generateRefreshToken,
+  verifyRefreshToken,
+} from "../utils/jwt.js";
 
 const SALT_ROUNDS = 12;
 
@@ -17,7 +20,6 @@ class AuthService {
   async register(payload) {
     const { name, email, password, role, avatar } = payload;
 
-    // Check if email already exists
     const existingUser = await authRepository.findByEmail(email);
 
     if (existingUser) {
@@ -27,10 +29,8 @@ class AuthService {
       );
     }
 
-    // Hash password
     const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
 
-    // Create user
     const user = await authRepository.create({
       name,
       email: email.toLowerCase(),
@@ -39,7 +39,6 @@ class AuthService {
       avatar,
     });
 
-    // Remove sensitive fields
     const userObject = user.toObject();
     delete userObject.password;
     delete userObject.refreshToken;
@@ -74,15 +73,12 @@ class AuthService {
     }
 
     const accessToken = generateAccessToken(user);
-
     const refreshToken = generateRefreshToken(user);
 
     await authRepository.updateRefreshToken(user._id, refreshToken);
-
     await authRepository.updateLastLogin(user._id);
 
     const userResponse = user.toObject();
-
     delete userResponse.password;
     delete userResponse.refreshToken;
 
@@ -92,17 +88,59 @@ class AuthService {
       refreshToken,
     };
   }
+
+  /**
+   * Refresh access token
+   * @param {string} refreshToken
+   * @returns {Promise<Object>}
+   */
+  async refreshAccessToken(refreshToken) {
+    if (!refreshToken) {
+      throw new ApiError(STATUS_CODES.BAD_REQUEST, "Refresh token is required");
+    }
+
+    // Verify token using wrapped JWT helper
+    const decoded = verifyRefreshToken(refreshToken);
+
+    // Fetch user
+    const user = await authRepository.findById(decoded.id);
+
+    if (!user) {
+      throw new ApiError(STATUS_CODES.UNAUTHORIZED, "User not found");
+    }
+
+    // Optional: Verify that the refresh token matches what's saved in DB
+    console.log("DB Token:", user.refreshToken);
+    console.log("Req Token:", refreshToken);
+    if (user.refreshToken !== refreshToken) {
+      throw new ApiError(
+        STATUS_CODES.UNAUTHORIZED,
+        MESSAGES.AUTH.INVALID_TOKEN || "Invalid refresh token",
+      );
+    }
+
+    // Generate new Access and Refresh tokens
+    const newAccessToken = generateAccessToken(user);
+    const newRefreshToken = generateRefreshToken(user);
+
+    // Save rotated refresh token in DB
+    await authRepository.updateRefreshToken(user._id, newRefreshToken);
+
+    return {
+      accessToken: newAccessToken,
+      refreshToken: newRefreshToken,
+    };
+  }
+
+  /**
+   * Logout user by clearing their refresh token
+   * @param {string} userId
+   * @returns {Promise<void>}
+   */
+  async logout(userId) {
+    await authRepository.updateRefreshToken(userId, null);
+  }
 }
 
 const authServiceInstance = new AuthService();
 export default authServiceInstance;
-
-// export const loginUser = async () => {};
-
-// export const logoutUser = async () => {};
-
-// export const refreshAccessToken = async () => {};
-
-// export const getUserProfile = async () => {};
-
-// export const updateUserProfile = async () => {};
