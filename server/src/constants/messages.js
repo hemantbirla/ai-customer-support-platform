@@ -8,7 +8,8 @@ export const MESSAGES = Object.freeze({
     TOKEN_REFRESH_SUCCESS: "Access token refreshed successfully.",
     USER_NOT_FOUND: "User not found.",
     ACCOUNT_NOT_VERIFIED: "Please verify your email address before logging in.",
-    ACCESS_DENIED: "You are not authorized to perform this action.",
     INVALID_TOKEN: "Invalid or expired token.",
+    ACCESS_DENIED: "You are not authorized to perform this action.",
+    UNAUTHORIZED: "Authentication required.",
   },
 });

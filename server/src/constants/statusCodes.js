@@ -6,6 +6,6 @@ export const STATUS_CODES = Object.freeze({
   UNAUTHORIZED: 401,
   FORBIDDEN: 403,
   NOT_FOUND: 404,
-  CONFLICT: 409, // Used on your register route for existing email!
+  CONFLICT: 409, // Used on register route for existing email!
   INTERNAL_SERVER_ERROR: 500,
 });
