@@ -1,3 +1,4 @@
+import React from "react";
 import FormError from "./FormError";
 import "../../styles/auth.css";
 
@@ -14,9 +15,11 @@ const InputField = ({
 }) => {
   return (
     <div className="form-group">
-      <label htmlFor={id || name} className="form-label">
-        {label}
-      </label>
+      {label && (
+        <label htmlFor={id || name} className="form-label">
+          {label}
+        </label>
+      )}
 
       <input
         id={id || name}
@@ -25,7 +28,7 @@ const InputField = ({
         autoComplete={autoComplete}
         disabled={disabled}
         className={`form-input ${error ? "input-error" : ""}`}
-        {...register(name)}
+        {...(register ? register(name) : {})}
       />
 
       <FormError message={error?.message} />

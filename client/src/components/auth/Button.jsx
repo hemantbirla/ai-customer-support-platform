@@ -10,6 +10,8 @@ const Button = ({
   disabled = false,
   fullWidth = true,
   onClick,
+  className = "",
+  ...props
 }) => {
   return (
     <button
@@ -20,7 +22,9 @@ const Button = ({
         auth-button
         auth-button-${variant}
         ${fullWidth ? "full-width" : ""}
-      `}
+        ${className}
+      `.trim()}
+      {...props}
     >
       {loading ? (
         <>

@@ -1,12 +1,24 @@
 import axiosInstance from "./axiosInstance";
 import { AUTH_ENDPOINTS } from "../constants/api";
 
-export const login = (payload) =>
-  axiosInstance.post(AUTH_ENDPOINTS.LOGIN, payload);
+export const authApi = {
+  login(data) {
+    return axiosInstance.post(AUTH_ENDPOINTS.LOGIN, data);
+  },
 
-export const register = (payload) =>
-  axiosInstance.post(AUTH_ENDPOINTS.REGISTER, payload);
+  register(data) {
+    return axiosInstance.post(AUTH_ENDPOINTS.REGISTER, data);
+  },
 
-export const getProfile = () => axiosInstance.get(AUTH_ENDPOINTS.PROFILE);
+  logout() {
+    return axiosInstance.post(AUTH_ENDPOINTS.LOGOUT);
+  },
 
-export const logout = () => axiosInstance.post(AUTH_ENDPOINTS.LOGOUT);
+  refresh() {
+    return axiosInstance.post(AUTH_ENDPOINTS.REFRESH);
+  },
+
+  profile() {
+    return axiosInstance.get(AUTH_ENDPOINTS.PROFILE);
+  },
+};

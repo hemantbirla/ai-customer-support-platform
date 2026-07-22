@@ -1,3 +1,6 @@
+import React from "react";
+import logoImg from "../../assets/images/AISCP.png";
+
 const Logo = ({
   title = "AI Support",
   subtitle = "Customer Support Platform",
@@ -5,7 +8,11 @@ const Logo = ({
   return (
     <div className="auth-logo">
       <div className="auth-logo__icon">
-        <span>AI</span>
+        <img
+          src={logoImg}
+          alt={`${title} Logo`}
+          className="w-12 h-12 object-contain"
+        />
       </div>
 
       <div className="auth-logo__content">

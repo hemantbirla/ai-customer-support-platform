@@ -38,17 +38,41 @@ const Register = () => {
 
       const response = await registerUser(payload);
 
+      // 🚀 Registration Success Toast Alert
       toast.success(
-        response?.message || "Registration successful. Please login.",
+        response?.message ||
+          "🎉 Registration successful! Redirecting to login...",
+        { position: "top-right", autoClose: 3000 },
       );
 
       reset();
-      navigate("/login");
+
+      // Delay slightly so the user sees the success popup before redirect
+      setTimeout(() => {
+        navigate("/login");
+      }, 1500);
     } catch (error) {
-      toast.error(error?.response?.data?.message || "Registration failed.");
+      // ❌ Registration Error Toast Alert
+      const errorMessage =
+        error?.response?.data?.message ||
+        error?.message ||
+        "Registration failed. Please try again.";
+
+      toast.error(errorMessage, {
+        position: "top-right",
+        autoClose: 4000,
+      });
     } finally {
       setLoading(false);
     }
+  };
+
+  const onError = (formErrors) => {
+    // Alert user if required fields or password criteria are missing on click
+    toast.warn("Please check the form for errors.", {
+      position: "top-right",
+      autoClose: 2500,
+    });
   };
 
   return (
@@ -56,7 +80,11 @@ const Register = () => {
       title="Create Account"
       subtitle="Register to access the AI Customer Support Platform"
     >
-      <form onSubmit={handleSubmit(onSubmit)} className="auth-form" noValidate>
+      <form
+        onSubmit={handleSubmit(onSubmit, onError)}
+        className="auth-form"
+        noValidate
+      >
         <InputField
           label="Full Name"
           name="name"
@@ -81,6 +109,7 @@ const Register = () => {
           placeholder="Create password"
           register={register}
           error={errors.password}
+          showRequirementsHint={true}
         />
 
         <PasswordInput
@@ -89,6 +118,7 @@ const Register = () => {
           placeholder="Confirm password"
           register={register}
           error={errors.confirmPassword}
+          showRequirementsHint={false}
         />
 
         <Button type="submit" loading={loading} className="full-width">

@@ -53,10 +53,25 @@ axiosInstance.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
+    // Check if the request came from auth endpoints that shouldn't trigger token refresh
+    const requestUrl = originalRequest?.url || "";
+    const isLoginRequest = requestUrl.includes(
+      AUTH_ENDPOINTS?.LOGIN || "/auth/login",
+    );
+    const isRegisterRequest = requestUrl.includes(
+      AUTH_ENDPOINTS?.REGISTER || "/auth/register",
+    );
+    const isRefreshRequest = requestUrl.includes(
+      AUTH_ENDPOINTS?.REFRESH || "/auth/refresh",
+    );
+
+    // Only attempt refresh if it's a 401 AND NOT a login, register, or refresh request
     if (
       error.response?.status === 401 &&
       !originalRequest._retry &&
-      !originalRequest.url.includes(AUTH_ENDPOINTS.REFRESH)
+      !isLoginRequest &&
+      !isRegisterRequest &&
+      !isRefreshRequest
     ) {
       if (isRefreshing) {
         return new Promise((resolve, reject) => {

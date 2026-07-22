@@ -1,12 +1,14 @@
 import React from "react";
 import "../../styles/auth.css";
 
-const FormError = ({ error }) => {
-  if (!error) return null;
+const FormError = ({ message, error }) => {
+  const errorMessage = message || error;
+
+  if (!errorMessage) return null;
 
   return (
     <p className="form-error" role="alert">
-      {error}
+      {errorMessage}
     </p>
   );
 };

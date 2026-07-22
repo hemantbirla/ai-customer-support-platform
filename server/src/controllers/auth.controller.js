@@ -8,8 +8,17 @@ const asyncHandler = (fn) => (req, res, next) => {
   Promise.resolve(fn(req, res, next)).catch(next);
 };
 
+// Cookie configuration
+const COOKIE_OPTIONS = {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === "production",
+  sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+  maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days matching JWT_REFRESH_EXPIRES_IN
+};
+
 export const register = asyncHandler(async (req, res) => {
   const user = await authService.register(req.body);
+
   return res
     .status(STATUS_CODES.CREATED || 201)
     .json(new ApiResponse(201, "User registered successfully", user));
@@ -17,6 +26,12 @@ export const register = asyncHandler(async (req, res) => {
 
 export const login = asyncHandler(async (req, res) => {
   const result = await authService.login(req.body);
+
+  // If your service returns tokens (e.g., { user, accessToken, refreshToken })
+  if (result?.refreshToken) {
+    res.cookie("refreshToken", result.refreshToken, COOKIE_OPTIONS);
+  }
+
   return res
     .status(STATUS_CODES.OK || 200)
     .json(new ApiResponse(200, "Login successful", result));
@@ -30,8 +45,8 @@ export const logout = asyncHandler(async (req, res) => {
   const userId = req.user.id || req.user._id;
   await authService.logout(userId);
 
-  // Clear HTTP-only cookies if set
-  res.clearCookie("refreshToken");
+  // Clear HTTP-only cookies on logout
+  res.clearCookie("refreshToken", COOKIE_OPTIONS);
 
   return res
     .status(STATUS_CODES.OK || 200)
@@ -39,13 +54,21 @@ export const logout = asyncHandler(async (req, res) => {
 });
 
 export const refresh = asyncHandler(async (req, res) => {
-  const { refreshToken } = req.body;
+  // Check for refreshToken in either cookies or request body
+  const token = req.cookies?.refreshToken || req.body?.refreshToken;
 
-  if (!refreshToken) {
-    throw new ApiError(STATUS_CODES.BAD_REQUEST, "Refresh token is required");
+  if (!token) {
+    throw new ApiError(
+      STATUS_CODES.UNAUTHORIZED || 401,
+      "Refresh token missing or expired",
+    );
   }
 
-  const result = await authService.refreshAccessToken(refreshToken);
+  const result = await authService.refreshAccessToken(token);
+
+  if (result?.refreshToken) {
+    res.cookie("refreshToken", result.refreshToken, COOKIE_OPTIONS);
+  }
 
   return res
     .status(STATUS_CODES.OK || 200)

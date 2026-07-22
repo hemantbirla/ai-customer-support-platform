@@ -1,4 +1,4 @@
-// import axiosInstance from "../api/axiosInstance";
+import axiosInstance from "../api/axiosInstance";
 
 const AUTH_BASE_URL = "/auth";
 

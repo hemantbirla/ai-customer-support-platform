@@ -14,8 +14,6 @@ const SALT_ROUNDS = 12;
 class AuthService {
   /**
    * Register a new user
-   * @param {Object} payload
-   * @returns {Promise<Object>}
    */
   async register(payload) {
     const { name, email, password, role, avatar } = payload;
@@ -24,8 +22,8 @@ class AuthService {
 
     if (existingUser) {
       throw new ApiError(
-        STATUS_CODES.CONFLICT,
-        MESSAGES.AUTH.EMAIL_ALREADY_EXISTS,
+        STATUS_CODES.CONFLICT || 409,
+        MESSAGES?.AUTH?.EMAIL_ALREADY_EXISTS || "Email already exists",
       );
     }
 
@@ -48,18 +46,17 @@ class AuthService {
 
   /**
    * Login user
-   * @param {Object} payload
-   * @returns {Promise<Object>}
    */
   async login(payload) {
     const { email, password } = payload;
 
+    // Standardize email check
     const user = await authRepository.findByEmail(email.toLowerCase());
 
     if (!user) {
       throw new ApiError(
-        STATUS_CODES.UNAUTHORIZED,
-        MESSAGES.AUTH.INVALID_CREDENTIALS,
+        STATUS_CODES.UNAUTHORIZED || 401,
+        MESSAGES?.AUTH?.INVALID_CREDENTIALS || "Invalid email or password",
       );
     }
 
@@ -67,8 +64,8 @@ class AuthService {
 
     if (!isPasswordMatched) {
       throw new ApiError(
-        STATUS_CODES.UNAUTHORIZED,
-        MESSAGES.AUTH.INVALID_CREDENTIALS,
+        STATUS_CODES.UNAUTHORIZED || 401,
+        MESSAGES?.AUTH?.INVALID_CREDENTIALS || "Invalid email or password",
       );
     }
 
@@ -90,13 +87,14 @@ class AuthService {
   }
 
   /**
-   * Refresh access token with token rotation
-   * @param {string} refreshToken
-   * @returns {Promise<Object>}
+   * Refresh access token
    */
   async refreshAccessToken(refreshToken) {
     if (!refreshToken) {
-      throw new ApiError(STATUS_CODES.BAD_REQUEST, "Refresh token is required");
+      throw new ApiError(
+        STATUS_CODES.BAD_REQUEST || 400,
+        "Refresh token is required",
+      );
     }
 
     const decoded = verifyRefreshToken(refreshToken);
@@ -104,17 +102,16 @@ class AuthService {
     const user = await authRepository.findById(decoded.id);
 
     if (!user) {
-      throw new ApiError(STATUS_CODES.UNAUTHORIZED, "User not found");
+      throw new ApiError(STATUS_CODES.UNAUTHORIZED || 401, "User not found");
     }
 
     if (user.refreshToken !== refreshToken) {
       throw new ApiError(
-        STATUS_CODES.UNAUTHORIZED,
-        MESSAGES.AUTH?.INVALID_TOKEN || "Invalid refresh token",
+        STATUS_CODES.UNAUTHORIZED || 401,
+        MESSAGES?.AUTH?.INVALID_TOKEN || "Invalid refresh token",
       );
     }
 
-    // Generate new Access and Refresh tokens (Rotation)
     const newAccessToken = generateAccessToken(user);
     const newRefreshToken = generateRefreshToken(user);
 
@@ -127,9 +124,7 @@ class AuthService {
   }
 
   /**
-   * Logout user by clearing their refresh token
-   * @param {string} userId
-   * @returns {Promise<void>}
+   * Logout user
    */
   async logout(userId) {
     await authRepository.clearRefreshToken(userId);
