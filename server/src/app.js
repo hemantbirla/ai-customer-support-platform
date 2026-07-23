@@ -9,19 +9,26 @@ import { errorHandler } from "./middleware/error.middleware.js";
 import { notFound } from "./middleware/notFound.middleware.js";
 
 const app = express();
-app.use(express.json());
+
 // -------------------------
 // Global Middlewares
 // -------------------------
+
+// 1. Apply Helmet security headers
 app.use(helmet());
 
+// 2. Configure CORS
 app.use(
   cors({
-    origin: process.env.CLIENT_URL,
+    origin: process.env.CLIENT_URL || "http://localhost:5173",
     credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    optionsSuccessStatus: 200, // Legacy browsers compatibility
   }),
 );
 
+// 3. Body parsers & cookie handling
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
@@ -42,13 +49,9 @@ app.get("/api/health", (req, res) => {
 app.use("/api/auth", authRoutes);
 
 // -------------------------
-// 404 Middleware
+// 404 & Error Middlewares
 // -------------------------
 app.use(notFound);
-
-// -------------------------
-// Global Error Handler
-// -------------------------
 app.use(errorHandler);
 
 export default app;
