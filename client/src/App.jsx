@@ -3,15 +3,18 @@ import { RouterProvider } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 
 import { AuthProvider } from "./contexts/AuthContext";
+import { SidebarProvider } from "./contexts/SidebarContext";
 
-import router from "./routes/AppRoutes";
+import AppRoutes from "./routes/AppRoutes";
 
 import "react-toastify/dist/ReactToastify.css";
 
 function App() {
   return (
     <AuthProvider>
-      <RouterProvider router={router} />
+      <SidebarProvider>
+        <RouterProvider router={AppRoutes} />
+      </SidebarProvider>
 
       <ToastContainer position="top-right" autoClose={3000} theme="colored" />
     </AuthProvider>

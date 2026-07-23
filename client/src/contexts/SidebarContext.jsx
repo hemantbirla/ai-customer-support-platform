@@ -1,11 +1,49 @@
-import { createContext } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useMemo,
+  useState,
+} from "react";
 
-export const SidebarContext = createContext(null);
+const SidebarContext = createContext(null);
 
-const SidebarProvider = ({ children }) => {
-  return (
-    <SidebarContext.Provider value={{}}>{children}</SidebarContext.Provider>
+export function SidebarProvider({ children }) {
+  const [isCollapsed, setIsCollapsed] = useState(false);
+
+  const toggleSidebar = useCallback(() => {
+    setIsCollapsed((prev) => !prev);
+  }, []);
+
+  const collapseSidebar = useCallback(() => {
+    setIsCollapsed(true);
+  }, []);
+
+  const expandSidebar = useCallback(() => {
+    setIsCollapsed(false);
+  }, []);
+
+  const value = useMemo(
+    () => ({
+      isCollapsed,
+      toggleSidebar,
+      collapseSidebar,
+      expandSidebar,
+    }),
+    [isCollapsed, toggleSidebar, collapseSidebar, expandSidebar],
   );
-};
 
-export default SidebarProvider;
+  return (
+    <SidebarContext.Provider value={value}>{children}</SidebarContext.Provider>
+  );
+}
+
+export function useSidebarContext() {
+  const context = useContext(SidebarContext);
+
+  if (!context) {
+    throw new Error("useSidebarContext must be used within SidebarProvider");
+  }
+
+  return context;
+}

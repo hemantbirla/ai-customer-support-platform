@@ -12,10 +12,7 @@ import PublicRoute from "./PublicRoute";
 import ProtectedRoute from "./ProtectedRoute";
 import DashboardHome from "../pages/dashboard/DashboardHome";
 
-// Temporary placeholder until Dashboard is built
-// const Dashboard = () => <h1>Dashboard</h1>;
-
-const router = createBrowserRouter([
+const AppRoutes = createBrowserRouter([
   {
     path: "/",
     element: <Navigate to="/login" replace />,
@@ -59,4 +56,4 @@ const router = createBrowserRouter([
   },
 ]);
 
-export default router;
+export default AppRoutes;
