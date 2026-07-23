@@ -1,16 +1,17 @@
 import {
   createContext,
   useCallback,
+  useContext,
   useEffect,
   useMemo,
   useState,
 } from "react";
 
 import {
+  getProfile,
   loginUser,
   logoutUser,
   registerUser,
-  getProfile,
 } from "../services/auth.service";
 
 import { tokenService } from "../services/token.service";
@@ -19,9 +20,7 @@ export const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
-
   const [loading, setLoading] = useState(false);
-
   const [initialized, setInitialized] = useState(false);
 
   const isAuthenticated = !!user;
@@ -124,3 +123,14 @@ export function AuthProvider({ children }) {
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
+
+// Custom hook to easily access AuthContext across components
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+
+  if (!context) {
+    throw new Error("useAuth must be used within an AuthProvider");
+  }
+
+  return context;
+};

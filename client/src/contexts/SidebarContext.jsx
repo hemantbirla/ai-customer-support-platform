@@ -2,6 +2,7 @@ import {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useState,
 } from "react";
@@ -9,7 +10,13 @@ import {
 const SidebarContext = createContext(null);
 
 export function SidebarProvider({ children }) {
+  // Desktop state
   const [isCollapsed, setIsCollapsed] = useState(false);
+
+  // Mobile drawer state
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
+
+  /* ---------------- Desktop ---------------- */
 
   const toggleSidebar = useCallback(() => {
     setIsCollapsed((prev) => !prev);
@@ -23,14 +30,54 @@ export function SidebarProvider({ children }) {
     setIsCollapsed(false);
   }, []);
 
+  /* ---------------- Mobile ---------------- */
+
+  const openMobileSidebar = useCallback(() => {
+    setIsMobileOpen(true);
+  }, []);
+
+  const closeMobileSidebar = useCallback(() => {
+    setIsMobileOpen(false);
+  }, []);
+
+  const toggleMobileSidebar = useCallback(() => {
+    setIsMobileOpen((prev) => !prev);
+  }, []);
+
+  /* Prevent body scrolling while mobile drawer is open */
+
+  useEffect(() => {
+    document.body.style.overflow = isMobileOpen ? "hidden" : "";
+
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isMobileOpen]);
+
   const value = useMemo(
     () => ({
+      // Desktop
       isCollapsed,
       toggleSidebar,
       collapseSidebar,
       expandSidebar,
+
+      // Mobile
+      isMobileOpen,
+      openMobileSidebar,
+      closeMobileSidebar,
+      toggleMobileSidebar,
     }),
-    [isCollapsed, toggleSidebar, collapseSidebar, expandSidebar],
+    [
+      isCollapsed,
+      isMobileOpen,
+      toggleSidebar,
+      collapseSidebar,
+      expandSidebar,
+      openMobileSidebar,
+      closeMobileSidebar,
+      toggleMobileSidebar,
+    ],
   );
 
   return (

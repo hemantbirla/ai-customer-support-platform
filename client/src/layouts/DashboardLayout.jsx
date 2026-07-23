@@ -1,8 +1,10 @@
 import { Outlet } from "react-router-dom";
 
-import Sidebar from "../components/layout/Sidebar";
-import Navbar from "../components/layout/Navbar";
-import Breadcrumb from "../components/layout/Breadcrumb";
+import Sidebar from "../components/layout/Sidebar/Sidebar";
+import Navbar from "../components/layout/Navbar/Navbar";
+import Breadcrumb from "../components/layout/Breadcrumb/Breadcrumb";
+
+import "./DashboardLayout.css";
 
 const DashboardLayout = () => {
   return (

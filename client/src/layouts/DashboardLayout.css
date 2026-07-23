@@ -1,0 +1,43 @@
+/* ==========================================================
+   Dashboard Layout Base
+   ========================================================== */
+
+.dashboard-layout {
+  display: flex;
+  min-height: 100vh;
+  background: var(--background, #f5f6fa);
+}
+
+.dashboard-content {
+  flex: 1;
+  margin-left: 260px;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Shift main content left when sidebar is collapsed */
+.dashboard-layout:has(.sidebar.collapsed) .dashboard-content {
+  margin-left: 80px;
+}
+
+main {
+  flex: 1;
+  padding: 24px;
+}
+
+/* ==========================================
+   Responsive Layout Adjustments
+   ========================================== */
+@media (max-width: 1023px) {
+  .dashboard-content {
+    margin-left: 80px;
+  }
+}
+
+@media (max-width: 767px) {
+  .dashboard-content {
+    margin-left: 0 !important;
+  }
+}

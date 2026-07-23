@@ -1,5 +1,5 @@
 import { Menu } from "lucide-react";
-import { useSidebar } from "../../hooks/useSidebar";
+import { useSidebar } from "../../../hooks/useSidebar";
 
 function Navbar() {
   const { toggleSidebar } = useSidebar();
