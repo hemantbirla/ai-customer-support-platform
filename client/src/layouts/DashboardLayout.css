@@ -19,14 +19,15 @@
   transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Shift main content left when sidebar is collapsed */
+/* Shift content when sidebar is collapsed */
 .dashboard-layout:has(.sidebar.collapsed) .dashboard-content {
   margin-left: 80px;
 }
 
-main {
+.dashboard-main {
   flex: 1;
   padding: var(--spacing-3);
+  overflow-y: auto;
 }
 
 /* ==========================================================
@@ -44,7 +45,7 @@ main {
     margin-left: 0 !important;
   }
 
-  main {
+  .dashboard-main {
     padding: var(--spacing-2);
   }
 }

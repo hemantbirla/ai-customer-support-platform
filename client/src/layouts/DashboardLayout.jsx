@@ -16,7 +16,11 @@ const DashboardLayout = () => {
 
         <Breadcrumb />
 
-        <main>
+        <main
+          className="dashboard-main"
+          role="main"
+          aria-label="Dashboard Content"
+        >
           <Outlet />
         </main>
       </div>
