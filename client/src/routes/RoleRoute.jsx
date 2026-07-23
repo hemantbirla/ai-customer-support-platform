@@ -2,7 +2,7 @@ import React from "react";
 import { Navigate, Outlet } from "react-router-dom";
 
 import { useAuth } from "../hooks/useAuth";
-import LoadingSpinner from "../components/auth/LoadingSpinner";
+import Spinner from "../components/auth/Spinner";
 
 const RoleRoute = ({ allowedRoles }) => {
   const { initialized, isAuthenticated, user } = useAuth();

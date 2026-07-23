@@ -5,22 +5,22 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { toast } from "react-toastify";
 
 import AuthCard from "../../components/auth/AuthCard";
-import InputField from "../../components/auth/InputField";
-import PasswordInput from "../../components/auth/PasswordInput";
-import Button from "../../components/auth/Button";
+import Input from "../../components/common/Input";
+import Button from "../../components/common/Button/Button";
 
 import { registerSchema } from "../../validations/auth.schema";
 import { registerUser } from "../../services/auth.service";
 
 const Register = () => {
   const navigate = useNavigate();
+
   const [loading, setLoading] = useState(false);
 
   const {
     register,
     handleSubmit,
-    formState: { errors },
     reset,
+    formState: { errors },
   } = useForm({
     resolver: yupResolver(registerSchema),
     mode: "onTouched",
@@ -38,41 +38,29 @@ const Register = () => {
 
       const response = await registerUser(payload);
 
-      // 🚀 Registration Success Toast Alert
       toast.success(
-        response?.message ||
-          "🎉 Registration successful! Redirecting to login...",
-        { position: "top-right", autoClose: 3000 },
+        response?.message || "Registration successful! Redirecting to login...",
       );
 
       reset();
 
-      // Delay slightly so the user sees the success popup before redirect
       setTimeout(() => {
         navigate("/login");
       }, 1500);
     } catch (error) {
-      // ❌ Registration Error Toast Alert
-      const errorMessage =
+      const message =
         error?.response?.data?.message ||
         error?.message ||
         "Registration failed. Please try again.";
 
-      toast.error(errorMessage, {
-        position: "top-right",
-        autoClose: 4000,
-      });
+      toast.error(message);
     } finally {
       setLoading(false);
     }
   };
 
-  const onError = (formErrors) => {
-    // Alert user if required fields or password criteria are missing on click
-    toast.warn("Please check the form for errors.", {
-      position: "top-right",
-      autoClose: 2500,
-    });
+  const onError = () => {
+    toast.warn("Please check the highlighted fields.");
   };
 
   return (
@@ -81,54 +69,66 @@ const Register = () => {
       subtitle="Register to access the AI Customer Support Platform"
     >
       <form
-        onSubmit={handleSubmit(onSubmit, onError)}
         className="auth-form"
         noValidate
+        onSubmit={handleSubmit(onSubmit, onError)}
       >
-        <InputField
+        <Input
           label="Full Name"
           name="name"
-          type="text"
           placeholder="Enter your full name"
           register={register}
           error={errors.name}
+          required
+          fullWidth
         />
 
-        <InputField
-          label="Email"
+        <Input
+          label="Email Address"
           name="email"
           type="email"
           placeholder="Enter your email"
+          autoComplete="email"
           register={register}
           error={errors.email}
+          required
+          fullWidth
         />
 
-        <PasswordInput
+        <Input
           label="Password"
           name="password"
-          placeholder="Create password"
+          type="password"
+          placeholder="Create a password"
+          autoComplete="new-password"
           register={register}
           error={errors.password}
-          showRequirementsHint={true}
+          infoTooltip="Use at least 8 characters with uppercase, lowercase, number and special character."
+          required
+          fullWidth
         />
 
-        <PasswordInput
+        <Input
           label="Confirm Password"
           name="confirmPassword"
-          placeholder="Confirm password"
+          type="password"
+          placeholder="Confirm your password"
+          autoComplete="new-password"
           register={register}
           error={errors.confirmPassword}
-          showRequirementsHint={false}
+          required
+          fullWidth
         />
 
-        <Button type="submit" loading={loading} className="full-width">
+        <Button type="submit" loading={loading} fullWidth>
           Create Account
         </Button>
       </form>
 
       <div className="auth-form__footer">
         <p>
-          Already have an account? <Link to="/login">Sign In</Link>
+          Already have an account?
+          <Link to="/login">Sign In</Link>
         </p>
       </div>
     </AuthCard>

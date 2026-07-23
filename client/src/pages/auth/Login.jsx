@@ -5,15 +5,16 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { toast } from "react-toastify";
 
 import AuthCard from "../../components/auth/AuthCard";
-import InputField from "../../components/auth/InputField";
-import PasswordInput from "../../components/auth/PasswordInput";
-import Button from "../../components/auth/Button";
+import Input from "../../components/common/Input";
+import Button from "../../components/common/Button/Button";
 
 import { loginSchema } from "../../validations/auth.schema";
-import { loginUser } from "../../services/auth.service";
+import { useAuth } from "../../hooks/useAuth";
 
 const Login = () => {
   const navigate = useNavigate();
+  const { login } = useAuth();
+
   const [loading, setLoading] = useState(false);
 
   const {
@@ -29,39 +30,29 @@ const Login = () => {
     try {
       setLoading(true);
 
-      const response = await loginUser(formData);
+      const response = await login(formData);
 
-      toast.success(response?.message || "Login successful! Welcome back.");
+      toast.success(
+        response?.data?.message || "Login successful! Welcome back.",
+      );
 
-      setTimeout(() => {
-        navigate("/dashboard");
-      }, 1000);
+      navigate("/dashboard", {
+        replace: true,
+      });
     } catch (error) {
-      console.error("Login catch error:", error);
-
-      // Prioritize API response message -> fallback string
-      const errorMessage =
+      const message =
         error?.response?.data?.message ||
         error?.message ||
         "Invalid email or password.";
 
-      toast.error(errorMessage, {
-        position: "top-right",
-        autoClose: 3500,
-      });
+      toast.error(message);
     } finally {
       setLoading(false);
     }
   };
 
-  const onError = (formErrors) => {
-    // ⚠️ Warn user if they click sign in with empty or invalid fields
-    if (formErrors.email || formErrors.password) {
-      toast.warn("Please enter a valid email and password.", {
-        position: "top-right",
-        autoClose: 2500,
-      });
-    }
+  const onError = () => {
+    toast.warn("Please enter a valid email and password.");
   };
 
   return (
@@ -70,51 +61,49 @@ const Login = () => {
       subtitle="Sign in to your account to continue"
     >
       <form
-        onSubmit={handleSubmit(onSubmit, onError)}
         className="auth-form"
         noValidate
+        onSubmit={handleSubmit(onSubmit, onError)}
       >
-        <InputField
-          label="Email"
+        <Input
+          label="Email Address"
           name="email"
           type="email"
           placeholder="Enter your email"
           autoComplete="email"
           register={register}
           error={errors.email}
+          required
+          fullWidth
         />
 
-        <PasswordInput
+        <Input
           label="Password"
           name="password"
+          type="password"
           placeholder="Enter your password"
           autoComplete="current-password"
           register={register}
           error={errors.password}
-          showRequirementsHint={false} // Clean login UI without requirement popup
+          required
+          fullWidth
         />
 
-        <div
-          className="auth-form__options"
-          style={{
-            display: "flex",
-            justifyContent: "flex-end",
-            marginBottom: "1rem",
-          }}
-        >
-          <Link to="/forgot-password" className="auth-link">
+        <div className="auth-form__actions">
+          <Link to="/forgot-password" className="auth-form__forgot-password">
             Forgot Password?
           </Link>
         </div>
 
-        <Button type="submit" loading={loading} className="full-width">
+        <Button type="submit" loading={loading} fullWidth>
           Sign In
         </Button>
       </form>
 
       <div className="auth-form__footer">
         <p>
-          Don't have an account? <Link to="/register">Create Account</Link>
+          Don't have an account?
+          <Link to="/register">Create Account</Link>
         </p>
       </div>
     </AuthCard>

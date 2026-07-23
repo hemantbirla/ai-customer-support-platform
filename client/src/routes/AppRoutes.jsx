@@ -10,9 +10,10 @@ import ResetPassword from "../pages/auth/ResetPassword";
 
 import PublicRoute from "./PublicRoute";
 import ProtectedRoute from "./ProtectedRoute";
+import DashboardHome from "../pages/dashboard/DashboardHome";
 
 // Temporary placeholder until Dashboard is built
-const Dashboard = () => <h1>Dashboard</h1>;
+// const Dashboard = () => <h1>Dashboard</h1>;
 
 const router = createBrowserRouter([
   {
@@ -52,7 +53,7 @@ const router = createBrowserRouter([
     children: [
       {
         path: "/dashboard",
-        element: <Dashboard />,
+        element: <DashboardHome />,
       },
     ],
   },

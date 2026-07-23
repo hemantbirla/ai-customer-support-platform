@@ -29,7 +29,10 @@ export function AuthProvider({ children }) {
   const initializeAuth = useCallback(async () => {
     const token = tokenService.getAccessToken();
 
+    console.log("TOKEN FROM LOCAL STORAGE:", token);
+
     if (!token) {
+      console.log("NO TOKEN FOUND");
       setInitialized(true);
       return;
     }
@@ -37,8 +40,12 @@ export function AuthProvider({ children }) {
     try {
       const response = await getProfile();
 
-      setUser(response.data.user);
+      console.log("PROFILE RESPONSE:", response);
+
+      setUser(response.data);
     } catch (error) {
+      console.log("PROFILE ERROR:", error.response);
+
       tokenService.removeAccessToken();
       setUser(null);
     } finally {
@@ -95,9 +102,9 @@ export function AuthProvider({ children }) {
   };
 
   const refreshUser = async () => {
-    const response = await getProfile();
+    const { data } = await getProfile();
 
-    setUser(response.data.user);
+    setUser(data);
   };
 
   const value = useMemo(

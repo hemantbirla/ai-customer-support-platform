@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { FiEye, FiEyeOff, FiLock, FiInfo } from "react-icons/fi";
-import FormError from "./FormError";
-
+import FormError from "../common/FormError/FormError";
 import "../../styles/auth.css";
 
 const PasswordInput = ({

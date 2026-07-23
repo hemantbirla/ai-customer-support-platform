@@ -102,7 +102,7 @@ textarea {
   height: 56px;
   padding: 6px;
   border-radius: 14px;
-  background: #ffffff; /* White background to seamlessly host the PNG image */
+  background: #ffffff; /* White background for the PNG logo */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -148,7 +148,7 @@ textarea {
 }
 
 .auth-card__header {
-  margin-bottom: 2rem;
+  margin-bottom: 1.75rem;
 }
 
 .auth-card__title {
@@ -166,112 +166,12 @@ textarea {
 }
 
 /* ==========================================
-   5. Form Controls (Matches your exact JSX)
+   5. Form Wrapper & Spacing
    ========================================== */
 .auth-form {
   display: flex;
   flex-direction: column;
-}
-
-.form-group {
-  margin-bottom: 1.25rem;
-}
-
-.form-label {
-  display: block;
-  margin-bottom: 0.5rem;
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: #374151;
-}
-
-/* InputField Styling */
-.form-input {
-  width: 100%;
-  height: 48px;
-  padding: 0 1rem;
-  border: 1px solid #d1d5db;
-  border-radius: 10px;
-  outline: none;
-  font-size: 0.95rem;
-  color: #111827;
-  transition: all 0.2s ease;
-}
-
-.form-input:focus {
-  border-color: #2563eb;
-  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
-}
-
-.form-input.input-error {
-  border-color: #dc2626;
-}
-
-/* PasswordInput & Wrapper Styling */
-.input-wrapper {
-  position: relative;
-  display: flex;
-  align-items: center;
-  width: 100%;
-}
-
-.input-wrapper .input-icon {
-  position: absolute;
-  left: 14px;
-  color: #9ca3af;
-  font-size: 1.2rem;
-  pointer-events: none;
-}
-
-.input-wrapper input {
-  width: 100%;
-  height: 48px;
-  padding: 0 44px 0 44px; /* Space for left icon and right toggle */
-  border: 1px solid #d1d5db;
-  border-radius: 10px;
-  outline: none;
-  font-size: 0.95rem;
-  color: #111827;
-  transition: all 0.2s ease;
-}
-
-.input-wrapper input:focus {
-  border-color: #2563eb;
-  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
-}
-
-.input-wrapper.input-error input {
-  border-color: #dc2626;
-}
-
-.password-toggle {
-  position: absolute;
-  right: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 6px;
-  background: transparent;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  color: #6b7280;
-  font-size: 1.15rem;
-  transition: color 0.2s ease;
-}
-
-.password-toggle:hover {
-  color: #111827;
-}
-
-/* Error Messages */
-.form-error {
-  margin-top: 6px;
-  color: #dc2626;
-  font-size: 0.8rem;
-  font-weight: 500;
+  gap: 1rem; /* Consistent vertical gap between input components */
 }
 
 /* Actions & Footer */
@@ -279,7 +179,7 @@ textarea {
   display: flex;
   justify-content: flex-end;
   margin-top: -0.25rem;
-  margin-bottom: 1.5rem;
+  margin-bottom: 0.5rem;
 }
 
 .auth-form__forgot-password {
@@ -297,7 +197,7 @@ textarea {
 
 .auth-form__footer {
   text-align: center;
-  margin-top: 1.75rem;
+  margin-top: 1.5rem;
   font-size: 0.9rem;
   color: #6b7280;
 }
@@ -328,6 +228,7 @@ textarea {
   align-items: center;
   justify-content: center;
   gap: 10px;
+  margin-top: 0.5rem; /* Space between the last input field and submit button */
   transition:
     background-color 0.2s ease,
     transform 0.1s ease;

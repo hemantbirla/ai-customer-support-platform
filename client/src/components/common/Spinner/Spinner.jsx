@@ -1,7 +1,6 @@
 import React from "react";
-import "../../styles/auth.css";
 
-const LoadingSpinner = ({ size = "sm" }) => {
+const Spinner = ({ size = "sm" }) => {
   return (
     <span
       className={`loading-spinner loading-spinner-${size}`}
@@ -10,4 +9,4 @@ const LoadingSpinner = ({ size = "sm" }) => {
   );
 };
 
-export default LoadingSpinner;
+export default Spinner;
