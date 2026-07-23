@@ -29,12 +29,12 @@
   gap: 4px;
   font-size: 0.875rem;
   font-weight: 600;
-  color: #111827;
+  color: var(--color-text-primary);
   user-select: none;
 }
 
 .input__required {
-  color: #dc2626;
+  color: var(--color-danger);
 }
 
 /* Info Icon & Tooltip Container */
@@ -47,12 +47,12 @@
 
 .input__info-icon {
   font-size: 0.95rem;
-  color: #6b7280;
+  color: var(--color-text-secondary);
   transition: color 0.2s ease;
 }
 
 .input__info-icon:hover {
-  color: #2563eb;
+  color: var(--color-primary);
 }
 
 /* Tooltip Popup Box */
@@ -64,16 +64,17 @@
   left: 50%;
   transform: translateX(-50%);
   width: 220px;
-  background-color: #1f2937;
-  color: #ffffff;
+  background-color: var(--color-surface);
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border);
   text-align: center;
   padding: 8px 12px;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   font-size: 0.75rem;
   font-weight: 400;
   line-height: 1.35;
   z-index: 20;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--shadow-md);
   transition:
     opacity 0.2s ease,
     visibility 0.2s ease;
@@ -89,7 +90,7 @@
   margin-left: -5px;
   border-width: 5px;
   border-style: solid;
-  border-color: #1f2937 transparent transparent transparent;
+  border-color: var(--color-border) transparent transparent transparent;
 }
 
 /* Show Tooltip on Hover */
@@ -111,19 +112,21 @@
 
 .input__field {
   width: 100%;
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
 
-  /* Force clean solid white background */
-  background: #ffffff !important;
-  background-color: #ffffff !important;
-  color: #111827;
+  /* Dynamic theme surface background */
+  background: var(--color-surface) !important;
+  background-color: var(--color-surface) !important;
+  color: var(--color-text-primary);
 
   outline: none;
   font-size: 0.95rem;
   transition:
     border-color 0.2s ease,
-    box-shadow 0.2s ease;
+    box-shadow 0.2s ease,
+    background-color 0.2s ease,
+    color 0.2s ease;
 }
 
 /* ==========================================================
@@ -178,7 +181,7 @@ textarea.input__field {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #6b7280;
+  color: var(--color-text-secondary);
   pointer-events: none;
 }
 
@@ -212,10 +215,10 @@ textarea.input__field {
   background: transparent !important;
   cursor: pointer;
 
-  color: #6b7280;
+  color: var(--color-text-secondary);
   font-size: 1.15rem;
 
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
 
   transition:
     background-color 0.2s ease,
@@ -223,12 +226,12 @@ textarea.input__field {
 }
 
 .input__toggle:hover {
-  background-color: rgba(0, 0, 0, 0.05) !important;
-  color: #111827;
+  background-color: var(--color-hover) !important;
+  color: var(--color-text-primary);
 }
 
 .input__toggle:focus-visible {
-  outline: 2px solid #2563eb;
+  outline: 2px solid var(--color-primary);
   outline-offset: 1px;
 }
 
@@ -237,17 +240,17 @@ textarea.input__field {
    ========================================================== */
 
 .input__field:focus {
-  border-color: #2563eb !important;
-  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12) !important;
+  border-color: var(--color-primary) !important;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2) !important;
 }
 
 .input--error .input__field {
-  border-color: #dc2626 !important;
+  border-color: var(--color-danger) !important;
 }
 
 .input--error .input__field:focus {
-  border-color: #dc2626 !important;
-  box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.12) !important;
+  border-color: var(--color-danger) !important;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2) !important;
 }
 
 .input__error {
@@ -255,21 +258,22 @@ textarea.input__field {
   align-items: center;
   gap: 4px;
   font-size: 0.8rem;
-  color: #dc2626;
+  color: var(--color-danger);
   font-weight: 500;
   margin-top: 2px;
 }
 
 .input__helper {
   font-size: 0.8rem;
-  color: #6b7280;
+  color: var(--color-text-secondary);
   margin-top: 2px;
 }
 
 .input__field:disabled {
-  background-color: #f3f4f6 !important;
+  background-color: var(--color-hover) !important;
+  border-color: var(--color-border) !important;
   cursor: not-allowed;
-  opacity: 0.75;
+  opacity: 0.6;
 }
 
 .input--disabled .input__label {
@@ -277,22 +281,24 @@ textarea.input__field {
 }
 
 .input__field[readonly] {
-  background-color: #f9fafb !important;
+  background-color: var(--color-hover) !important;
 }
 
 .input__field::placeholder {
-  color: #9ca3af;
+  color: var(--color-text-secondary);
+  opacity: 0.7;
 }
 
 /* ==========================================================
-   Autofill Fix (Prevents Browser Autofill Color Overrides)
+   Autofill Fix (Theme Aware Browser Autofill)
    ========================================================== */
 
 .input__field:-webkit-autofill,
 .input__field:-webkit-autofill:hover,
 .input__field:-webkit-autofill:focus {
-  -webkit-box-shadow: 0 0 0 1000px #ffffff inset !important;
-  -webkit-text-fill-color: #111827 !important;
+  -webkit-box-shadow: 0 0 0 1000px var(--color-surface) inset !important;
+  -webkit-text-fill-color: var(--color-text-primary) !important;
+  transition: background-color 5000s ease-in-out 0s;
 }
 
 /* ==========================================================

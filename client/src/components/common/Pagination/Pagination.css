@@ -1,41 +1,91 @@
+/* ==========================================================
+   Pagination Component
+   ========================================================== */
+
 .pagination {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 8px;
-  margin-top: 24px;
+  gap: var(--spacing-1);
+  margin-top: var(--spacing-3);
   flex-wrap: wrap;
 }
 
 .pagination-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   min-width: 40px;
   height: 40px;
   padding: 0 12px;
-  border: 1px solid var(--border);
-  background: var(--card);
-  color: var(--text);
-  border-radius: 8px;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+  border-radius: var(--radius-sm);
+  font-size: 0.875rem;
+  font-weight: 500;
   cursor: pointer;
-  transition: 0.2s ease;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
-.pagination-btn:hover:not(:disabled) {
-  background: var(--primary);
-  color: white;
+/* Hover State */
+.pagination-btn:hover:not(:disabled):not(.active) {
+  background-color: var(--color-hover);
+  border-color: var(--color-border);
+  color: var(--color-text-primary);
 }
 
+/* Active Page State */
 .pagination-btn.active {
-  background: var(--primary);
-  color: white;
-  border-color: var(--primary);
+  background-color: var(--color-primary);
+  color: #ffffff;
+  border-color: var(--color-primary);
+  font-weight: 600;
 }
 
+.pagination-btn.active:hover {
+  background-color: var(--color-primary-hover);
+  border-color: var(--color-primary-hover);
+}
+
+/* Focus State for Accessibility */
+.pagination-btn:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Disabled State */
 .pagination-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+  background-color: var(--color-hover);
 }
 
+/* Ellipsis / Dots Indicator */
 .pagination-dots {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
   padding: 0 6px;
-  color: var(--text-light);
+  color: var(--color-text-secondary);
+  font-size: 0.95rem;
+  user-select: none;
+}
+
+/* ==========================================================
+   Responsive Design
+   ========================================================== */
+
+@media (max-width: 480px) {
+  .pagination-btn {
+    min-width: 36px;
+    height: 36px;
+    padding: 0 10px;
+    font-size: 0.825rem;
+  }
 }

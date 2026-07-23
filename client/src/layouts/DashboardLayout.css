@@ -5,7 +5,9 @@
 .dashboard-layout {
   display: flex;
   min-height: 100vh;
-  background: var(--background, #f5f6fa);
+  background-color: var(--color-background);
+  color: var(--color-text-primary);
+  transition: background-color 0.3s ease;
 }
 
 .dashboard-content {
@@ -24,12 +26,13 @@
 
 main {
   flex: 1;
-  padding: 24px;
+  padding: var(--spacing-3);
 }
 
-/* ==========================================
+/* ==========================================================
    Responsive Layout Adjustments
-   ========================================== */
+   ========================================================== */
+
 @media (max-width: 1023px) {
   .dashboard-content {
     margin-left: 80px;
@@ -39,5 +42,9 @@ main {
 @media (max-width: 767px) {
   .dashboard-content {
     margin-left: 0 !important;
+  }
+
+  main {
+    padding: var(--spacing-2);
   }
 }

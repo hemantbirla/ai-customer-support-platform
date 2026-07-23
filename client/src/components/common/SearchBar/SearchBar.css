@@ -1,3 +1,7 @@
+/* ==========================================================
+   Search Bar Component
+   ========================================================== */
+
 .search-bar {
   display: flex;
   align-items: center;
@@ -5,23 +9,26 @@
   max-width: 420px;
   height: 44px;
   padding: 0 12px;
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  background-color: var(--surface-color);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background-color: var(--color-surface);
   transition:
     border-color 0.2s ease,
-    box-shadow 0.2s ease;
+    box-shadow 0.2s ease,
+    background-color 0.3s ease;
 }
 
 .search-bar:focus-within {
-  border-color: var(--primary-color);
+  border-color: var(--color-primary);
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
 }
 
 .search-icon {
-  font-size: 18px;
-  color: var(--text-secondary);
+  font-size: 1.125rem;
+  color: var(--color-text-secondary);
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
 }
 
 .search-input {
@@ -30,14 +37,17 @@
   outline: none;
   background: transparent;
   margin: 0 10px;
-  font-size: 14px;
-  color: var(--text-primary);
+  font-size: 0.875rem;
+  color: var(--color-text-primary);
+  width: 100%;
 }
 
 .search-input::placeholder {
-  color: var(--text-secondary);
+  color: var(--color-text-secondary);
+  opacity: 0.75;
 }
 
+/* Clear Button */
 .clear-btn {
   display: flex;
   align-items: center;
@@ -45,16 +55,40 @@
   border: none;
   background: transparent;
   cursor: pointer;
-  color: var(--text-secondary);
+  color: var(--color-text-secondary);
   padding: 4px;
   border-radius: 50%;
-  transition: background-color 0.2s ease;
+  flex-shrink: 0;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
 }
 
 .clear-btn:hover {
-  background-color: var(--hover-bg);
+  background-color: var(--color-hover);
+  color: var(--color-text-primary);
+}
+
+.clear-btn:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 1px;
 }
 
 .clear-btn svg {
-  font-size: 18px;
+  font-size: 1.125rem;
+}
+
+/* ==========================================================
+   Responsive Design
+   ========================================================== */
+
+@media (max-width: 480px) {
+  .search-bar {
+    height: 40px;
+    max-width: 100%;
+  }
+
+  .search-input {
+    font-size: 0.825rem;
+  }
 }

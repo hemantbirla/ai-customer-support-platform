@@ -1,36 +1,124 @@
 :root {
-  --primary: #2563eb;
-  --primary-hover: #1d4ed8;
+  /* Brand */
+  --color-primary: #2563eb;
+  --color-primary-hover: #1d4ed8;
 
-  --success: #22c55e;
-  --danger: #ef4444;
-  --warning: #f59e0b;
+  /* Status */
+  --color-success: #22c55e;
+  --color-danger: #ef4444;
+  --color-warning: #f59e0b;
 
-  --text: #111827;
-  --text-light: #6b7280;
+  /* Text */
+  --color-text-primary: #111827;
+  --color-text-secondary: #6b7280;
 
-  --background: #f5f6fa;
+  /* Backgrounds */
+  --color-background: #f5f6fa;
+  --color-surface: #ffffff;
 
-  --card-bg: #ffffff;
+  /* Borders */
+  --color-border: #e5e7eb;
 
-  --border-color: #e5e7eb;
+  /* Hover */
+  --color-hover: #f3f4f6;
 
-  --radius-md: 12px;
-
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
-
-  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.15);
-
-  --border: #e5e7eb;
-
+  /* Radius */
   --radius-sm: 6px;
   --radius-md: 10px;
   --radius-lg: 16px;
 
-  --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  /* Shadow */
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.15);
 
+  /* Spacing */
   --spacing-1: 8px;
   --spacing-2: 16px;
   --spacing-3: 24px;
   --spacing-4: 32px;
+
+  /* ============================
+   Badge Colors
+============================ */
+
+  --badge-success-bg: #dcfce7;
+  --badge-success-text: #166534;
+
+  --badge-warning-bg: #fef3c7;
+  --badge-warning-text: #92400e;
+
+  --badge-danger-bg: #fee2e2;
+  --badge-danger-text: #991b1b;
+
+  --badge-info-bg: #dbeafe;
+  --badge-info-text: #1d4ed8;
+
+  --badge-gray-bg: #f3f4f6;
+  --badge-gray-text: #374151;
+}
+
+/* ===========================
+   Dark Theme
+=========================== */
+
+.dark {
+  --color-primary: #60a5fa;
+  --color-primary-hover: #3b82f6;
+
+  --color-success: #22c55e;
+  --color-danger: #ef4444;
+  --color-warning: #f59e0b;
+
+  --color-text-primary: #f9fafb;
+  --color-text-secondary: #d1d5db;
+
+  --color-background: #111827;
+  --color-surface: #1f2937;
+
+  --color-border: #374151;
+
+  --color-hover: #2d3748;
+
+  /* Badge */
+
+  --badge-success-bg: #14532d;
+  --badge-success-text: #bbf7d0;
+
+  --badge-warning-bg: #78350f;
+  --badge-warning-text: #fde68a;
+
+  --badge-danger-bg: #7f1d1d;
+  --badge-danger-text: #fecaca;
+
+  --badge-info-bg: #1e3a8a;
+  --badge-info-text: #bfdbfe;
+
+  --badge-gray-bg: #374151;
+  --badge-gray-text: #f9fafb;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+
+  background: var(--color-background);
+  color: var(--color-text-primary);
+
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
+
+  font-family: Inter, sans-serif;
 }

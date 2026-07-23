@@ -8,14 +8,16 @@ import { SidebarProvider } from "./contexts/SidebarContext";
 import AppRoutes from "./routes/AppRoutes";
 
 import "react-toastify/dist/ReactToastify.css";
+import ThemeProvider from "./contexts/ThemeContext";
 
 function App() {
   return (
     <AuthProvider>
-      <SidebarProvider>
-        <RouterProvider router={AppRoutes} />
-      </SidebarProvider>
-
+      <ThemeProvider>
+        <SidebarProvider>
+          <RouterProvider router={AppRoutes} />
+        </SidebarProvider>
+      </ThemeProvider>
       <ToastContainer position="top-right" autoClose={3000} theme="colored" />
     </AuthProvider>
   );
