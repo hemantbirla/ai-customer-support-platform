@@ -28,11 +28,26 @@ const getInitialTheme = () => {
 const ThemeProvider = ({ children }) => {
   const [theme, setTheme] = useState(getInitialTheme);
 
+  // Apply theme and persist to localStorage
   useEffect(() => {
     document.documentElement.classList.toggle("dark", theme === "dark");
-
     localStorage.setItem(STORAGE_KEY, theme);
   }, [theme]);
+
+  // Sync theme across browser tabs/windows
+  useEffect(() => {
+    const handleStorage = (event) => {
+      if (event.key === STORAGE_KEY && event.newValue) {
+        setTheme(event.newValue);
+      }
+    };
+
+    window.addEventListener("storage", handleStorage);
+
+    return () => {
+      window.removeEventListener("storage", handleStorage);
+    };
+  }, []);
 
   const toggleTheme = useCallback(() => {
     setTheme((prevTheme) => (prevTheme === "light" ? "dark" : "light"));
