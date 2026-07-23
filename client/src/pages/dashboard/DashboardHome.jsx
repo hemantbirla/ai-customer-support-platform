@@ -1,7 +1,7 @@
 import WelcomeBanner from "../../components/dashboard/WelcomeBanner/WelcomeBanner";
 import StatCard from "../../components/dashboard/StatCard/StatCard";
 import QuickActions from "../../components/dashboard/QuickActions/QuickActions";
-import RecentTickets from "../../components/dashboard/RecentTickets";
+import RecentTickets from "../../components/dashboard/RecentTickets/RecentTickets";
 import ActivityFeed from "../../components/dashboard/ActivityFeed/ActivityFeed";
 
 import { dashboardStats } from "../../data/dashboardData";

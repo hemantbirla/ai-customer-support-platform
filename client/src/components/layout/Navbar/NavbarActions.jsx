@@ -2,7 +2,7 @@
 
 import React from "react";
 
-import NotificationBell from "./NotificationBell";
+import NotificationBell from "../../notification/NotificationBell";
 import ThemeToggle from "./ThemeToggle";
 import UserMenu from "./UserMenu";
 

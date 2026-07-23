@@ -1,5 +1,3 @@
-// src/components/layout/Navbar/NotificationBell.jsx
-
 import React, {
   useCallback,
   useEffect,

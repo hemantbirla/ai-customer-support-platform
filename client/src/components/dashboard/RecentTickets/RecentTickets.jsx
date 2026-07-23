@@ -1,5 +1,5 @@
-import { recentTickets } from "../../data/dashboardData";
-import Badge from "../common/Badge/Badge";
+import { recentTickets } from "../../../data/dashboardData";
+import Badge from "../../common/Badge/Badge";
 import "./RecentTickets.css";
 
 const RecentTickets = () => {

@@ -1,0 +1,49 @@
+.notification-btn {
+  position: relative;
+
+  background: none;
+
+  border: none;
+
+  cursor: pointer;
+}
+
+.notification-count {
+  position: absolute;
+
+  top: -5px;
+
+  right: -5px;
+
+  background: red;
+
+  color: white;
+
+  border-radius: 50%;
+
+  font-size: 12px;
+
+  width: 18px;
+
+  height: 18px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+}
+
+.notification-item {
+  padding: 12px;
+
+  border-bottom: 1px solid var(--border);
+
+  cursor: pointer;
+}
+
+.notification-item.unread {
+  background: var(--background-secondary);
+
+  font-weight: 600;
+}

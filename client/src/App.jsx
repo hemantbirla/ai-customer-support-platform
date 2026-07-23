@@ -9,13 +9,16 @@ import AppRoutes from "./routes/AppRoutes";
 
 import "react-toastify/dist/ReactToastify.css";
 import ThemeProvider from "./contexts/ThemeContext";
+import { NotificationProvider } from "./contexts/NotificationContext";
 
 function App() {
   return (
     <AuthProvider>
       <ThemeProvider>
         <SidebarProvider>
-          <RouterProvider router={AppRoutes} />
+          <NotificationProvider>
+            <RouterProvider router={AppRoutes} />
+          </NotificationProvider>
         </SidebarProvider>
       </ThemeProvider>
       <ToastContainer position="top-right" autoClose={3000} theme="colored" />
