@@ -136,7 +136,7 @@ const Input = forwardRef(
             {/* Info Icon with Tooltip */}
             {infoTooltip && (
               <div className="input__tooltip-container">
-                <FiInfo className="input__info-icon" />
+                <FiInfo className="input__info-icon" aria-hidden="true" />
                 <div className="input__tooltip-content">{infoTooltip}</div>
               </div>
             )}
@@ -155,9 +155,7 @@ const Input = forwardRef(
           {type === "password" && showPasswordToggle && (
             <button
               type="button"
-              tabIndex={-1}
               className="input__toggle"
-              onClick={() => setShowPassword((prev) => !prev)}
               aria-label={showPassword ? "Hide password" : "Show password"}
             >
               {showPassword ? <FiEyeOff /> : <FiEye />}
@@ -177,7 +175,7 @@ const Input = forwardRef(
 
         {error ? (
           <div id={errorId} className="input__error">
-            <FiAlertCircle style={{ marginRight: "4px" }} />
+            <FiAlertCircle style={{ marginRight: "4px" }} aria-hidden="true" />
             <FormError
               message={typeof error === "string" ? error : error?.message}
             />

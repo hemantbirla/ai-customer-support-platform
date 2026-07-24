@@ -48,7 +48,7 @@ const Breadcrumb = () => {
             className={`breadcrumb-item ${item.isLast ? "active" : ""}`}
           >
             {item.isLast ? (
-              <span>{item.label}</span>
+              <span aria-current="page">{item.label}</span>
             ) : (
               <Link to={item.path}>{item.label}</Link>
             )}

@@ -18,7 +18,7 @@ const Navbar = () => {
   }, [toggleSidebar]);
 
   return (
-    <header className="navbar">
+    <header className="navbar" role="banner">
       {/* Mobile Sidebar Toggle */}
       <button
         type="button"

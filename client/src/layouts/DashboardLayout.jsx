@@ -19,11 +19,7 @@ const DashboardLayout = () => {
 
         <Breadcrumb />
 
-        <main
-          className="dashboard-main"
-          role="main"
-          aria-label="Dashboard Content"
-        >
+        <main className="dashboard-main">
           <Suspense fallback={<PageLoader />}>
             <Outlet />
           </Suspense>

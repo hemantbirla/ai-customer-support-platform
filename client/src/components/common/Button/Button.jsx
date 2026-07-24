@@ -33,6 +33,7 @@ const Button = ({
       className={buttonClasses}
       disabled={disabled || loading}
       onClick={onClick}
+      aria-disabled={disabled || loading}
       aria-busy={loading}
       {...props}
     >

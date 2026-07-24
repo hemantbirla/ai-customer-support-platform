@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useId, useRef } from "react";
 import "./Modal.css";
 
 function Modal({
@@ -12,17 +12,46 @@ function Modal({
   closeOnEsc = true,
 }) {
   const modalRef = useRef(null);
+  const previousFocusedElement = useRef(null);
+
+  const titleId = useId();
 
   useEffect(() => {
     if (!isOpen) return;
+
+    previousFocusedElement.current = document.activeElement;
 
     document.body.style.overflow = "hidden";
 
     modalRef.current?.focus();
 
-    const handleKeyDown = (e) => {
-      if (e.key === "Escape" && closeOnEsc) {
+    const handleKeyDown = (event) => {
+      if (event.key === "Escape" && closeOnEsc) {
         onClose();
+        return;
+      }
+
+      if (event.key !== "Tab") return;
+
+      const focusableElements = modalRef.current.querySelectorAll(
+        'button, a, input, textarea, select, [tabindex]:not([tabindex="-1"])',
+      );
+
+      if (!focusableElements.length) return;
+
+      const first = focusableElements[0];
+      const last = focusableElements[focusableElements.length - 1];
+
+      if (event.shiftKey) {
+        if (document.activeElement === first) {
+          event.preventDefault();
+          last.focus();
+        }
+      } else {
+        if (document.activeElement === last) {
+          event.preventDefault();
+          first.focus();
+        }
       }
     };
 
@@ -30,14 +59,17 @@ function Modal({
 
     return () => {
       document.body.style.overflow = "auto";
+
       document.removeEventListener("keydown", handleKeyDown);
+
+      previousFocusedElement.current?.focus();
     };
   }, [isOpen, closeOnEsc, onClose]);
 
   if (!isOpen) return null;
 
-  const handleOverlayClick = (e) => {
-    if (e.target === e.currentTarget && closeOnOverlay) {
+  const handleOverlayClick = (event) => {
+    if (event.target === event.currentTarget && closeOnOverlay) {
       onClose();
     }
   };
@@ -46,17 +78,18 @@ function Modal({
     <div className="modal-overlay" onClick={handleOverlayClick}>
       <div
         className="modal"
-        style={{ maxWidth: width }}
         ref={modalRef}
+        style={{ maxWidth: width }}
         tabIndex={-1}
         role="dialog"
         aria-modal="true"
-        aria-labelledby="modal-title"
+        aria-labelledby={titleId}
       >
         <div className="modal-header">
-          <h2 id="modal-title">{title}</h2>
+          <h2 id={titleId}>{title}</h2>
 
           <button
+            type="button"
             className="modal-close"
             onClick={onClose}
             aria-label="Close modal"

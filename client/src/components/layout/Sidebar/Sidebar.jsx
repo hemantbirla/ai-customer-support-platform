@@ -45,7 +45,11 @@ const Sidebar = () => {
   return (
     <>
       {isMobileOpen && (
-        <div className="sidebar-overlay" onClick={closeMobileSidebar} />
+        <div
+          className="sidebar-overlay"
+          onClick={closeMobileSidebar}
+          aria-hidden="true"
+        />
       )}
 
       <aside
@@ -56,7 +60,7 @@ const Sidebar = () => {
       >
         <SidebarHeader collapsed={isCollapsed} />
 
-        <nav className="sidebar-nav">
+        <nav className="sidebar-nav" aria-label="Primary Navigation">
           {menuItems.map((item) => (
             <SidebarItem key={item.path} item={item} collapsed={isCollapsed} />
           ))}
