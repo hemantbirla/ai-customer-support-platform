@@ -1,3 +1,4 @@
+import React from "react";
 import "./EmptyState.css";
 
 const EmptyState = ({ title, description, icon, action, className = "" }) => {
@@ -14,4 +15,4 @@ const EmptyState = ({ title, description, icon, action, className = "" }) => {
   );
 };
 
-export default EmptyState;
+export default React.memo(EmptyState);

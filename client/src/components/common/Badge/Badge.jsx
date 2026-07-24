@@ -1,3 +1,4 @@
+import React from "react";
 import "./Badge.css";
 
 const Badge = ({
@@ -19,4 +20,4 @@ const Badge = ({
   );
 };
 
-export default Badge;
+export default React.memo(Badge);

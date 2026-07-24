@@ -1,6 +1,10 @@
-// src/components/layout/Navbar/UserMenu.jsx
-
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { HiChevronDown } from "react-icons/hi";
 import { useNavigate } from "react-router-dom";
 
@@ -9,12 +13,19 @@ import UserDropdown from "./UserDropdown";
 
 const UserMenu = () => {
   const navigate = useNavigate();
-
   const { user, logout } = useAuth();
 
   const [isOpen, setIsOpen] = useState(false);
-
   const menuRef = useRef(null);
+
+  const avatarUrl = useMemo(() => {
+    return (
+      user?.avatar ||
+      `https://ui-avatars.com/api/?name=${encodeURIComponent(
+        user?.name || "User",
+      )}`
+    );
+  }, [user?.avatar, user?.name]);
 
   const toggleMenu = useCallback(() => {
     setIsOpen((prev) => !prev);
@@ -72,12 +83,7 @@ const UserMenu = () => {
         aria-label="User menu"
       >
         <img
-          src={
-            user?.avatar ||
-            `https://ui-avatars.com/api/?name=${encodeURIComponent(
-              user?.name || "User",
-            )}`
-          }
+          src={avatarUrl}
           alt={user?.name || "User"}
           className="user-menu__avatar"
         />

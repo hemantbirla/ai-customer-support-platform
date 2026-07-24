@@ -1,3 +1,6 @@
+// src/components/common/SearchBar/SearchBar.jsx
+
+import React, { useCallback } from "react";
 import { FiSearch, FiX } from "react-icons/fi";
 import "./SearchBar.css";
 
@@ -8,9 +11,13 @@ const SearchBar = ({
   className = "",
   ...rest
 }) => {
-  const handleClear = () => {
-    onChange?.({ target: { value: "" } });
-  };
+  const handleClear = useCallback(() => {
+    onChange?.({
+      target: {
+        value: "",
+      },
+    });
+  }, [onChange]);
 
   return (
     <div className={`search-bar ${className}`}>
@@ -40,4 +47,4 @@ const SearchBar = ({
   );
 };
 
-export default SearchBar;
+export default React.memo(SearchBar);

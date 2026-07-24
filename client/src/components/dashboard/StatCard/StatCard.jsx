@@ -1,3 +1,4 @@
+import React from "react";
 import "./StatCard.css";
 
 const StatCard = ({ title, value, icon: Icon, trend }) => {
@@ -13,11 +14,10 @@ const StatCard = ({ title, value, icon: Icon, trend }) => {
 
       <div className="stat-card__body">
         <h2 className="stat-card__value">{value}</h2>
-
         <p className="stat-card__title">{title}</p>
       </div>
     </div>
   );
 };
 
-export default StatCard;
+export default React.memo(StatCard);

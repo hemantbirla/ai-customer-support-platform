@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import "./Avatar.css";
 
 const Avatar = ({
@@ -44,4 +44,4 @@ const Avatar = ({
   );
 };
 
-export default Avatar;
+export default React.memo(Avatar);

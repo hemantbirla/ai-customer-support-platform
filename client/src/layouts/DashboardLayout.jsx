@@ -1,8 +1,11 @@
+import { Suspense } from "react";
 import { Outlet } from "react-router-dom";
 
 import Sidebar from "../components/layout/Sidebar/Sidebar";
 import Navbar from "../components/layout/Navbar/Navbar";
 import Breadcrumb from "../components/layout/Breadcrumb/Breadcrumb";
+
+import PageLoader from "../components/common/PageLoader/PageLoader";
 
 import "./DashboardLayout.css";
 
@@ -21,7 +24,9 @@ const DashboardLayout = () => {
           role="main"
           aria-label="Dashboard Content"
         >
-          <Outlet />
+          <Suspense fallback={<PageLoader />}>
+            <Outlet />
+          </Suspense>
         </main>
       </div>
     </div>

@@ -1,4 +1,10 @@
-import { createContext, useContext, useState } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useMemo,
+  useState,
+} from "react";
 
 const NotificationContext = createContext();
 
@@ -30,33 +36,29 @@ export const NotificationProvider = ({ children }) => {
     },
   ]);
 
-  const unreadCount = notifications.filter(
-    (notification) => !notification.read,
-  ).length;
+  const unreadCount = useMemo(
+    () => notifications.filter((notification) => !notification.read).length,
+    [notifications],
+  );
 
-  const markAsRead = (id) => {
+  const markAsRead = useCallback((id) => {
     setNotifications((prev) =>
       prev.map((notification) =>
-        notification.id === id
-          ? {
-              ...notification,
-              read: true,
-            }
-          : notification,
+        notification.id === id ? { ...notification, read: true } : notification,
       ),
     );
-  };
+  }, []);
 
-  const markAllAsRead = () => {
+  const markAllAsRead = useCallback(() => {
     setNotifications((prev) =>
       prev.map((notification) => ({
         ...notification,
         read: true,
       })),
     );
-  };
+  }, []);
 
-  const addNotification = (notification) => {
+  const addNotification = useCallback((notification) => {
     setNotifications((prev) => [
       {
         id: Date.now(),
@@ -66,18 +68,21 @@ export const NotificationProvider = ({ children }) => {
       },
       ...prev,
     ]);
-  };
+  }, []);
+
+  const value = useMemo(
+    () => ({
+      notifications,
+      unreadCount,
+      markAsRead,
+      markAllAsRead,
+      addNotification,
+    }),
+    [notifications, unreadCount, markAsRead, markAllAsRead, addNotification],
+  );
 
   return (
-    <NotificationContext.Provider
-      value={{
-        notifications,
-        unreadCount,
-        markAsRead,
-        markAllAsRead,
-        addNotification,
-      }}
-    >
+    <NotificationContext.Provider value={value}>
       {children}
     </NotificationContext.Provider>
   );

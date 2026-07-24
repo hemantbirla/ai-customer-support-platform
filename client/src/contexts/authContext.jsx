@@ -23,15 +23,15 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(false);
   const [initialized, setInitialized] = useState(false);
 
-  const isAuthenticated = !!user;
+  const isAuthenticated = useMemo(() => Boolean(user), [user]);
 
+  /**
+   * Initialize authenticated user
+   */
   const initializeAuth = useCallback(async () => {
     const token = tokenService.getAccessToken();
 
-    console.log("TOKEN FROM LOCAL STORAGE:", token);
-
     if (!token) {
-      console.log("NO TOKEN FOUND");
       setInitialized(true);
       return;
     }
@@ -39,11 +39,9 @@ export function AuthProvider({ children }) {
     try {
       const response = await getProfile();
 
-      console.log("PROFILE RESPONSE:", response);
-
       setUser(response.data);
     } catch (error) {
-      console.log("PROFILE ERROR:", error.response);
+      console.error("Failed to initialize auth:", error);
 
       tokenService.removeAccessToken();
       setUser(null);
@@ -56,7 +54,10 @@ export function AuthProvider({ children }) {
     initializeAuth();
   }, [initializeAuth]);
 
-  const login = async (payload) => {
+  /**
+   * Login
+   */
+  const login = useCallback(async (payload) => {
     setLoading(true);
 
     try {
@@ -72,9 +73,12 @@ export function AuthProvider({ children }) {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const register = async (payload) => {
+  /**
+   * Register
+   */
+  const register = useCallback(async (payload) => {
     setLoading(true);
 
     try {
@@ -82,50 +86,67 @@ export function AuthProvider({ children }) {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const logout = async () => {
+  /**
+   * Logout
+   */
+  const logout = useCallback(async () => {
     setLoading(true);
 
     try {
       await logoutUser();
     } catch (error) {
-      console.error(error);
+      console.error("Logout failed:", error);
     } finally {
       tokenService.removeAccessToken();
-
       setUser(null);
-
       setLoading(false);
     }
-  };
+  }, []);
 
-  const refreshUser = async () => {
+  /**
+   * Refresh logged-in user
+   */
+  const refreshUser = useCallback(async () => {
     const { data } = await getProfile();
 
     setUser(data);
-  };
+  }, []);
 
+  /**
+   * Memoized context value
+   */
   const value = useMemo(
     () => ({
       user,
       loading,
       initialized,
       isAuthenticated,
-
       login,
       register,
       logout,
       refreshUser,
     }),
-    [user, loading, initialized, isAuthenticated],
+    [
+      user,
+      loading,
+      initialized,
+      isAuthenticated,
+      login,
+      register,
+      logout,
+      refreshUser,
+    ],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
-// Custom hook to easily access AuthContext across components
-export const useAuth = () => {
+/**
+ * Custom hook
+ */
+export function useAuth() {
   const context = useContext(AuthContext);
 
   if (!context) {
@@ -133,4 +154,4 @@ export const useAuth = () => {
   }
 
   return context;
-};
+}

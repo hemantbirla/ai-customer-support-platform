@@ -9,12 +9,14 @@ import Register from "../pages/auth/Register";
 import ForgotPassword from "../pages/auth/ForgotPassword";
 import ResetPassword from "../pages/auth/ResetPassword";
 
-import DashboardHome from "../pages/dashboard/DashboardHome";
-// import Tickets from "../pages/tickets/Tickets";
-// import Chat from "../pages/chat/Chat";
-// import Analytics from "../pages/analytics/Analytics";
-// import Profile from "../pages/profile/Profile";
-// import Settings from "../pages/settings/Settings";
+import {
+  DashboardHome,
+  Tickets,
+  Analytics,
+  Chat,
+  Profile,
+  Settings,
+} from "./lazyRoutes";
 
 import PublicRoute from "./PublicRoute";
 import ProtectedRoute from "./ProtectedRoute";
@@ -25,7 +27,9 @@ const AppRoutes = createBrowserRouter([
     element: <Navigate to="/login" replace />,
   },
 
+  // ==========================
   // Public Routes
+  // ==========================
   {
     element: <PublicRoute />,
     children: [
@@ -53,7 +57,9 @@ const AppRoutes = createBrowserRouter([
     ],
   },
 
+  // ==========================
   // Protected Routes
+  // ==========================
   {
     element: <ProtectedRoute />,
     children: [
@@ -64,39 +70,34 @@ const AppRoutes = createBrowserRouter([
             path: "/dashboard",
             element: <DashboardHome />,
           },
-
-          // Add these as build them
-
-          // {
-          //   path: "/tickets",
-          //   element: <Tickets />,
-          // },
-
-          // {
-          //   path: "/chat",
-          //   element: <Chat />,
-          // },
-
-          // {
-          //   path: "/analytics",
-          //   element: <Analytics />,
-          // },
-
-          // {
-          //   path: "/profile",
-          //   element: <Profile />,
-          // },
-
-          // {
-          //   path: "/settings",
-          //   element: <Settings />,
-          // },
+          {
+            path: "/tickets",
+            element: <Tickets />,
+          },
+          {
+            path: "/chat",
+            element: <Chat />,
+          },
+          {
+            path: "/analytics",
+            element: <Analytics />,
+          },
+          {
+            path: "/profile",
+            element: <Profile />,
+          },
+          {
+            path: "/settings",
+            element: <Settings />,
+          },
         ],
       },
     ],
   },
 
-  // Catch-all route
+  // ==========================
+  // Catch All
+  // ==========================
   {
     path: "*",
     element: <Navigate to="/dashboard" replace />,

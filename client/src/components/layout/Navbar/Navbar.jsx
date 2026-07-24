@@ -1,6 +1,6 @@
 // src/components/layout/Navbar/Navbar.jsx
 
-import React from "react";
+import React, { useCallback } from "react";
 import { HiOutlineMenuAlt2 } from "react-icons/hi";
 
 import { useSidebar } from "../../../hooks/useSidebar";
@@ -13,13 +13,17 @@ import "./Navbar.css";
 const Navbar = () => {
   const { toggleSidebar } = useSidebar();
 
+  const handleToggleSidebar = useCallback(() => {
+    toggleSidebar();
+  }, [toggleSidebar]);
+
   return (
     <header className="navbar">
       {/* Mobile Sidebar Toggle */}
       <button
         type="button"
         className="navbar__menu-btn"
-        onClick={toggleSidebar}
+        onClick={handleToggleSidebar}
         aria-label="Toggle sidebar"
       >
         <HiOutlineMenuAlt2 size={24} />
