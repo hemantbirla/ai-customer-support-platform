@@ -1,4 +1,8 @@
+import React, { memo } from "react";
+
 import { useNotifications } from "../../contexts/NotificationContext";
+import NotificationItem from "./ NotificationItem";
+
 import "./Notification.css";
 
 const NotificationDropdown = () => {
@@ -9,26 +13,20 @@ const NotificationDropdown = () => {
       <div className="notification-header">
         <h4>Notifications</h4>
 
-        <button onClick={markAllAsRead}>Mark all read</button>
+        <button type="button" onClick={markAllAsRead}>
+          Mark all read
+        </button>
       </div>
 
       {notifications.map((notification) => (
-        <div
+        <NotificationItem
           key={notification.id}
-          onClick={() => markAsRead(notification.id)}
-          className={
-            notification.read ? "notification-item" : "notification-item unread"
-          }
-        >
-          <h5>{notification.title}</h5>
-
-          <p>{notification.message}</p>
-
-          <span>{notification.createdAt}</span>
-        </div>
+          notification={notification}
+          markAsRead={markAsRead}
+        />
       ))}
     </div>
   );
 };
 
-export default NotificationDropdown;
+export default memo(NotificationDropdown);
