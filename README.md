@@ -1,275 +1,265 @@
-# 🤖 AI Customer Support Platform
+# 🤖 AI Customer Support Platform – Client
 
-Enterprise-grade AI-powered Customer Support Platform built with the MERN Stack.
-
-This application enables customers, support agents, and administrators to efficiently manage support tickets while leveraging Generative AI for ticket summarization, intelligent reply suggestions, automatic categorization, and priority detection.
+Frontend application for the **AI Customer Support Platform**, built with **React 19** and **Vite**. The application provides a modern, responsive interface for Customers, Support Agents, and Administrators to manage support tickets and interact with AI-powered features.
 
 ---
 
-## 🚀 Tech Stack
-
-### Frontend
+# 🚀 Tech Stack
 
 - React 19
-- React Router
+- Vite
+- React Router DOM
 - Context API
 - Axios
 - React Hook Form
 - Yup
 - React Toastify
+- React Icons
+- Chart.js
 - CSS3
 
-### Backend
-
-- Node.js
-- Express.js
-- MongoDB
-- Mongoose
-- JWT Authentication
-- bcrypt
-- Express Validator
-- Helmet
-- CORS
-
-### AI
-
-- Google Gemini API
-
 ---
 
-## 📂 Project Structure
+# 📁 Project Structure
 
-```
-AI-Customer-Support-Platform/
+```text
+client
 │
-├── client/
+├── public
 │
-├── server/
+├── src
+│   ├── api
+│   ├── assets
+│   │   ├── icons
+│   │   ├── images
+│   │   └── styles
+│   │
+│   ├── components
+│   │   ├── ai
+│   │   ├── common
+│   │   ├── dashboard
+│   │   ├── forms
+│   │   ├── layout
+│   │   └── ticket
+│   │
+│   ├── config
+│   ├── constants
+│   ├── context
+│   ├── hooks
+│   ├── layouts
+│   ├── pages
+│   │   ├── admin
+│   │   ├── analytics
+│   │   ├── auth
+│   │   ├── dashboard
+│   │   ├── profile
+│   │   └── tickets
+│   │
+│   ├── routes
+│   ├── services
+│   ├── utils
+│   ├── App.jsx
+│   └── main.jsx
 │
-└── README.md
+├── .env
+├── package.json
+└── vite.config.js
 ```
 
 ---
 
-## ✨ Features
+# ✨ Features
 
-### Authentication
-
-- User Registration
-- Secure Login
-- JWT Authentication
-- Refresh Token Flow
-- Logout
-- Forgot Password
-- Reset Password
-- Protected Routes
-- Public Routes
-- Role-Based Access Control
-
----
-
-### User Roles
-
-- Customer
-- Support Agent
-- Administrator
-
----
-
-### Security
-
-- Password Hashing (bcrypt)
-- JWT Access Tokens
-- Refresh Token Rotation
-- Authentication Middleware
-- Authorization Middleware
-- Request Validation
-- Helmet Security
-- CORS Configuration
-- Centralized Error Handling
-
----
-
-## 🏗️ Architecture
-
-### Backend
-
-```
-Routes
-    ↓
-Validation
-    ↓
-Controller
-    ↓
-Service
-    ↓
-Model
-    ↓
-MongoDB
-```
-
----
-
-### Frontend
-
-```
-Pages
-    ↓
-Context API
-    ↓
-Axios
-    ↓
-REST API
-```
-
----
-
-## 📌 REST APIs
-
-### Authentication
-
-```
-POST    /api/auth/register
-
-POST    /api/auth/login
-
-POST    /api/auth/logout
-
-POST    /api/auth/refresh
-
-GET     /api/auth/profile
-
-PUT     /api/auth/profile
-```
-
----
-
-## 📋 Completed
-
-### Sprint 1
-
-- Project Setup
-- Routing
-- Axios Configuration
-- Authentication UI
-- Shared Components
-- Form Validation
-- Toast Notifications
-
-### Sprint 2
-
-#### Backend
-
-- User Model
-- Authentication APIs
-- JWT Authentication
-- Refresh Token Flow
-- Password Hashing
-- Request Validation
-- Error Handling
-- Authentication Middleware
-- Role Middleware
-
-#### Frontend
+## Authentication
 
 - Login
 - Register
 - Forgot Password
 - Reset Password
-- React Hook Form
-- Yup Validation
-- Axios Interceptors
-- Auth Context
 - Protected Routes
-- Role-Based Routing
+- Role-Based Routes
+- JWT Authentication
+- Refresh Token Flow
 
 ---
 
-## 🚧 Roadmap
+## Dashboard
 
-- Dashboard
-- Ticket Management
+- Responsive Dashboard Layout
+- Sidebar Navigation
+- Top Navigation
+- Theme Support
+- Statistics Cards
+- Quick Actions
+- Activity Feed
+
+---
+
+## Ticket Management
+
+- Ticket Listing
+- Ticket Details
+- Ticket Creation
+- Search
+- Filter
+- Pagination
+
+---
+
+## AI Features (Upcoming)
+
 - AI Ticket Summary
 - AI Reply Suggestions
-- AI Ticket Categorization
+- AI Category Detection
 - AI Priority Detection
-- Chat Module
-- Notifications
-- Analytics Dashboard
-- Admin Panel
-- File Attachments
-- Deployment
-- CI/CD Pipeline
+- Sentiment Analysis
 
 ---
 
-## ⚙️ Installation
+# 🏗 Frontend Architecture
 
-### Clone Repository
-
-```bash
-git clone <repository-url>
-
-cd AI-Customer-Support-Platform
+```text
+Pages
+   │
+React Router
+   │
+Protected Routes
+   │
+Context API
+   │
+Axios Services
+   │
+REST API
 ```
 
 ---
 
-### Client
+# 📦 Installed Packages
 
-```bash
-cd client
+## Core
 
-npm install
+- React
+- React DOM
+- Vite
 
-npm run dev
-```
+## Routing
+
+- React Router DOM
+
+## Forms
+
+- React Hook Form
+- Yup
+- @hookform/resolvers
+
+## API
+
+- Axios
+
+## State Management
+
+- Context API
+
+## Notifications
+
+- React Toastify
+
+## Charts
+
+- Chart.js
+- react-chartjs-2
+
+## Utilities
+
+- React Icons
+- jwt-decode
+- clsx
 
 ---
 
-### Server
+# ⚙️ Environment Variables
 
-```bash
-cd server
-
-npm install
-
-npm run dev
-```
-
----
-
-## 🔐 Environment Variables
-
-### Client
+Create a `.env` file inside the `client` directory.
 
 ```env
 VITE_API_BASE_URL=http://localhost:5001/api
 ```
 
-### Server
+---
 
-```env
-PORT=5001
+# ▶️ Getting Started
 
-MONGO_URI=
+Install dependencies
 
-JWT_SECRET=
+```bash
+npm install
+```
 
-JWT_REFRESH_SECRET=
+Start the development server
 
-CLIENT_URL=http://localhost:5173
+```bash
+npm run dev
+```
 
-GEMINI_API_KEY=
+Build for production
+
+```bash
+npm run build
+```
+
+Preview the production build
+
+```bash
+npm run preview
 ```
 
 ---
 
-## 📖 License
+# 📋 Completed
 
-This project is licensed under the MIT License.
+## Phase 1 – Project Setup
+
+- React + Vite Setup
+- Folder Structure
+- Routing Configuration
+- Axios Setup
+- Shared Components Structure
+- Environment Configuration
+
+## Phase 2 – Authentication
+
+- Authentication Pages
+- React Hook Form
+- Yup Validation
+- Auth Context
+- Protected Routes
+- Axios Interceptors
+- JWT Authentication Flow
+
+## Phase 3 – Dashboard Foundation
+
+- Dashboard Layout
+- Responsive Sidebar
+- Navbar
+- Theme Provider
+- Statistics Cards
+- Breadcrumb Navigation
+- Dashboard Home Structure
 
 ---
+
+# 🚧 Upcoming Features
+
+- Ticket Module
+- AI Integration
+- Chat Module
+- Notifications
+- Analytics Dashboard
+- Admin Panel
+- File Uploads
+- Performance Optimisation
+- Testing
+- Deployment
 
 ## 👨‍💻 Author
 
