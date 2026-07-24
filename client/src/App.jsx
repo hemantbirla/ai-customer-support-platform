@@ -2,14 +2,14 @@ import React from "react";
 import { RouterProvider } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 
-import { AuthProvider } from "./contexts/AuthContext";
-import { SidebarProvider } from "./contexts/SidebarContext";
+import { AuthProvider } from "./contexts/auth";
+import { SidebarProvider } from "./contexts/sidebar";
+import { ThemeProvider } from "./contexts/theme";
+import { NotificationProvider } from "./contexts/notification";
 
 import AppRoutes from "./routes/AppRoutes";
 
 import "react-toastify/dist/ReactToastify.css";
-import ThemeProvider from "./contexts/ThemeContext";
-import { NotificationProvider } from "./contexts/NotificationContext";
 
 function App() {
   return (

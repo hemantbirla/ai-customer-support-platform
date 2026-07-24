@@ -2,8 +2,7 @@
 
 import React from "react";
 import { HiMoon, HiSun } from "react-icons/hi";
-
-import { useTheme } from "../../../contexts/ThemeContext";
+import useTheme from "../../../hooks/useTheme";
 
 const ThemeToggle = () => {
   const { theme, toggleTheme } = useTheme();

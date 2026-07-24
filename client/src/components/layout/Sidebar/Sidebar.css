@@ -257,19 +257,22 @@
    Responsive Breakpoints
    ========================================================== */
 
-@media (max-width: 1023px) {
-  .sidebar {
-    width: 80px;
-  }
-}
-
 @media (max-width: 767px) {
   .sidebar {
     width: 260px;
     transform: translateX(-100%);
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.35);
   }
 
   .sidebar.mobile-open {
     transform: translateX(0);
+  }
+
+  .sidebar.collapsed {
+    width: 260px;
+  }
+
+  .sidebar-overlay {
+    display: block;
   }
 }

@@ -1,7 +1,7 @@
 import React, { memo, useCallback, useEffect, useRef, useState } from "react";
 import { HiOutlineBell } from "react-icons/hi";
 
-import { useNotifications } from "../../contexts/NotificationContext";
+import { useNotifications } from "../../hooks/useNotification";
 import NotificationDropdown from "./NotificationDropdown";
 
 const NotificationBell = () => {

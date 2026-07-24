@@ -1,6 +1,6 @@
 import { useEffect, useMemo } from "react";
 import { sidebarMenus } from "../../../config/sidebarMenu";
-import { useAuth } from "../../../contexts/AuthContext";
+import { useAuth } from "../../../hooks/useAuth";
 import { useSidebar } from "../../../hooks/useSidebar";
 
 import SidebarHeader from "./SidebarHeader";

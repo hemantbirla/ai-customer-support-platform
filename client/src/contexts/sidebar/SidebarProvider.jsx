@@ -1,26 +1,25 @@
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
-const SidebarContext = createContext(null);
+import SidebarContext from "./SidebarContext";
 
-export function SidebarProvider({ children }) {
+const SidebarProvider = ({ children }) => {
   // Desktop state
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   // Mobile drawer state
   const [isMobileOpen, setIsMobileOpen] = useState(false);
 
-  /* ---------------- Desktop ---------------- */
+  /* ---------------- Sidebar Toggle ---------------- */
 
   const toggleSidebar = useCallback(() => {
-    setIsCollapsed((prev) => !prev);
+    if (window.innerWidth <= 767) {
+      setIsMobileOpen((prev) => !prev);
+    } else {
+      setIsCollapsed((prev) => !prev);
+    }
   }, []);
+
+  /* ---------------- Desktop ---------------- */
 
   const collapseSidebar = useCallback(() => {
     setIsCollapsed(true);
@@ -56,14 +55,14 @@ export function SidebarProvider({ children }) {
 
   const value = useMemo(
     () => ({
-      // Desktop
       isCollapsed,
+      isMobileOpen,
+
       toggleSidebar,
+
       collapseSidebar,
       expandSidebar,
 
-      // Mobile
-      isMobileOpen,
       openMobileSidebar,
       closeMobileSidebar,
       toggleMobileSidebar,
@@ -83,14 +82,6 @@ export function SidebarProvider({ children }) {
   return (
     <SidebarContext.Provider value={value}>{children}</SidebarContext.Provider>
   );
-}
+};
 
-export function useSidebarContext() {
-  const context = useContext(SidebarContext);
-
-  if (!context) {
-    throw new Error("useSidebarContext must be used within SidebarProvider");
-  }
-
-  return context;
-}
+export default SidebarProvider;

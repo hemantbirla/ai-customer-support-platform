@@ -2,13 +2,13 @@ import React from "react";
 import { Navigate, Outlet } from "react-router-dom";
 
 import { useAuth } from "../hooks/useAuth";
-import Spinner from "../components/auth/Spinner";
+import PageLoader from "../components/common/PageLoader/PageLoader";
 
 const RoleRoute = ({ allowedRoles }) => {
   const { initialized, isAuthenticated, user } = useAuth();
 
   if (!initialized) {
-    return <FullPageLoader />;
+    return <PageLoader />;
   }
 
   if (!isAuthenticated) {

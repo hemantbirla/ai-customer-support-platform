@@ -25,7 +25,7 @@ const Input = forwardRef(
       // Validation & Tooltip
       error,
       helperText,
-      infoTooltip, // 👈 New prop for info icon tooltip text
+      infoTooltip,
       required = false,
 
       // Icons
@@ -81,6 +81,15 @@ const Input = forwardRef(
 
     const registration = register && name ? register(name) : {};
 
+    // Combine forwarded ref and React Hook Form ref
+    const combinedRef = (node) => {
+      if (typeof ref === "function") ref(node);
+      else if (ref) ref.current = node;
+
+      if (typeof registration.ref === "function") registration.ref(node);
+      else if (registration.ref) registration.ref.current = node;
+    };
+
     const containerClasses = [
       "input",
       fullWidth ? "input--full-width" : "",
@@ -119,9 +128,14 @@ const Input = forwardRef(
         .filter(Boolean)
         .join(" "),
       className: `input__field ${inputClassName}`,
-      ref,
       ...registration,
+      ref: combinedRef,
       ...rest,
+    };
+
+    const handleTogglePassword = (e) => {
+      e.preventDefault(); // Prevents accidental form submission
+      setShowPassword((prev) => !prev);
     };
 
     return (
@@ -156,6 +170,8 @@ const Input = forwardRef(
             <button
               type="button"
               className="input__toggle"
+              onClick={handleTogglePassword}
+              disabled={disabled}
               aria-label={showPassword ? "Hide password" : "Show password"}
             >
               {showPassword ? <FiEyeOff /> : <FiEye />}

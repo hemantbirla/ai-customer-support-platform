@@ -1,33 +1,23 @@
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+
+import AuthContext from "./AuthContext";
 
 import {
   getProfile,
   loginUser,
   logoutUser,
   registerUser,
-} from "../services/auth.service";
+} from "../../services/auth.service";
 
-import { tokenService } from "../services/token.service";
+import { tokenService } from "../../services/token.service";
 
-export const AuthContext = createContext(null);
-
-export function AuthProvider({ children }) {
+const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(false);
   const [initialized, setInitialized] = useState(false);
 
   const isAuthenticated = useMemo(() => Boolean(user), [user]);
 
-  /**
-   * Initialize authenticated user
-   */
   const initializeAuth = useCallback(async () => {
     const token = tokenService.getAccessToken();
 
@@ -38,7 +28,6 @@ export function AuthProvider({ children }) {
 
     try {
       const response = await getProfile();
-
       setUser(response.data);
     } catch (error) {
       console.error("Failed to initialize auth:", error);
@@ -54,9 +43,6 @@ export function AuthProvider({ children }) {
     initializeAuth();
   }, [initializeAuth]);
 
-  /**
-   * Login
-   */
   const login = useCallback(async (payload) => {
     setLoading(true);
 
@@ -75,9 +61,6 @@ export function AuthProvider({ children }) {
     }
   }, []);
 
-  /**
-   * Register
-   */
   const register = useCallback(async (payload) => {
     setLoading(true);
 
@@ -88,9 +71,6 @@ export function AuthProvider({ children }) {
     }
   }, []);
 
-  /**
-   * Logout
-   */
   const logout = useCallback(async () => {
     setLoading(true);
 
@@ -105,18 +85,11 @@ export function AuthProvider({ children }) {
     }
   }, []);
 
-  /**
-   * Refresh logged-in user
-   */
   const refreshUser = useCallback(async () => {
     const { data } = await getProfile();
-
     setUser(data);
   }, []);
 
-  /**
-   * Memoized context value
-   */
   const value = useMemo(
     () => ({
       user,
@@ -141,17 +114,6 @@ export function AuthProvider({ children }) {
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
-}
+};
 
-/**
- * Custom hook
- */
-export function useAuth() {
-  const context = useContext(AuthContext);
-
-  if (!context) {
-    throw new Error("useAuth must be used within an AuthProvider");
-  }
-
-  return context;
-}
+export default AuthProvider;

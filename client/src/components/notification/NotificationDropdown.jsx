@@ -1,7 +1,7 @@
 import React, { memo } from "react";
 
-import { useNotifications } from "../../contexts/NotificationContext";
-import NotificationItem from "./ NotificationItem";
+import useNotifications from "../../hooks/useNotification";
+import NotificationItem from "./NotificationItem";
 
 import "./Notification.css";
 

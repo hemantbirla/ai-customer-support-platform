@@ -1,5 +1,5 @@
+import useAuth from "../../../hooks/useAuth";
 import "./WelcomeBanner.css";
-import { useAuth } from "../../../contexts/AuthContext";
 
 const WelcomeBanner = () => {
   const { user } = useAuth();

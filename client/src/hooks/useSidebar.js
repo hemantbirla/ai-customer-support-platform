@@ -1,3 +1,14 @@
-import { useSidebarContext } from "../contexts/SidebarContext";
+import { useContext } from "react";
+import SidebarContext from "../contexts/sidebar/SidebarContext";
 
-export const useSidebar = () => useSidebarContext();
+export const useSidebar = () => {
+  const context = useContext(SidebarContext);
+
+  if (!context) {
+    throw new Error("useSidebar must be used within SidebarProvider");
+  }
+
+  return context;
+};
+
+export default useSidebar;
