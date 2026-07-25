@@ -7,6 +7,7 @@ import authRoutes from "./routes/auth.routes.js";
 
 import { errorHandler } from "./middleware/error.middleware.js";
 import { notFound } from "./middleware/notFound.middleware.js";
+import ticketRoutes from "./modules/tickets/routes/ticket.routes.js";
 
 const app = express();
 
@@ -48,6 +49,7 @@ app.get("/api/health", (req, res) => {
 // -------------------------
 app.use("/api/auth", authRoutes);
 
+app.use("/api/tickets", ticketRoutes);
 // -------------------------
 // 404 & Error Middlewares
 // -------------------------

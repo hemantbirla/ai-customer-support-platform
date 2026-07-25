@@ -1,7 +1,7 @@
-import jwt from "jsonwebtoken"; // 💡 FIX 1: Import from jsonwebtoken, not zod
-import User from "../models/User.js"; // 💡 FIX 2: Added .js extension
-import ApiError from "../utils/ApiError.js"; // 💡 FIX 3: Added .js extension
-import { env } from "../config/env.js"; // 💡 FIX 4: Added .js extension
+import jwt from "jsonwebtoken";
+import User from "../models/User.js";
+import ApiError from "../utils/ApiError.js";
+import { env } from "../config/env.js";
 
 const authMiddleware = async (req, res, next) => {
   try {

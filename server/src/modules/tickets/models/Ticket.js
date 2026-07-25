@@ -77,11 +77,8 @@ const ticketSchema = new mongoose.Schema(
     },
 
     aiSummary: String,
-
     aiPriority: String,
-
     aiCategory: String,
-
     aiSentiment: String,
 
     deletedAt: {
@@ -93,3 +90,19 @@ const ticketSchema = new mongoose.Schema(
     timestamps: true,
   },
 );
+
+ticketSchema.index({ ticketNumber: 1 });
+ticketSchema.index({ status: 1 });
+ticketSchema.index({ priority: 1 });
+ticketSchema.index({ customer: 1 });
+ticketSchema.index({ assignedAgent: 1 });
+ticketSchema.index({ createdAt: -1 });
+ticketSchema.index({ subject: "text", description: "text" });
+
+ticketSchema.virtual("isDeleted").get(function () {
+  return !!this.deletedAt;
+});
+
+const Ticket = mongoose.model("Ticket", ticketSchema);
+
+export default Ticket;
