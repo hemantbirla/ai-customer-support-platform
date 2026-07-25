@@ -28,7 +28,20 @@ export const createTicket = async (ticketData, user) => {
   return ticket;
 };
 
-export const getTickets = async (user) => {
+export const getTickets = async (queryParams, user) => {
+  const {
+    page = 1,
+    limit = 10,
+    status,
+    priority,
+    category,
+    assignedAgent,
+    search,
+    sort = "-createdAt",
+    startDate,
+    endDate,
+  } = queryParams;
+
   const query = {
     deletedAt: null,
   };
@@ -49,13 +62,79 @@ export const getTickets = async (user) => {
       throw new Error("Unauthorized");
   }
 
+  if (status) {
+    query.status = status;
+  }
+
+  if (priority) {
+    query.priority = priority;
+  }
+
+  if (category) {
+    query.category = category;
+  }
+
+  if (assignedAgent && user.role === "ADMIN") {
+    query.assignedAgent = assignedAgent;
+  }
+
+  if (search) {
+    query.$or = [
+      {
+        subject: {
+          $regex: search,
+          $options: "i",
+        },
+      },
+      {
+        description: {
+          $regex: search,
+          $options: "i",
+        },
+      },
+      {
+        ticketNumber: {
+          $regex: search,
+          $options: "i",
+        },
+      },
+    ];
+  }
+
+  if (startDate || endDate) {
+    query.createdAt = {};
+
+    if (startDate) {
+      query.createdAt.$gte = new Date(startDate);
+    }
+
+    if (endDate) {
+      query.createdAt.$lte = new Date(endDate);
+    }
+  }
+
+  const pageNumber = Number(page);
+  const pageSize = Number(limit);
+
+  const skip = (pageNumber - 1) * pageSize;
+
   const tickets = await Ticket.find(query)
     .populate("customer", "name email")
     .populate("assignedAgent", "name email")
-    .sort({ createdAt: -1 })
+    .sort(sort)
+    .skip(skip)
+    .limit(pageSize)
     .lean();
+  const totalItems = await Ticket.countDocuments(query);
 
-  return tickets;
+  const totalPages = Math.ceil(totalItems / pageSize);
+
+  return {
+    tickets,
+    page: pageNumber,
+    totalPages,
+    totalItems,
+  };
 };
 
 export const getTicketById = async (ticketId, user) => {

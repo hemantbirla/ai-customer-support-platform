@@ -14,14 +14,12 @@ export const createTicket = asyncHandler(async (req, res) => {
 });
 
 export const getTickets = asyncHandler(async (req, res) => {
-  const tickets = await ticketService.getTickets(req.user);
+  const result = await ticketService.getTickets(req.query, req.user);
 
   return res.status(200).json({
     success: true,
     message: "Tickets fetched successfully",
-    data: {
-      tickets,
-    },
+    data: result,
   });
 });
 
