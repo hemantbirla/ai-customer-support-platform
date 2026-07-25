@@ -6,6 +6,10 @@ import {
 } from "../constants/ticket.constants.js";
 import generateTicketNumber from "../../../utils/generateTicketNumber.js";
 
+import { canTransitionStatus } from "../utils/ticketWorkflow.js";
+
+import User from "../../../models/User.js";
+
 export const createTicket = async (ticketData, user) => {
   const { subject, description, category, priority } = ticketData;
 
@@ -15,7 +19,7 @@ export const createTicket = async (ticketData, user) => {
     ticketNumber,
     subject,
     description,
-    customer: user.id,
+    customer: user._id,
     assignedAgent: null,
     category: category || TICKET_CATEGORY.GENERAL,
     priority: priority || TICKET_PRIORITY.MEDIUM,
@@ -204,12 +208,55 @@ export const updateTicket = async (ticketId, payload, user) => {
   }
 
   const allowedFields = ["subject", "description", "category", "priority"];
+  x;
 
   allowedFields.forEach((field) => {
     if (payload[field] !== undefined) {
       ticket[field] = payload[field];
     }
   });
+
+  if (payload.status) {
+    const currentStatus = ticket.status;
+    const nextStatus = payload.status;
+
+    const isValidTransition = canTransitionStatus(currentStatus, nextStatus);
+
+    if (!isValidTransition) {
+      const error = new Error(
+        `Invalid status transition from ${currentStatus} to ${nextStatus}`,
+      );
+      error.statusCode = 400;
+      throw error;
+    }
+
+    ticket.status = nextStatus;
+  }
+
+  if (payload.assignedAgent) {
+    if (user.role !== "ADMIN") {
+      const error = new Error("Only admin can assign tickets");
+      error.statusCode = 403;
+      throw error;
+    }
+
+    const agent = await User.findOne({
+      _id: payload.assignedAgent,
+      role: "AGENT",
+    });
+
+    if (!agent) {
+      const error = new Error("Assigned agent not found");
+      error.statusCode = 404;
+      throw error;
+    }
+
+    ticket.assignedAgent = agent._id;
+
+    if (ticket.status === TICKET_STATUS.OPEN) {
+      ticket.status = TICKET_STATUS.ASSIGNED;
+    }
+  }
 
   await ticket.save();
 
@@ -229,12 +276,12 @@ export const deleteTicket = async (ticketId, user) => {
   }
 
   // Customer can delete only their own tickets
-  if (user.role === "CUSTOMER") {
-    if (ticket.customer.toString() !== user.id) {
-      const error = new Error("You are not authorised to delete this ticket");
-      error.statusCode = 403;
-      throw error;
-    }
+  if (payload.status && user.role === "CUSTOMER") {
+    const error = new Error(
+      "Customers are not allowed to change ticket status",
+    );
+    error.statusCode = 403;
+    throw error;
   }
 
   // Agent cannot delete tickets
