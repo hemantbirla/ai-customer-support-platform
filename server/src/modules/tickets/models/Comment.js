@@ -2,13 +2,29 @@ import mongoose from "mongoose";
 
 const attachmentSchema = new mongoose.Schema(
   {
-    originalName: String,
-    storedName: String,
-    mimeType: String,
-    size: Number,
-    url: String,
+    originalName: {
+      type: String,
+      trim: true,
+    },
+    storedName: {
+      type: String,
+      trim: true,
+    },
+    mimeType: {
+      type: String,
+      trim: true,
+    },
+    size: {
+      type: Number,
+    },
+    url: {
+      type: String,
+      trim: true,
+    },
   },
-  { _id: false },
+  {
+    _id: false,
+  },
 );
 
 const commentSchema = new mongoose.Schema(
@@ -17,6 +33,7 @@ const commentSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Ticket",
       required: true,
+      index: true,
     },
 
     author: {
@@ -29,9 +46,19 @@ const commentSchema = new mongoose.Schema(
       type: String,
       required: true,
       trim: true,
+      minlength: 2,
+      maxlength: 5000,
     },
 
-    attachments: [attachmentSchema],
+    attachments: [
+      {
+        originalName: String,
+        storedName: String,
+        mimeType: String,
+        size: Number,
+        url: String,
+      },
+    ],
 
     isInternal: {
       type: Boolean,
@@ -43,8 +70,9 @@ const commentSchema = new mongoose.Schema(
   },
 );
 
-commentSchema.index({ ticket: 1 });
-
-commentSchema.index({ author: 1 });
+commentSchema.index({
+  ticket: 1,
+  createdAt: 1,
+});
 
 export default mongoose.model("Comment", commentSchema);

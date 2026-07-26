@@ -1,5 +1,4 @@
 import mongoose from "mongoose";
-import { ACTIVITY_ACTION } from "../constants/ticket.constants.js";
 
 const activitySchema = new mongoose.Schema(
   {
@@ -11,7 +10,6 @@ const activitySchema = new mongoose.Schema(
 
     action: {
       type: String,
-      enum: Object.values(ACTIVITY_ACTION),
       required: true,
     },
 
@@ -23,19 +21,17 @@ const activitySchema = new mongoose.Schema(
 
     previousValue: {
       type: mongoose.Schema.Types.Mixed,
+      default: null,
     },
 
     newValue: {
       type: mongoose.Schema.Types.Mixed,
+      default: null,
     },
   },
   {
     timestamps: true,
   },
 );
-
-activitySchema.index({ ticket: 1 });
-
-activitySchema.index({ createdAt: -1 });
 
 export default mongoose.model("Activity", activitySchema);

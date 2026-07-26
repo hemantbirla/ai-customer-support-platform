@@ -10,23 +10,43 @@ import { canTransitionStatus } from "../utils/ticketWorkflow.js";
 
 import User from "../../../models/User.js";
 
-export const createTicket = async (ticketData, user) => {
+import { createActivity } from "./activity.service.js";
+import { ACTIVITY_ACTION } from "../constants/activity.constants.js";
+import Activity from "../models/Activity.js";
+
+export const createTicket = async (ticketData, files, user) => {
   const { subject, description, category, priority } = ticketData;
 
   const ticketNumber = await generateTicketNumber();
+
+  // attachments array
+  const attachments =
+    files?.map((file) => ({
+      originalName: file.originalname,
+      storedName: file.filename,
+      mimeType: file.mimetype,
+      size: file.size,
+      url: `/uploads/tickets/${file.filename}`,
+    })) || [];
 
   const ticket = await Ticket.create({
     ticketNumber,
     subject,
     description,
-    customer: user._id,
+    customer: user.id,
     assignedAgent: null,
     category: category || TICKET_CATEGORY.GENERAL,
     priority: priority || TICKET_PRIORITY.MEDIUM,
     status: TICKET_STATUS.OPEN,
-    attachments: [],
+    attachments,
     tags: [],
     deletedAt: null,
+  });
+
+  await createActivity({
+    ticket: ticket._id,
+    action: ACTIVITY_ACTION.TICKET_CREATED,
+    user: user.id,
   });
 
   return ticket;
@@ -117,15 +137,28 @@ export const getTickets = async (queryParams, user) => {
     }
   }
 
-  const pageNumber = Number(page);
-  const pageSize = Number(limit);
+  const pageNumber = Math.max(Number(page) || 1, 1);
+  const pageSize = Math.max(Number(limit) || 10, 1);
 
   const skip = (pageNumber - 1) * pageSize;
+
+  const allowedSortFields = [
+    "createdAt",
+    "-createdAt",
+    "updatedAt",
+    "-updatedAt",
+    "priority",
+    "-priority",
+    "status",
+    "-status",
+  ];
+
+  const sortField = allowedSortFields.includes(sort) ? sort : "-createdAt";
 
   const tickets = await Ticket.find(query)
     .populate("customer", "name email")
     .populate("assignedAgent", "name email")
-    .sort(sort)
+    .sort(sortField)
     .skip(skip)
     .limit(pageSize)
     .lean();
@@ -207,14 +240,39 @@ export const updateTicket = async (ticketId, payload, user) => {
     }
   }
 
-  const allowedFields = ["subject", "description", "category", "priority"];
-  x;
+  if (payload.subject !== undefined) {
+    ticket.subject = payload.subject;
+  }
 
-  allowedFields.forEach((field) => {
-    if (payload[field] !== undefined) {
-      ticket[field] = payload[field];
-    }
-  });
+  if (payload.description !== undefined) {
+    ticket.description = payload.description;
+  }
+
+  if (payload.category !== undefined) {
+    ticket.category = payload.category;
+  }
+
+  if (payload.priority !== undefined) {
+    const previousPriority = ticket.priority;
+
+    ticket.priority = payload.priority;
+
+    await createActivity({
+      ticket: ticket._id,
+      action: ACTIVITY_ACTION.PRIORITY_CHANGED,
+      user: user.id,
+      previousValue: previousPriority,
+      newValue: payload.priority,
+    });
+  }
+
+  if (payload.status && user.role === "CUSTOMER") {
+    const error = new Error(
+      "Customers are not allowed to change ticket status",
+    );
+    error.statusCode = 403;
+    throw error;
+  }
 
   if (payload.status) {
     const currentStatus = ticket.status;
@@ -230,7 +288,17 @@ export const updateTicket = async (ticketId, payload, user) => {
       throw error;
     }
 
+    const previousStatus = ticket.status;
+
     ticket.status = nextStatus;
+
+    await createActivity({
+      ticket: ticket._id,
+      action: ACTIVITY_ACTION.STATUS_CHANGED,
+      user: user.id,
+      previousValue: previousStatus,
+      newValue: nextStatus,
+    });
   }
 
   if (payload.assignedAgent) {
@@ -252,6 +320,14 @@ export const updateTicket = async (ticketId, payload, user) => {
     }
 
     ticket.assignedAgent = agent._id;
+
+    await createActivity({
+      ticket: ticket._id,
+      action: ACTIVITY_ACTION.AGENT_ASSIGNED,
+      user: user.id,
+      previousValue: null,
+      newValue: agent._id,
+    });
 
     if (ticket.status === TICKET_STATUS.OPEN) {
       ticket.status = TICKET_STATUS.ASSIGNED;
@@ -276,12 +352,12 @@ export const deleteTicket = async (ticketId, user) => {
   }
 
   // Customer can delete only their own tickets
-  if (payload.status && user.role === "CUSTOMER") {
-    const error = new Error(
-      "Customers are not allowed to change ticket status",
-    );
-    error.statusCode = 403;
-    throw error;
+  if (user.role === "CUSTOMER") {
+    if (ticket.customer.toString() !== user.id) {
+      const error = new Error("You are not authorised to delete this ticket");
+      error.statusCode = 403;
+      throw error;
+    }
   }
 
   // Agent cannot delete tickets
@@ -297,4 +373,15 @@ export const deleteTicket = async (ticketId, user) => {
   await ticket.save();
 
   return;
+};
+
+export const getTicketActivity = async (ticketId, user) => {
+  await getTicketById(ticketId, user);
+
+  return Activity.find({
+    ticket: ticketId,
+  })
+    .populate("user", "firstName lastName email")
+    .sort({ createdAt: -1 })
+    .lean();
 };

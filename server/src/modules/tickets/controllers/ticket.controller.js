@@ -2,14 +2,16 @@ import * as ticketService from "../services/ticket.service.js";
 import asyncHandler from "../../../utils/asyncHandler.js";
 
 export const createTicket = asyncHandler(async (req, res) => {
-  const ticket = await ticketService.createTicket(req.body, req.user);
-
+  const ticket = await ticketService.createTicket(
+    req.body,
+    req.files,
+    req.user,
+  );
+  console.log(req.files);
   return res.status(201).json({
     success: true,
     message: "Ticket created successfully",
-    data: {
-      ticket,
-    },
+    data: { ticket },
   });
 });
 
@@ -70,3 +72,17 @@ export const deleteTicket = async (req, res, next) => {
     next(error);
   }
 };
+
+export const getTicketActivity = asyncHandler(async (req, res) => {
+  const activities = await ticketService.getTicketActivity(
+    req.params.id,
+    req.user,
+  );
+
+  return res.status(200).json({
+    success: true,
+    data: {
+      activities,
+    },
+  });
+});
