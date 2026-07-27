@@ -1,15 +1,23 @@
 import { lazy } from "react";
 
 export const DashboardHome = lazy(
-  () => import("../pages/dashboard/DashboardHome"),
+  () => import("../pages/Dashboard/DashboardHome"),
 );
 
-export const Tickets = lazy(() => import("../pages/tickets/Tickets"));
+export const Analytics = lazy(() => import("../pages/Analytics/Analytics"));
 
-export const Analytics = lazy(() => import("../pages/analytics/Analytics"));
+export const Chat = lazy(() => import("../pages/Chat/Chat"));
 
-export const Chat = lazy(() => import("../pages/chat/Chat"));
+export const Profile = lazy(() => import("../pages/Profile/Profile"));
 
-export const Profile = lazy(() => import("../pages/profile/Profile"));
+export const Settings = lazy(() => import("../pages/Settings/Settings"));
 
-export const Settings = lazy(() => import("../pages/settings/Settings"));
+export const TicketList = lazy(() => import("../pages/Tickets/TicketList"));
+
+export const CreateTicket = lazy(() => import("../pages/Tickets/CreateTicket"));
+
+export const TicketDetails = lazy(
+  () => import("../pages/Tickets/TicketDetails"),
+);
+
+export const EditTicket = lazy(() => import("../pages/Tickets/EditTicket"));
