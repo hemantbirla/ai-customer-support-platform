@@ -112,10 +112,7 @@ const TicketDetails = () => {
         </div>
 
         <div className={styles.right}>
-          <TicketStatusCard
-            ticket={ticket}
-            refreshTicket={fetchTicketDetails}
-          />
+          <TicketStatusCard ticket={ticket} onRefresh={fetchTicketDetails} />
 
           <TicketTimeline activities={activityLogs} />
 
