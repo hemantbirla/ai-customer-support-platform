@@ -69,3 +69,23 @@ export const uploadAttachments = (ticketId, formData) => {
     },
   });
 };
+
+// ==========================================
+// Status
+// ==========================================
+
+export const updateTicketStatus = (ticketId, status) => {
+  return api.patch(`/tickets/${ticketId}/status`, {
+    status,
+  });
+};
+
+// ==========================================
+// Assign Agent
+// ==========================================
+
+export const assignAgent = (ticketId, agentId) => {
+  return api.patch(`/tickets/${ticketId}/assign`, {
+    agentId,
+  });
+};

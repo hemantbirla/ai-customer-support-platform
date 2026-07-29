@@ -1,4 +1,5 @@
 import PropTypes from "prop-types";
+import { toast } from "react-toastify";
 
 import { ROLES } from "../../../constants/roles";
 
@@ -7,12 +8,41 @@ import {
   PRIORITY_OPTIONS,
 } from "../../../constants/ticket.constants";
 
+import {
+  updateTicketStatus,
+  assignAgent,
+} from "../../../services/ticket.service";
+
 import styles from "./TicketStatusCard.module.css";
 
 const TicketStatusCard = ({ ticket, role, onStatusChange }) => {
   if (!ticket) return null;
 
   const canEditStatus = role === ROLES.ADMIN || role === ROLES.AGENT;
+
+  const handleStatusChange = async (event) => {
+    try {
+      await updateTicketStatus(ticket._id, event.target.value);
+
+      toast.success("Status updated");
+
+      refreshTicket();
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Unable to update status");
+    }
+  };
+
+  const handleAssign = async (agentId) => {
+    try {
+      await assignAgent(ticket._id, agentId);
+
+      toast.success("Agent assigned");
+
+      refreshTicket();
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Unable to assign agent");
+    }
+  };
 
   return (
     <section className={styles.card}>
