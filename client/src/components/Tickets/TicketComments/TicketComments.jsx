@@ -1,13 +1,53 @@
+import { useState } from "react";
 import PropTypes from "prop-types";
 import { format } from "date-fns";
 import { MessageSquare } from "lucide-react";
+import { toast } from "react-toastify";
 
 import TicketCommentForm from "../TicketCommentForm";
 import TicketAttachments from "../TicketAttachments";
 
+import { addComment } from "../../../services/ticket.service";
+
 import styles from "./TicketComments.module.css";
 
-const TicketComments = ({ ticketId, comments = [], refreshComments }) => {
+const TicketComments = ({
+  ticketId,
+  comments = [],
+  refreshComments,
+  allowInternalNote = true,
+}) => {
+  const [loading, setLoading] = useState(false);
+
+  const handleCommentSubmit = async (data) => {
+    try {
+      setLoading(true);
+
+      const formData = new FormData();
+
+      formData.append("message", data.message);
+      formData.append("isInternal", data.isInternal || false);
+
+      if (data.attachments?.length) {
+        Array.from(data.attachments).forEach((file) => {
+          formData.append("attachments", file);
+        });
+      }
+
+      await addComment(ticketId, formData);
+
+      toast.success("Comment added successfully.");
+
+      if (refreshComments) {
+        refreshComments();
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to add comment.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <section className={styles.card}>
       <div className={styles.header}>
@@ -16,7 +56,11 @@ const TicketComments = ({ ticketId, comments = [], refreshComments }) => {
         <span className={styles.count}>{comments.length}</span>
       </div>
 
-      <TicketCommentForm ticketId={ticketId} onSuccess={refreshComments} />
+      <TicketCommentForm
+        loading={loading}
+        onSubmit={handleCommentSubmit}
+        allowInternalNote={allowInternalNote}
+      />
 
       {comments.length === 0 ? (
         <div className={styles.empty}>
@@ -67,6 +111,7 @@ TicketComments.propTypes = {
   ticketId: PropTypes.string.isRequired,
   comments: PropTypes.array,
   refreshComments: PropTypes.func,
+  allowInternalNote: PropTypes.bool,
 };
 
 export default TicketComments;
