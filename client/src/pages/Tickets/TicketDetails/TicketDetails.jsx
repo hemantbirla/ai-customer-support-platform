@@ -52,8 +52,7 @@ const TicketDetails = () => {
 
       setTicket(ticketData.ticket);
       setAttachments(ticketData.attachments || []);
-
-      setComments(commentsRes.data.data || []);
+      setComments(commentsRes.data.data.comments || []);
       setActivityLogs(activityRes.data.data || []);
     } catch (error) {
       const message =

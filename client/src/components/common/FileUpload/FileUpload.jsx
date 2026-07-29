@@ -1,4 +1,3 @@
-import { useMemo } from "react";
 import PropTypes from "prop-types";
 import { Upload, X, FileText } from "lucide-react";
 
@@ -10,59 +9,40 @@ import {
 
 import styles from "./FileUpload.module.css";
 
-const DEFAULT_ACCEPT = ".pdf,.png,.jpg,.jpeg,.doc,.docx";
-
 const FileUpload = ({
   value = [],
   onChange,
-  accept = DEFAULT_ACCEPT,
+  accept = ".pdf,.png,.jpg,.jpeg,.doc,.docx",
   multiple = true,
   maxFiles = 5,
   maxFileSize = 10 * 1024 * 1024,
   disabled = false,
-  error = "",
+  error,
 }) => {
-  const files = useMemo(() => {
-    if (!value) return [];
+  const files = Array.isArray(value) ? value : [];
 
-    return Array.from(value);
-  }, [value]);
+  const handleFileChange = (e) => {
+    const selectedFiles = Array.from(e.target.files || []);
 
-  // ==========================================
-  // File Selection
-  // ==========================================
+    let updatedFiles = [...files];
 
-  const handleFileChange = (event) => {
-    const selectedFiles = Array.from(event.target.files || []);
-
-    if (!selectedFiles.length) return;
-
-    const updatedFiles = [...files];
-
-    for (const file of selectedFiles) {
-      if (updatedFiles.length >= maxFiles) break;
-
-      if (!isAllowedFileType(file, accept)) continue;
-
-      if (!isValidFileSize(file, maxFileSize)) continue;
-
-      updatedFiles.push(file);
-    }
+    selectedFiles.forEach((file) => {
+      if (
+        updatedFiles.length < maxFiles &&
+        isAllowedFileType(file, accept) &&
+        isValidFileSize(file, maxFileSize)
+      ) {
+        updatedFiles.push(file);
+      }
+    });
 
     onChange(updatedFiles);
 
-    // Reset input so same file can be selected again
-    event.target.value = "";
+    e.target.value = "";
   };
 
-  // ==========================================
-  // Remove File
-  // ==========================================
-
-  const handleRemove = (index) => {
-    const updatedFiles = files.filter((_, i) => i !== index);
-
-    onChange(updatedFiles);
+  const removeFile = (index) => {
+    onChange(files.filter((_, i) => i !== index));
   };
 
   return (
@@ -72,48 +52,47 @@ const FileUpload = ({
       <label
         className={`${styles.uploadBox} ${disabled ? styles.disabled : ""}`}
       >
-        <Upload size={22} />
+        <Upload size={36} />
 
-        <span>Choose Files</span>
+        <h4>Choose Files</h4>
 
-        <small>
+        <p>
           Maximum {maxFiles} files • {maxFileSize / 1024 / 1024} MB each
-        </small>
+        </p>
 
         <input
-          type="file"
-          accept={accept}
-          multiple={multiple}
-          disabled={disabled}
           className={styles.input}
+          type="file"
+          multiple={multiple}
+          accept={accept}
+          disabled={disabled}
           onChange={handleFileChange}
         />
       </label>
 
-      {error && <p className={styles.error}>{error}</p>}
+      {error && <span className={styles.error}>{error}</span>}
 
       {files.length > 0 && (
         <div className={styles.fileList}>
           {files.map((file, index) => (
-            <div key={`${file.name}-${index}`} className={styles.fileItem}>
-              <div className={styles.fileInfo}>
+            <div key={index} className={styles.fileItem}>
+              <div className={styles.left}>
                 <FileText size={18} />
 
                 <div>
-                  <p className={styles.fileName}>{file.name}</p>
+                  <div className={styles.fileName}>{file.name}</div>
 
-                  <span className={styles.fileSize}>
+                  <div className={styles.fileSize}>
                     {formatFileSize(file.size)}
-                  </span>
+                  </div>
                 </div>
               </div>
 
               {!disabled && (
                 <button
                   type="button"
-                  className={styles.removeButton}
-                  onClick={() => handleRemove(index)}
-                  aria-label="Remove file"
+                  className={styles.remove}
+                  onClick={() => removeFile(index)}
                 >
                   <X size={16} />
                 </button>
@@ -127,20 +106,13 @@ const FileUpload = ({
 };
 
 FileUpload.propTypes = {
-  value: PropTypes.oneOfType([PropTypes.array, PropTypes.object]),
-
+  value: PropTypes.array,
   onChange: PropTypes.func.isRequired,
-
   accept: PropTypes.string,
-
   multiple: PropTypes.bool,
-
   maxFiles: PropTypes.number,
-
   maxFileSize: PropTypes.number,
-
   disabled: PropTypes.bool,
-
   error: PropTypes.string,
 };
 
