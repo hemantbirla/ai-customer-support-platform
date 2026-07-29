@@ -22,8 +22,12 @@ export const getTicketById = (ticketId) => {
   return api.get(`/tickets/${ticketId}`);
 };
 
-export const updateTicket = (ticketId, payload) => {
-  return api.put(`/tickets/${ticketId}`, payload);
+export const updateTicket = (ticketId, formData) => {
+  return api.put(`/tickets/${ticketId}`, formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
 };
 
 export const deleteTicket = (ticketId) => {

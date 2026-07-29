@@ -1,0 +1,134 @@
+.form {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+}
+
+.row {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+}
+
+.label {
+  margin-bottom: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.input,
+.select,
+.textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 15px;
+  outline: none;
+  transition: 0.2s ease;
+  background: #fff;
+}
+
+.input:focus,
+.select:focus,
+.textarea:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+.textarea {
+  resize: vertical;
+  min-height: 150px;
+}
+
+.errorInput {
+  border-color: #dc2626;
+}
+
+.error {
+  margin-top: 6px;
+  color: #dc2626;
+  font-size: 13px;
+}
+
+.fileInput {
+  margin-top: 6px;
+}
+
+.fileList {
+  margin-top: 12px;
+  padding-left: 18px;
+}
+
+.fileItem {
+  font-size: 14px;
+  color: #374151;
+  margin-bottom: 6px;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.primaryButton,
+.secondaryButton {
+  border: none;
+  border-radius: 8px;
+  padding: 11px 22px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: 0.2s;
+}
+
+.primaryButton {
+  background: #2563eb;
+  color: #fff;
+}
+
+.primaryButton:hover:not(:disabled) {
+  background: #1d4ed8;
+}
+
+.secondaryButton {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.secondaryButton:hover:not(:disabled) {
+  background: #e5e7eb;
+}
+
+.primaryButton:disabled,
+.secondaryButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+@media (max-width: 768px) {
+  .row {
+    grid-template-columns: 1fr;
+  }
+
+  .actions {
+    flex-direction: column-reverse;
+  }
+
+  .primaryButton,
+  .secondaryButton {
+    width: 100%;
+  }
+}
