@@ -29,7 +29,6 @@ const TicketDetails = () => {
   const [loading, setLoading] = useState(true);
 
   const [ticket, setTicket] = useState(null);
-  const [customer, setCustomer] = useState(null);
   const [attachments, setAttachments] = useState([]);
 
   const [comments, setComments] = useState([]);
@@ -52,7 +51,6 @@ const TicketDetails = () => {
       const ticketData = ticketRes.data.data;
 
       setTicket(ticketData.ticket);
-      setCustomer(ticketData.customer);
       setAttachments(ticketData.attachments || []);
 
       setComments(commentsRes.data.data || []);
@@ -100,7 +98,9 @@ const TicketDetails = () => {
         <div className={styles.left}>
           <TicketInfo ticket={ticket} />
 
-          <CustomerInfo customer={customer} />
+          <div className={styles.section}>
+            <CustomerInfo customer={ticket.customer} />
+          </div>
 
           <TicketAttachments attachments={attachments} />
 

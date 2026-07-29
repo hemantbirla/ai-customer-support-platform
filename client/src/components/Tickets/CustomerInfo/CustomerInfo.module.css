@@ -1,0 +1,68 @@
+.card {
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-4);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-md);
+}
+
+.title {
+  margin-bottom: var(--spacing-3);
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.profile {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding-bottom: var(--spacing-3);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-primary);
+  color: #ffffff;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.name {
+  margin: 0;
+  font-size: 16px;
+  color: var(--color-text-primary);
+}
+
+.email {
+  margin: 5px 0 0;
+  color: var(--color-text-secondary);
+  font-size: 14px;
+}
+
+.details {
+  margin-top: var(--spacing-3);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.item label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  margin-bottom: 5px;
+}
+
+.item p {
+  margin: 0;
+  color: var(--color-text-primary);
+  font-size: 14px;
+}
