@@ -1,6 +1,7 @@
-import React, { memo } from "react";
+import { memo, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
-import { recentTickets } from "../../../data/dashboardData";
+import { getTickets } from "../../../services/ticket.service";
 
 import RecentTicketTableHead from "./RecentTicketTableHead";
 import RecentTicketTableBody from "./RecentTicketTableBody";
@@ -8,11 +9,35 @@ import RecentTicketTableBody from "./RecentTicketTableBody";
 import "./RecentTickets.css";
 
 const RecentTickets = () => {
-  const handleViewTicket = (ticketId) => {
-    console.log("View Ticket:", ticketId);
+  const navigate = useNavigate();
 
-    // Later
-    // navigate(`/tickets/${ticketId}`);
+  const [tickets, setTickets] = useState([]);
+
+  useEffect(() => {
+    loadTickets();
+  }, []);
+  const [loading, setLoading] = useState(false);
+
+  const loadTickets = async () => {
+    try {
+      setLoading(true);
+
+      const response = await getTickets({
+        page: 1,
+        limit: 5,
+      });
+
+      setTickets(response.data.data.tickets || []);
+    } catch (error) {
+      console.error(error);
+      setTickets([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleViewTicket = (ticketId) => {
+    navigate(`/tickets/${ticketId}`);
   };
 
   return (
@@ -23,10 +48,7 @@ const RecentTickets = () => {
         <table className="recent-tickets__table">
           <RecentTicketTableHead />
 
-          <RecentTicketTableBody
-            tickets={recentTickets}
-            onView={handleViewTicket}
-          />
+          <RecentTicketTableBody tickets={tickets} onView={handleViewTicket} />
         </table>
       </div>
     </section>

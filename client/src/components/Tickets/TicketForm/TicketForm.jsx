@@ -41,10 +41,7 @@ const TicketForm = ({
     defaultValues,
   });
 
-  // ==========================================
   // Populate Edit Form
-  // ==========================================
-
   useEffect(() => {
     if (mode === "edit" && initialValues) {
       reset({
@@ -57,10 +54,6 @@ const TicketForm = ({
     }
   }, [mode, initialValues, reset]);
 
-  // ==========================================
-  // Submit Handler
-  // ==========================================
-
   const submitHandler = (data) => {
     onSubmit(data);
   };
@@ -71,49 +64,42 @@ const TicketForm = ({
       onSubmit={handleSubmit(submitHandler)}
       noValidate
     >
-      {/* ========================================== */}
       {/* Subject */}
-      {/* ========================================== */}
-
       <div className={styles.formGroup}>
-        <label htmlFor="subject">Subject</label>
-
+        <label htmlFor="subject" className={styles.label}>
+          Subject
+        </label>
         <input
           id="subject"
           type="text"
           placeholder="Enter ticket subject"
+          className={`${styles.input} ${errors.subject ? styles.errorInput : ""}`}
           {...register("subject")}
         />
-
         {errors.subject && (
           <span className={styles.error}>{errors.subject.message}</span>
         )}
       </div>
 
-      {/* ========================================== */}
       {/* Description */}
-      {/* ========================================== */}
-
       <div className={styles.formGroup}>
-        <label htmlFor="description">Description</label>
-
+        <label htmlFor="description" className={styles.label}>
+          Description
+        </label>
         <textarea
           id="description"
           rows={6}
           placeholder="Describe your issue..."
+          className={`${styles.textarea} ${errors.description ? styles.errorInput : ""}`}
           {...register("description")}
         />
-
         {errors.description && (
           <span className={styles.error}>{errors.description.message}</span>
         )}
       </div>
 
-      {/* ========================================== */}
-      {/* Category & Priority */}
-      {/* ========================================== */}
-
-      <div className={styles.grid}>
+      {/* Category & Priority Grid */}
+      <div className={styles.row}>
         <Select
           label="Category"
           placeholder="Select Category"
@@ -131,13 +117,9 @@ const TicketForm = ({
         />
       </div>
 
-      {/* ========================================== */}
       {/* Attachments */}
-      {/* ========================================== */}
-
       <div className={styles.formGroup}>
-        <label>Attachments</label>
-
+        <label className={styles.label}>Attachments</label>
         <Controller
           name="attachments"
           control={control}
@@ -156,14 +138,11 @@ const TicketForm = ({
         />
       </div>
 
-      {/* ========================================== */}
       {/* Action Buttons */}
-      {/* ========================================== */}
-
       <div className={styles.actions}>
         <button
           type="button"
-          className={styles.cancelButton}
+          className={styles.secondaryButton}
           onClick={onCancel}
           disabled={loading}
         >
@@ -172,7 +151,7 @@ const TicketForm = ({
 
         <button
           type="submit"
-          className={styles.submitButton}
+          className={styles.primaryButton}
           disabled={loading}
         >
           {loading

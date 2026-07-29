@@ -6,7 +6,7 @@ import { ROLES } from "../../../constants/roles";
 
 import styles from "./TicketActions.module.css";
 
-const TicketActions = ({ ticket, onView, onEdit, onDelete }) => {
+const TicketActions = ({ ticketId, onView, onEdit, onDelete }) => {
   const { user } = useAuth();
 
   const canEdit = user?.role === ROLES.AGENT || user?.role === ROLES.ADMIN;
@@ -18,7 +18,7 @@ const TicketActions = ({ ticket, onView, onEdit, onDelete }) => {
       <button
         type="button"
         className={styles.viewButton}
-        onClick={() => onView(ticket._id)}
+        onClick={() => onView(ticketId)}
       >
         <Eye size={16} />
         <span>View</span>
@@ -28,7 +28,7 @@ const TicketActions = ({ ticket, onView, onEdit, onDelete }) => {
         <button
           type="button"
           className={styles.editButton}
-          onClick={() => onEdit(ticket._id)}
+          onClick={() => onEdit(ticketId)}
         >
           <Pencil size={16} />
           <span>Edit</span>
@@ -39,7 +39,7 @@ const TicketActions = ({ ticket, onView, onEdit, onDelete }) => {
         <button
           type="button"
           className={styles.deleteButton}
-          onClick={() => onDelete(ticket._id)}
+          onClick={() => onDelete(ticketId)}
         >
           <Trash2 size={16} />
           <span>Delete</span>
@@ -50,10 +50,7 @@ const TicketActions = ({ ticket, onView, onEdit, onDelete }) => {
 };
 
 TicketActions.propTypes = {
-  ticket: PropTypes.shape({
-    _id: PropTypes.string.isRequired,
-  }).isRequired,
-
+  ticketId: PropTypes.string.isRequired,
   onView: PropTypes.func.isRequired,
   onEdit: PropTypes.func.isRequired,
   onDelete: PropTypes.func.isRequired,

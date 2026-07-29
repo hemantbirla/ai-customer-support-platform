@@ -1,17 +1,17 @@
 .form {
-  background: #ffffff;
-  border-radius: 12px;
-  padding: 24px;
+  background: var(--color-surface, #ffffff);
+  border-radius: var(--radius-lg, 12px);
+  padding: var(--spacing-4, 24px);
   display: flex;
   flex-direction: column;
-  gap: 24px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+  gap: var(--spacing-3, 20px);
+  color: var(--color-text-primary);
 }
 
 .row {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 20px;
+  gap: var(--spacing-3, 20px);
 }
 
 .formGroup {
@@ -23,57 +23,51 @@
   margin-bottom: 8px;
   font-size: 14px;
   font-weight: 600;
-  color: #374151;
+  color: var(--color-text-primary);
 }
 
 .input,
 .select,
 .textarea {
   width: 100%;
-  padding: 12px 14px;
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
-  font-size: 15px;
+  padding: 10px 14px;
+  border: 1px solid var(--color-border, #d1d5db);
+  border-radius: var(--radius-md, 8px);
+  font-size: 14px;
   outline: none;
-  transition: 0.2s ease;
-  background: #fff;
+  background-color: var(--color-background, #ffffff);
+  color: var(--color-text-primary);
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.input::placeholder,
+.textarea::placeholder {
+  color: var(--color-text-secondary);
+  opacity: 0.6;
 }
 
 .input:focus,
 .select:focus,
 .textarea:focus {
-  border-color: #2563eb;
+  border-color: var(--color-primary);
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
 }
 
 .textarea {
   resize: vertical;
-  min-height: 150px;
+  min-height: 120px;
 }
 
 .errorInput {
-  border-color: #dc2626;
+  border-color: var(--badge-danger-text, #dc2626);
 }
 
 .error {
   margin-top: 6px;
-  color: #dc2626;
+  color: var(--badge-danger-text, #dc2626);
   font-size: 13px;
-}
-
-.fileInput {
-  margin-top: 6px;
-}
-
-.fileList {
-  margin-top: 12px;
-  padding-left: 18px;
-}
-
-.fileItem {
-  font-size: 14px;
-  color: #374151;
-  margin-bottom: 6px;
 }
 
 .actions {
@@ -86,30 +80,33 @@
 .primaryButton,
 .secondaryButton {
   border: none;
-  border-radius: 8px;
-  padding: 11px 22px;
+  border-radius: var(--radius-md, 8px);
+  padding: 10px 20px;
   cursor: pointer;
   font-size: 14px;
   font-weight: 600;
-  transition: 0.2s;
+  transition:
+    background-color 0.2s ease,
+    opacity 0.2s ease;
 }
 
 .primaryButton {
-  background: #2563eb;
-  color: #fff;
+  background: var(--color-primary);
+  color: #ffffff;
 }
 
 .primaryButton:hover:not(:disabled) {
-  background: #1d4ed8;
+  background: var(--color-primary-hover, #1d4ed8);
 }
 
 .secondaryButton {
-  background: #f3f4f6;
-  color: #374151;
+  background: var(--color-background);
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border);
 }
 
 .secondaryButton:hover:not(:disabled) {
-  background: #e5e7eb;
+  background: var(--color-surface);
 }
 
 .primaryButton:disabled,
