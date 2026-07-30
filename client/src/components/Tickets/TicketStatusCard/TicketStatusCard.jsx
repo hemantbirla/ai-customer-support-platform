@@ -1,7 +1,7 @@
 import PropTypes from "prop-types";
 import { toast } from "react-toastify";
 
-import { ROLES } from "../../../constants/roles";
+import { ROLES } from "../../../constants/roles.constants";
 
 import {
   STATUS_OPTIONS,

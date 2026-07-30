@@ -45,6 +45,26 @@
   gap: var(--spacing-3, 24px);
 }
 
+.section {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md, 10px);
+  padding: var(--spacing-2, 20px);
+  margin-top: var(--spacing-2, 20px);
+  box-shadow: var(--shadow-sm);
+  transition:
+    background-color 0.3s ease,
+    border-color 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+.sectionTitle {
+  margin-bottom: var(--spacing-1, 12px);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
 @media (max-width: 992px) {
   .container {
     padding: var(--spacing-2, 16px);

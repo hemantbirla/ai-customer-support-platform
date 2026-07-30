@@ -13,25 +13,42 @@ export const createTicket = (formData) => {
 };
 
 export const getTickets = (params = {}) => {
-  return api.get("/tickets", {
-    params,
-  });
+  return api.get("/tickets", { params });
 };
 
 export const getTicketById = (ticketId) => {
   return api.get(`/tickets/${ticketId}`);
 };
 
-export const updateTicket = (ticketId, formData) => {
-  return api.put(`/tickets/${ticketId}`, formData, {
-    headers: {
-      "Content-Type": "multipart/form-data",
-    },
-  });
+export const updateTicket = (ticketId, payload) => {
+  return api.put(`/tickets/${ticketId}`, payload);
 };
 
 export const deleteTicket = (ticketId) => {
   return api.delete(`/tickets/${ticketId}`);
+};
+
+// ==========================================
+// Ticket Workflow
+// ==========================================
+
+// Change ticket status
+export const updateTicketStatus = (ticketId, status) => {
+  return api.patch(`/tickets/${ticketId}/status`, {
+    status,
+  });
+};
+
+// Assign ticket to an agent
+export const assignAgent = (ticketId, agentId) => {
+  return api.patch(`/tickets/${ticketId}/assign`, {
+    agentId,
+  });
+};
+
+// Reopen a closed ticket
+export const reopenTicket = (ticketId) => {
+  return api.patch(`/tickets/${ticketId}/reopen`);
 };
 
 // ==========================================
@@ -67,25 +84,5 @@ export const uploadAttachments = (ticketId, formData) => {
     headers: {
       "Content-Type": "multipart/form-data",
     },
-  });
-};
-
-// ==========================================
-// Status
-// ==========================================
-
-export const updateTicketStatus = (ticketId, status) => {
-  return api.patch(`/tickets/${ticketId}/status`, {
-    status,
-  });
-};
-
-// ==========================================
-// Assign Agent
-// ==========================================
-
-export const assignAgent = (ticketId, agentId) => {
-  return api.patch(`/tickets/${ticketId}/assign`, {
-    agentId,
   });
 };

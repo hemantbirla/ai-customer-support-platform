@@ -29,22 +29,22 @@ import EditTicket from "../pages/Tickets/EditTicket";
 // Route Guards
 import PublicRoute from "./PublicRoute";
 import ProtectedRoute from "./ProtectedRoute";
+import { ROLES } from "../constants/roles.constants";
 
 // Roles
-import { ROLES } from "../constants/roles";
 
 const AppRoutes = createBrowserRouter([
-  // ==========================================
+  // ==================================================
   // Root
-  // ==========================================
+  // ==================================================
   {
     path: "/",
     element: <Navigate to="/login" replace />,
   },
 
-  // ==========================================
+  // ==================================================
   // Public Routes
-  // ==========================================
+  // ==================================================
   {
     element: <PublicRoute />,
     children: [
@@ -72,27 +72,29 @@ const AppRoutes = createBrowserRouter([
     ],
   },
 
-  // ==========================================
+  // ==================================================
   // Protected Routes
-  // ==========================================
+  // ==================================================
   {
     element: <ProtectedRoute />,
     children: [
       {
         element: <DashboardLayout />,
         children: [
-          // ==========================
+          // ==========================================
           // Dashboard
-          // ==========================
+          // ==========================================
+
           {
             path: "/dashboard",
             element: <DashboardHome />,
           },
 
-          // ==========================
-          // Ticket List
+          // ==========================================
+          // Tickets
           // Customer | Agent | Admin
-          // ==========================
+          // ==========================================
+
           {
             element: (
               <ProtectedRoute
@@ -111,12 +113,15 @@ const AppRoutes = createBrowserRouter([
             ],
           },
 
-          // ==========================
+          // ==========================================
           // Create Ticket
-          // Customer Only
-          // ==========================
+          // Customer | Admin
+          // ==========================================
+
           {
-            element: <ProtectedRoute allowedRoles={[ROLES.CUSTOMER]} />,
+            element: (
+              <ProtectedRoute allowedRoles={[ROLES.CUSTOMER, ROLES.ADMIN]} />
+            ),
             children: [
               {
                 path: "/tickets/new",
@@ -125,10 +130,11 @@ const AppRoutes = createBrowserRouter([
             ],
           },
 
-          // ==========================
+          // ==========================================
           // Edit Ticket
           // Agent | Admin
-          // ==========================
+          // ==========================================
+
           {
             element: (
               <ProtectedRoute allowedRoles={[ROLES.AGENT, ROLES.ADMIN]} />
@@ -141,45 +147,55 @@ const AppRoutes = createBrowserRouter([
             ],
           },
 
-          // ==========================
+          // ==========================================
           // Chat
-          // ==========================
+          // ==========================================
+
           {
             path: "/chat",
             element: <Chat />,
           },
 
-          // ==========================
-          // Analytics
-          // ==========================
-          {
-            path: "/analytics",
-            element: <Analytics />,
-          },
-
-          // ==========================
+          // ==========================================
           // Profile
-          // ==========================
+          // ==========================================
+
           {
             path: "/profile",
             element: <Profile />,
           },
 
-          // ==========================
+          // ==========================================
           // Settings
-          // ==========================
+          // ==========================================
+
           {
             path: "/settings",
             element: <Settings />,
+          },
+
+          // ==========================================
+          // Analytics
+          // Admin Only
+          // ==========================================
+
+          {
+            element: <ProtectedRoute allowedRoles={[ROLES.ADMIN]} />,
+            children: [
+              {
+                path: "/analytics",
+                element: <Analytics />,
+              },
+            ],
           },
         ],
       },
     ],
   },
 
-  // ==========================================
+  // ==================================================
   // Catch All
-  // ==========================================
+  // ==================================================
   {
     path: "*",
     element: <Navigate to="/dashboard" replace />,

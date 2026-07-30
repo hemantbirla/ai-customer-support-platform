@@ -9,7 +9,7 @@ import {
   PlusCircle,
 } from "lucide-react";
 
-import { ROLES } from "../constants/roles";
+import { ROLES } from "../constants/roles.constants";
 
 export const sidebarMenus = {
   // ==========================================

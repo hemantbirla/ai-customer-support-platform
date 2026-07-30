@@ -91,11 +91,18 @@ const TicketFilters = ({ filters, onFilterChange, agents = [] }) => {
         >
           <option value="">All Agents</option>
 
-          {agents.map((agent) => (
-            <option key={agent._id} value={agent._id}>
-              {agent.name}
-            </option>
-          ))}
+          {agents.map((agent) => {
+            const agentName =
+              agent.name ||
+              `${agent.firstName || ""} ${agent.lastName || ""}`.trim() ||
+              agent.email;
+
+            return (
+              <option key={agent._id} value={agent._id}>
+                {agentName}
+              </option>
+            );
+          })}
         </select>
       </div>
     </div>

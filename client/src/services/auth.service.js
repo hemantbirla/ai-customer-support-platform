@@ -31,7 +31,16 @@ export const logoutUser = async () => {
 
   return response.data;
 };
+/**
+ * Get users (optionally filtered by role, e.g., 'AGENT')
+ */
+export const getUsers = async (params = {}) => {
+  const response = await axiosInstance.get("/auth", {
+    params,
+  });
 
+  return response.data;
+};
 /**
  * Refresh access token
  */

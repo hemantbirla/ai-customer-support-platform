@@ -7,7 +7,15 @@ import PriorityBadge from "../PriorityBadge/PriorityBadge";
 
 import styles from "./TicketRow.module.css";
 
-const TicketRows = ({ tickets, role, onView, onEdit, onDelete }) => {
+const TicketRows = ({
+  tickets,
+  role,
+  onView,
+  onEdit,
+  onDelete,
+  onAssign,
+  onReopen,
+}) => {
   return (
     <>
       {tickets.map((ticket) => (
@@ -34,11 +42,12 @@ const TicketRows = ({ tickets, role, onView, onEdit, onDelete }) => {
 
           <td>
             <TicketActions
-              ticketId={ticket._id}
-              role={role}
+              ticket={ticket}
               onView={onView}
               onEdit={onEdit}
               onDelete={onDelete}
+              onAssign={onAssign}
+              onReopen={onReopen}
             />
           </td>
         </tr>
@@ -53,6 +62,13 @@ TicketRows.propTypes = {
   onView: PropTypes.func.isRequired,
   onEdit: PropTypes.func.isRequired,
   onDelete: PropTypes.func.isRequired,
+  onAssign: PropTypes.func,
+  onReopen: PropTypes.func,
+};
+
+TicketRows.defaultProps = {
+  onAssign: () => {},
+  onReopen: () => {},
 };
 
 export default TicketRows;

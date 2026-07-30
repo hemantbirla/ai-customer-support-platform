@@ -1,7 +1,5 @@
 import mongoose from "mongoose";
-// Make sure to add the .js extension to your local constants file!
-import ROLES from "../constants/roles.js";
-
+import { ROLES } from "../constants/roles.constants.js";
 const userSchema = new mongoose.Schema(
   {
     name: {

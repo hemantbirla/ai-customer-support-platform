@@ -4,19 +4,29 @@ import {
   TICKET_PRIORITY,
   TICKET_CATEGORY,
 } from "../constants/ticket.constants.js";
+import {
+  canAccessTicket,
+  canEditTicket,
+  canDeleteTicket,
+  canAssignTicket,
+  canChangePriority,
+  canChangeStatus,
+  isAdmin,
+  isAgent,
+  isCustomer,
+} from "../../../utils/permission.utils.js";
 import generateTicketNumber from "../../../utils/generateTicketNumber.js";
-
 import { canTransitionStatus } from "../utils/ticketWorkflow.js";
-
 import User from "../../../models/User.js";
-
 import { createActivity } from "./activity.service.js";
 import { ACTIVITY_ACTION } from "../constants/activity.constants.js";
 import Activity from "../models/Activity.js";
 
+// ==========================================
+// Create Ticket
+// ==========================================
 export const createTicket = async (ticketData, files, user) => {
   const { subject, description, category, priority } = ticketData;
-
   const ticketNumber = await generateTicketNumber();
 
   // attachments array
@@ -41,6 +51,7 @@ export const createTicket = async (ticketData, files, user) => {
     attachments,
     tags: [],
     deletedAt: null,
+    deletedBy: null,
   });
 
   await createActivity({
@@ -52,6 +63,9 @@ export const createTicket = async (ticketData, files, user) => {
   return ticket;
 };
 
+// ==========================================
+// Get Tickets (with filters, search, & pagination)
+// ==========================================
 export const getTickets = async (queryParams, user) => {
   const {
     page = 1,
@@ -70,20 +84,14 @@ export const getTickets = async (queryParams, user) => {
     deletedAt: null,
   };
 
-  switch (user.role) {
-    case "CUSTOMER":
-      query.customer = user.id;
-      break;
-
-    case "AGENT":
-      query.assignedAgent = user.id;
-      break;
-
-    case "ADMIN":
-      break;
-
-    default:
-      throw new Error("Unauthorized");
+  if (isCustomer(user)) {
+    query.customer = user.id;
+  } else if (isAgent(user)) {
+    query.assignedAgent = user.id;
+  } else if (!isAdmin(user)) {
+    const error = new Error("Unauthorized");
+    error.statusCode = 403;
+    throw error;
   }
 
   if (status) {
@@ -127,11 +135,9 @@ export const getTickets = async (queryParams, user) => {
 
   if (startDate || endDate) {
     query.createdAt = {};
-
     if (startDate) {
       query.createdAt.$gte = new Date(startDate);
     }
-
     if (endDate) {
       query.createdAt.$lte = new Date(endDate);
     }
@@ -139,7 +145,6 @@ export const getTickets = async (queryParams, user) => {
 
   const pageNumber = Math.max(Number(page) || 1, 1);
   const pageSize = Math.max(Number(limit) || 10, 1);
-
   const skip = (pageNumber - 1) * pageSize;
 
   const allowedSortFields = [
@@ -162,8 +167,8 @@ export const getTickets = async (queryParams, user) => {
     .skip(skip)
     .limit(pageSize)
     .lean();
-  const totalItems = await Ticket.countDocuments(query);
 
+  const totalItems = await Ticket.countDocuments(query);
   const totalPages = Math.ceil(totalItems / pageSize);
 
   return {
@@ -174,13 +179,16 @@ export const getTickets = async (queryParams, user) => {
   };
 };
 
+// ==========================================
+// Get Ticket By ID
+// ==========================================
 export const getTicketById = async (ticketId, user) => {
   const ticket = await Ticket.findOne({
     _id: ticketId,
     deletedAt: null,
   })
-    .populate("customer", "firstName lastName email")
-    .populate("assignedAgent", "firstName lastName email");
+    .populate("customer", "name email role")
+    .populate("assignedAgent", "name email role");
 
   if (!ticket) {
     const error = new Error("Ticket not found");
@@ -189,28 +197,18 @@ export const getTicketById = async (ticketId, user) => {
   }
 
   // RBAC
-  if (user.role === "CUSTOMER") {
-    if (ticket.customer._id.toString() !== user.id) {
-      const error = new Error("You are not authorised to access this ticket");
-      error.statusCode = 403;
-      throw error;
-    }
-  }
-
-  if (user.role === "AGENT") {
-    if (
-      !ticket.assignedAgent ||
-      ticket.assignedAgent._id.toString() !== user.id
-    ) {
-      const error = new Error("You are not authorised to access this ticket");
-      error.statusCode = 403;
-      throw error;
-    }
+  if (!canAccessTicket(user, ticket)) {
+    const error = new Error("You are not authorised to access this ticket");
+    error.statusCode = 403;
+    throw error;
   }
 
   return ticket;
 };
 
+// ==========================================
+// Update Ticket Details
+// ==========================================
 export const updateTicket = async (ticketId, payload, user) => {
   const ticket = await Ticket.findOne({
     _id: ticketId,
@@ -224,20 +222,10 @@ export const updateTicket = async (ticketId, payload, user) => {
   }
 
   // RBAC
-  if (user.role === "CUSTOMER") {
-    if (ticket.customer.toString() !== user.id) {
-      const error = new Error("You are not authorised to update this ticket");
-      error.statusCode = 403;
-      throw error;
-    }
-  }
-
-  if (user.role === "AGENT") {
-    if (!ticket.assignedAgent || ticket.assignedAgent.toString() !== user.id) {
-      const error = new Error("You are not authorised to update this ticket");
-      error.statusCode = 403;
-      throw error;
-    }
+  if (!canEditTicket(user, ticket)) {
+    const error = new Error("You are not authorised to update this ticket");
+    error.statusCode = 403;
+    throw error;
   }
 
   if (payload.subject !== undefined) {
@@ -253,8 +241,15 @@ export const updateTicket = async (ticketId, payload, user) => {
   }
 
   if (payload.priority !== undefined) {
-    const previousPriority = ticket.priority;
+    if (!canChangePriority(user)) {
+      const error = new Error(
+        "You are not authorised to change ticket priority",
+      );
+      error.statusCode = 403;
+      throw error;
+    }
 
+    const previousPriority = ticket.priority;
     ticket.priority = payload.priority;
 
     await createActivity({
@@ -266,15 +261,13 @@ export const updateTicket = async (ticketId, payload, user) => {
     });
   }
 
-  if (payload.status && user.role === "CUSTOMER") {
-    const error = new Error(
-      "Customers are not allowed to change ticket status",
-    );
-    error.statusCode = 403;
-    throw error;
-  }
-
   if (payload.status) {
+    if (!canChangeStatus(user, ticket)) {
+      const error = new Error("You are not authorised to change ticket status");
+      error.statusCode = 403;
+      throw error;
+    }
+
     const currentStatus = ticket.status;
     const nextStatus = payload.status;
 
@@ -289,7 +282,6 @@ export const updateTicket = async (ticketId, payload, user) => {
     }
 
     const previousStatus = ticket.status;
-
     ticket.status = nextStatus;
 
     await createActivity({
@@ -302,8 +294,8 @@ export const updateTicket = async (ticketId, payload, user) => {
   }
 
   if (payload.assignedAgent) {
-    if (user.role !== "ADMIN") {
-      const error = new Error("Only admin can assign tickets");
+    if (!canAssignTicket(user)) {
+      const error = new Error("You are not authorised to assign tickets");
       error.statusCode = 403;
       throw error;
     }
@@ -339,6 +331,56 @@ export const updateTicket = async (ticketId, payload, user) => {
   return ticket;
 };
 
+// ==========================================
+// Update Ticket Status
+// ==========================================
+export const updateTicketStatus = async (ticketId, status, user) => {
+  const ticket = await Ticket.findOne({
+    _id: ticketId,
+    deletedAt: null,
+  });
+
+  if (!ticket) {
+    const error = new Error("Ticket not found");
+    error.statusCode = 404;
+    throw error;
+  }
+
+  if (!canChangeStatus(user, ticket)) {
+    const error = new Error("You are not authorised to change ticket status");
+    error.statusCode = 403;
+    throw error;
+  }
+
+  const isValidTransition = canTransitionStatus(ticket.status, status);
+
+  if (!isValidTransition) {
+    const error = new Error(
+      `Invalid status transition from ${ticket.status} to ${status}`,
+    );
+    error.statusCode = 400;
+    throw error;
+  }
+
+  const previousStatus = ticket.status;
+  ticket.status = status;
+
+  await ticket.save();
+
+  await createActivity({
+    ticket: ticket._id,
+    action: ACTIVITY_ACTION.STATUS_CHANGED,
+    user: user.id,
+    previousValue: previousStatus,
+    newValue: status,
+  });
+
+  return ticket;
+};
+
+// ==========================================
+// Delete Ticket (Soft Delete)
+// ==========================================
 export const deleteTicket = async (ticketId, user) => {
   const ticket = await Ticket.findOne({
     _id: ticketId,
@@ -351,37 +393,103 @@ export const deleteTicket = async (ticketId, user) => {
     throw error;
   }
 
-  // Customer can delete only their own tickets
-  if (user.role === "CUSTOMER") {
-    if (ticket.customer.toString() !== user.id) {
-      const error = new Error("You are not authorised to delete this ticket");
-      error.statusCode = 403;
-      throw error;
-    }
-  }
-
-  // Agent cannot delete tickets
-  if (user.role === "AGENT") {
+  if (!canDeleteTicket(user)) {
     const error = new Error("You are not authorised to delete this ticket");
     error.statusCode = 403;
     throw error;
   }
 
+  // ==========================
+  // RBAC
+  // ==========================
+  if (!canAccessTicket(user, ticket)) {
+    const error = new Error("You are not authorised to access this ticket");
+    error.statusCode = 403;
+    throw error;
+  }
+
+  // ==========================
   // Soft Delete
+  // ==========================
   ticket.deletedAt = new Date();
+  ticket.deletedBy = user.id;
 
   await ticket.save();
 
-  return;
+  // ==========================
+  // Activity Log
+  // ==========================
+  await createActivity({
+    ticket: ticket._id,
+    action: ACTIVITY_ACTION.TICKET_DELETED,
+    user: user.id,
+  });
+
+  return ticket;
 };
 
+// ==========================================
+// Get Ticket Activity History
+// ==========================================
 export const getTicketActivity = async (ticketId, user) => {
   await getTicketById(ticketId, user);
 
   return Activity.find({
     ticket: ticketId,
   })
-    .populate("user", "firstName lastName email")
+    .populate("user", "name email role")
     .sort({ createdAt: -1 })
     .lean();
+};
+
+// ==========================================
+// Assign Agent
+// ==========================================
+export const assignAgent = async (ticketId, agentId, user) => {
+  const ticket = await Ticket.findOne({
+    _id: ticketId,
+    deletedAt: null,
+  });
+
+  if (!ticket) {
+    const error = new Error("Ticket not found");
+    error.statusCode = 404;
+    throw error;
+  }
+
+  if (!canAssignTicket(user)) {
+    const error = new Error("You are not authorised to assign tickets");
+    error.statusCode = 403;
+    throw error;
+  }
+
+  const agent = await User.findOne({
+    _id: agentId,
+    role: "AGENT",
+  });
+
+  if (!agent) {
+    const error = new Error("Assigned agent not found");
+    error.statusCode = 404;
+    throw error;
+  }
+
+  const previousAgent = ticket.assignedAgent;
+  ticket.assignedAgent = agent._id;
+
+  if (ticket.status === TICKET_STATUS.OPEN) {
+    ticket.status = TICKET_STATUS.ASSIGNED;
+  }
+
+  await ticket.save();
+
+  await createActivity({
+    ticket: ticket._id,
+    action: ACTIVITY_ACTION.AGENT_ASSIGNED,
+    user: user.id,
+    previousValue: previousAgent,
+    newValue: agent._id,
+  });
+
+  return ticket;
 };

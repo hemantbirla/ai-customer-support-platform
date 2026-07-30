@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+
 import {
   TICKET_STATUS,
   TICKET_PRIORITY,
@@ -81,8 +82,18 @@ const ticketSchema = new mongoose.Schema(
     aiCategory: String,
     aiSentiment: String,
 
+    // ===========================
+    // Soft Delete
+    // ===========================
+
     deletedAt: {
       type: Date,
+      default: null,
+    },
+
+    deletedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
       default: null,
     },
   },
@@ -100,7 +111,7 @@ ticketSchema.index({ createdAt: -1 });
 ticketSchema.index({ subject: "text", description: "text" });
 
 ticketSchema.virtual("isDeleted").get(function () {
-  return !!this.deletedAt;
+  return this.deletedAt !== null;
 });
 
 const Ticket = mongoose.model("Ticket", ticketSchema);

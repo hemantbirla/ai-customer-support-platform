@@ -1,8 +1,8 @@
-import { ROLES } from "./roles";
-
 // ==========================================
 // Ticket Status (API Enums)
 // ==========================================
+
+import { ROLES } from "./roles.constants";
 
 export const TICKET_STATUS = Object.freeze({
   OPEN: "OPEN",

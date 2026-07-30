@@ -1,5 +1,12 @@
 import express from "express";
+
 import authMiddleware from "../../../middleware/auth.middleware.js";
+import authorize from "../../../middleware/authorize.middleware.js";
+import ownership from "../../../middleware/ownership.middleware.js";
+import workflowMiddleware from "../../../middleware/workflow.middleware.js";
+import upload from "../../../middleware/upload.middleware.js";
+
+import { PERMISSIONS } from "../../../constants/permissions.constants.js";
 
 import {
   createTicket,
@@ -8,6 +15,8 @@ import {
   updateTicket,
   deleteTicket,
   getTicketActivity,
+  updateTicketStatus,
+  assignAgent,
 } from "../controllers/ticket.controller.js";
 
 import {
@@ -15,41 +24,77 @@ import {
   getComments,
 } from "../controllers/comment.controller.js";
 
-import upload from "../../../middleware/upload.middleware.js";
-
 const router = express.Router();
 
 // =========================
 // Ticket CRUD
 // =========================
-router.post("/", authMiddleware, upload.array("attachments", 5), createTicket);
+
+router.post(
+  "/",
+  authMiddleware,
+  authorize(PERMISSIONS.CREATE_TICKET),
+  upload.array("attachments", 5),
+  createTicket,
+);
 
 router.get("/", authMiddleware, getTickets);
 
+router.get("/:ticketId", authMiddleware, ownership, getTicketById);
+
+router.put(
+  "/:ticketId",
+  authMiddleware,
+  ownership,
+  authorize(PERMISSIONS.EDIT_TICKET),
+  updateTicket,
+);
+
+router.delete(
+  "/:ticketId",
+  authMiddleware,
+  ownership,
+  authorize(PERMISSIONS.DELETE_TICKET),
+  deleteTicket,
+);
+
 // =========================
-// Ticket Comments
+// Workflow
 // =========================
+
+router.patch(
+  "/:ticketId/status",
+  authMiddleware,
+  ownership,
+  authorize(PERMISSIONS.CHANGE_STATUS),
+  workflowMiddleware,
+  updateTicketStatus,
+);
+
+router.patch(
+  "/:ticketId/assign",
+  authMiddleware,
+  authorize(PERMISSIONS.ASSIGN_AGENT),
+  assignAgent,
+);
+
+// =========================
+// Comments
+// =========================
+
 router.post(
-  "/:id/comments",
+  "/:ticketId/comments",
   authMiddleware,
   upload.array("attachments", 5),
   createComment,
 );
 
-router.get("/:id/comments", authMiddleware, getComments);
+router.get("/:ticketId/comments", authMiddleware, getComments);
 
 // =========================
-// Ticket Activity
+// Activity
 // =========================
-router.get("/:id/activity", authMiddleware, getTicketActivity);
 
-// =========================
-// Single Ticket
-// =========================
-router.get("/:id", authMiddleware, getTicketById);
-
-router.put("/:id", authMiddleware, updateTicket);
-
-router.delete("/:id", authMiddleware, deleteTicket);
+router.get("/:ticketId/activity", authMiddleware, getTicketActivity);
 
 export default router;

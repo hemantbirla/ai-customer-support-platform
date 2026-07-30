@@ -7,7 +7,7 @@ import * as commentService from "../services/comment.service.js";
  */
 export const createComment = asyncHandler(async (req, res) => {
   const comment = await commentService.createComment(
-    req.params.id,
+    req.params.ticketId,
     req.body,
     req.files,
     req.user,
@@ -27,7 +27,10 @@ export const createComment = asyncHandler(async (req, res) => {
  * GET /api/tickets/:id/comments
  */
 export const getComments = asyncHandler(async (req, res) => {
-  const comments = await commentService.getComments(req.params.id, req.user);
+  const comments = await commentService.getComments(
+    req.params.ticketId,
+    req.user,
+  );
 
   return res.status(200).json({
     success: true,

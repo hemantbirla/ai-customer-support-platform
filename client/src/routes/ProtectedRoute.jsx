@@ -10,7 +10,7 @@ const ProtectedRoute = ({ allowedRoles = [] }) => {
   const { initialized, isAuthenticated, user } = useAuth();
 
   // ==========================================
-  // Wait until authentication is initialized
+  // Wait until auth initialization completes
   // ==========================================
 
   if (!initialized) {
@@ -18,7 +18,7 @@ const ProtectedRoute = ({ allowedRoles = [] }) => {
   }
 
   // ==========================================
-  // Not Logged In
+  // Authentication
   // ==========================================
 
   if (!isAuthenticated) {
@@ -26,12 +26,16 @@ const ProtectedRoute = ({ allowedRoles = [] }) => {
   }
 
   // ==========================================
-  // Role Authorization
+  // Authorization
   // ==========================================
 
   if (allowedRoles.length > 0 && !allowedRoles.includes(user?.role)) {
     return <Navigate to="/dashboard" replace />;
   }
+
+  // ==========================================
+  // Authorized
+  // ==========================================
 
   return <Outlet />;
 };

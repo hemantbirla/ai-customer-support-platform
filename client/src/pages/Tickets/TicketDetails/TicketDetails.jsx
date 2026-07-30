@@ -14,28 +14,33 @@ import TicketComments from "../../../components/Tickets/TicketComments";
 import TicketTimeline from "../../../components/Tickets/TicketTimeline";
 import ActivityLog from "../../../components/Tickets/ActivityLog";
 
+import StatusDropdown from "../../../components/Tickets/StatusDropdown";
+import useTicketPermissions from "../../../hooks/useTicketPermissions";
+
 import {
   getTicketById,
   getComments,
   getActivityLogs,
+  updateTicketStatus,
+  assignAgent,
 } from "../../../services/ticket.service";
 
 import styles from "./TicketDetails.module.css";
+import AssignAgentModal from "../../../components/Tickets/AssignAgentModal/AssignAgentModal";
 
 const TicketDetails = () => {
   const { ticketId } = useParams();
   const navigate = useNavigate();
-
   const [loading, setLoading] = useState(true);
-
   const [ticket, setTicket] = useState(null);
   const [attachments, setAttachments] = useState([]);
-
   const [comments, setComments] = useState([]);
-
   const [activityLogs, setActivityLogs] = useState([]);
-
   const [error, setError] = useState("");
+  const { canChangeStatus, allowedTransitions } = useTicketPermissions(ticket);
+  const [showAssignModal, setShowAssignModal] = useState(false);
+  const [assignLoading, setAssignLoading] = useState(false);
+  const [agents, setAgents] = useState([]);
 
   const fetchTicketDetails = useCallback(async () => {
     try {
@@ -64,6 +69,46 @@ const TicketDetails = () => {
       setLoading(false);
     }
   }, [ticketId]);
+
+  // ==========================================
+  // Update Ticket Status
+  // ==========================================
+
+  const handleStatusChange = async (status) => {
+    try {
+      await updateTicketStatus(ticketId, status);
+
+      toast.success("Ticket status updated successfully.");
+
+      fetchTicketDetails();
+    } catch (error) {
+      toast.error(
+        error.response?.data?.message || "Failed to update ticket status.",
+      );
+    }
+  };
+
+  const handleAssignClick = () => {
+    setShowAssignModal(true);
+  };
+
+  const handleAssignAgent = async (agentId) => {
+    try {
+      setAssignLoading(true);
+
+      await assignAgent(ticket._id, agentId);
+
+      toast.success("Agent assigned successfully.");
+
+      setShowAssignModal(false);
+
+      fetchTicketDetails();
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Unable to assign agent.");
+    } finally {
+      setAssignLoading(false);
+    }
+  };
 
   useEffect(() => {
     fetchTicketDetails();
@@ -113,7 +158,27 @@ const TicketDetails = () => {
         <div className={styles.right}>
           <TicketStatusCard ticket={ticket} onRefresh={fetchTicketDetails} />
 
+          {canChangeStatus && (
+            <div className={styles.section}>
+              <h3 className={styles.sectionTitle}>Change Status</h3>
+
+              <StatusDropdown
+                currentStatus={ticket.status}
+                options={allowedTransitions}
+                onChange={handleStatusChange}
+              />
+            </div>
+          )}
+
           <TicketTimeline activities={activityLogs} />
+          <AssignAgentModal
+            open={showAssignModal}
+            loading={assignLoading}
+            agents={agents}
+            currentAgent={ticket.assignedAgent?._id}
+            onAssign={handleAssignAgent}
+            onClose={() => setShowAssignModal(false)}
+          />
 
           <ActivityLog logs={activityLogs} />
         </div>

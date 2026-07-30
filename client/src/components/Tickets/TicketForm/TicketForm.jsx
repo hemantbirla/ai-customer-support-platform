@@ -99,21 +99,41 @@ const TicketForm = ({
       </div>
 
       {/* Category & Priority Grid */}
+      {/* Category & Priority Grid */}
+
       <div className={styles.row}>
-        <Select
-          label="Category"
-          placeholder="Select Category"
-          options={CATEGORY_OPTIONS}
-          error={errors.category?.message}
-          {...register("category")}
+        {/* Category */}
+
+        <Controller
+          name="category"
+          control={control}
+          render={({ field }) => (
+            <Select
+              label="Category"
+              placeholder="Select Category"
+              options={CATEGORY_OPTIONS}
+              error={errors.category?.message}
+              disabled={loading}
+              {...field}
+            />
+          )}
         />
 
-        <Select
-          label="Priority"
-          placeholder="Select Priority"
-          options={PRIORITY_OPTIONS}
-          error={errors.priority?.message}
-          {...register("priority")}
+        {/* Priority */}
+
+        <Controller
+          name="priority"
+          control={control}
+          render={({ field }) => (
+            <Select
+              label="Priority"
+              placeholder="Select Priority"
+              options={PRIORITY_OPTIONS}
+              error={errors.priority?.message}
+              disabled={loading}
+              {...field}
+            />
+          )}
         />
       </div>
 

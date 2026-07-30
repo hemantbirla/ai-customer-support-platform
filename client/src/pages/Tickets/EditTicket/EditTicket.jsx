@@ -18,7 +18,7 @@ const EditTicket = () => {
 
   useEffect(() => {
     loadTicket();
-  }, []);
+  }, [ticketId]);
 
   const loadTicket = async () => {
     try {
@@ -35,18 +35,30 @@ const EditTicket = () => {
   };
 
   const handleUpdateTicket = async (data) => {
-    const formData = new FormData();
+    try {
+      setLoading(true);
 
-    formData.append("subject", data.subject);
-    formData.append("description", data.description);
-    formData.append("category", data.category);
-    formData.append("priority", data.priority);
+      const formData = new FormData();
 
-    Array.from(data.attachments || []).forEach((file) => {
-      formData.append("attachments", file);
-    });
+      formData.append("subject", data.subject);
+      formData.append("description", data.description);
+      formData.append("category", data.category);
+      formData.append("priority", data.priority);
 
-    await updateTicket(ticketId, formData);
+      (data.attachments || []).forEach((file) => {
+        formData.append("attachments", file);
+      });
+
+      await updateTicket(ticketId, formData);
+
+      toast.success("Ticket updated successfully.");
+
+      navigate(`/tickets/${ticketId}`);
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Unable to update ticket.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (!ticket) return null;

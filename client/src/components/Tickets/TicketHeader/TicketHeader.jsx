@@ -1,4 +1,5 @@
 import PropTypes from "prop-types";
+import useAuth from "../../../hooks/useAuth";
 import styles from "./TicketHeader.module.css";
 
 const TicketHeader = ({
@@ -8,15 +9,20 @@ const TicketHeader = ({
   createButtonText = "Create Ticket",
   onCreate,
 }) => {
+  const { user } = useAuth();
+
+  const userRole = user?.role?.toUpperCase();
+  const canCreate = userRole === "ADMIN" || userRole === "CUSTOMER";
+  const shouldShowButton = showCreateButton && canCreate;
+
   return (
     <div className={styles.container}>
       <div>
         <h1 className={styles.title}>{title}</h1>
-
         <p className={styles.subtitle}>{subtitle}</p>
       </div>
 
-      {showCreateButton && (
+      {shouldShowButton && (
         <button
           type="button"
           className={styles.createButton}
