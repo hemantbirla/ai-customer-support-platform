@@ -4,7 +4,7 @@ import socketAuth from "./middleware/socketAuth.js";
 
 import { setSocketServer } from "./index.js";
 
-import { registerChatHandler } from "./handlers/chat.handler.js";
+import registerChatHandlers from "./handlers/chat.handler.js";
 
 import { registerPresenceHandler } from "./handlers/presence.handler.js";
 
