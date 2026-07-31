@@ -1,7 +1,11 @@
 import "dotenv/config";
+import http from "http";
+
 import app from "./app.js";
-import { env } from "./config/env.js";
+
 import { connectDatabase } from "./config/database.js";
+
+import { initializeSocket } from "./socket/socket.js";
 
 const PORT = process.env.PORT || 5001;
 
@@ -9,11 +13,22 @@ const startServer = async () => {
   try {
     await connectDatabase();
 
-    app.listen(PORT, () => {
+    // Create HTTP Server
+    const httpServer = http.createServer(app);
+
+    // Initialize Socket.io
+    initializeSocket(httpServer);
+
+    httpServer.listen(PORT, () => {
+      console.log("=================================");
       console.log(`🚀 Server running on port ${PORT}`);
+      console.log(`🌐 API : http://localhost:${PORT}`);
+      console.log(`⚡ Socket.io Initialized`);
+      console.log("=================================");
     });
   } catch (error) {
-    console.error("Failed to start server:", error);
+    console.error(error);
+
     process.exit(1);
   }
 };
