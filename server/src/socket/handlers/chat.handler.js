@@ -1,52 +1,92 @@
-import Ticket from "../../modules/tickets/models/Ticket.js";
+import chatService from "../../services/chat.service.js";
 
-import { CHAT_EVENTS } from "../events/chat.events.js";
-
-import { getTicketRoom } from "../utils/room.utils.js";
-
-export const registerChatHandler = (io, socket) => {
+/**
+ * Register Chat Socket Events
+ */
+const registerChatHandlers = (io, socket) => {
   /**
    * Join Ticket Room
    */
-  socket.on(CHAT_EVENTS.JOIN_TICKET, async ({ ticketId }) => {
+  socket.on("join-ticket", async ({ ticketId }) => {
+    if (!ticketId) return;
+
+    socket.join(`ticket_${ticketId}`);
+
+    console.log(`${socket.user.name} joined ticket_${ticketId}`);
+
+    // Mark pending messages delivered
+    await chatService.markDelivered(socket.user._id);
+
+    io.to(`ticket_${ticketId}`).emit("user:online", {
+      userId: socket.user._id,
+      ticketId,
+    });
+  });
+
+  /**
+   * Leave Ticket Room
+   */
+  socket.on("leave-ticket", ({ ticketId }) => {
+    socket.leave(`ticket_${ticketId}`);
+
+    console.log(`${socket.user.name} left ticket_${ticketId}`);
+  });
+
+  /**
+   * Send Message
+   */
+  socket.on("send-message", async (payload, callback) => {
     try {
-      const ticket = await Ticket.findById(ticketId);
+      const { ticketId } = payload;
 
-      if (!ticket) {
-        return;
-      }
+      const message = await chatService.sendMessage(
+        ticketId,
+        socket.user,
+        payload,
+      );
 
-      const userId = socket.user.id;
+      io.to(`ticket_${ticketId}`).emit("message:new", message);
 
-      const isAllowed =
-        ticket.customer?.toString() === userId ||
-        ticket.assignedAgent?.toString() === userId ||
-        socket.user.role === "ADMIN";
-
-      if (!isAllowed) {
-        console.log(`❌ Unauthorized room join by ${socket.user.name}`);
-
-        return;
-      }
-
-      const room = getTicketRoom(ticketId);
-
-      socket.join(room);
-
-      console.log(`✅ ${socket.user.name} joined ${room}`);
+      callback?.({
+        success: true,
+        data: message,
+      });
     } catch (error) {
-      console.error(error);
+      callback?.({
+        success: false,
+        message: error.message,
+      });
     }
   });
 
   /**
-   * Leave Room
+   * Mark Read
    */
-  socket.on(CHAT_EVENTS.LEAVE_TICKET, ({ ticketId }) => {
-    const room = getTicketRoom(ticketId);
+  socket.on("mark-read", async ({ messageIds, ticketId }) => {
+    const messages = await chatService.markRead(messageIds, socket.user);
 
-    socket.leave(room);
+    io.to(`ticket_${ticketId}`).emit("message:read", messages);
+  });
 
-    console.log(`🚪 ${socket.user.name} left ${room}`);
+  /**
+   * Typing Start
+   */
+  socket.on("typing:start", ({ ticketId }) => {
+    socket.to(`ticket_${ticketId}`).emit("typing", {
+      user: socket.user,
+      isTyping: true,
+    });
+  });
+
+  /**
+   * Typing Stop
+   */
+  socket.on("typing:stop", ({ ticketId }) => {
+    socket.to(`ticket_${ticketId}`).emit("typing", {
+      user: socket.user,
+      isTyping: false,
+    });
   });
 };
+
+export default registerChatHandlers;
