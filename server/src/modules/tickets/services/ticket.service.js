@@ -1,4 +1,7 @@
 import Ticket from "../models/Ticket.js";
+import notificationService from "../../../services/notification.service.js";
+import { getIO } from "../../../socket/socket.js";
+import { NOTIFICATION_TYPES } from "../../../constants/notification.constants.js";
 import {
   TICKET_STATUS,
   TICKET_PRIORITY,
@@ -21,6 +24,7 @@ import User from "../../../models/User.js";
 import { createActivity } from "./activity.service.js";
 import { ACTIVITY_ACTION } from "../constants/activity.constants.js";
 import Activity from "../models/Activity.js";
+import { ROLES } from "../../../constants/roles.constants.js";
 
 // ==========================================
 // Create Ticket
@@ -59,6 +63,27 @@ export const createTicket = async (ticketData, files, user) => {
     action: ACTIVITY_ACTION.TICKET_CREATED,
     user: user.id,
   });
+
+  const io = getIO();
+
+  const recipients = await User.find({
+    role: { $in: [ROLES.ADMIN, ROLES.AGENT] },
+  }).select("_id");
+
+  await Promise.all(
+    recipients.map((recipient) =>
+      notificationService.createNotification(
+        {
+          user: recipient._id,
+          title: "New Ticket Created",
+          message: `${user.name} created ticket ${ticket.ticketNumber}`,
+          type: NOTIFICATION_TYPES.NEW_TICKET,
+          link: `/tickets/${ticket._id}`,
+        },
+        io,
+      ),
+    ),
+  );
 
   return ticket;
 };
@@ -259,6 +284,32 @@ export const updateTicket = async (ticketId, payload, user) => {
       previousValue: previousPriority,
       newValue: payload.priority,
     });
+
+    const io = getIO();
+
+    await notificationService.createNotification(
+      {
+        user: ticket.customer,
+        title: "Priority Updated",
+        message: `${ticket.ticketNumber} priority changed to ${payload.priority}`,
+        type: NOTIFICATION_TYPES.PRIORITY_CHANGED,
+        link: `/tickets/${ticket._id}`,
+      },
+      io,
+    );
+
+    if (ticket.assignedAgent) {
+      await notificationService.createNotification(
+        {
+          user: ticket.assignedAgent,
+          title: "Priority Updated",
+          message: `${ticket.ticketNumber} priority changed to ${payload.priority}`,
+          type: NOTIFICATION_TYPES.PRIORITY_CHANGED,
+          link: `/tickets/${ticket._id}`,
+        },
+        io,
+      );
+    }
   }
 
   if (payload.status) {
@@ -291,6 +342,31 @@ export const updateTicket = async (ticketId, payload, user) => {
       previousValue: previousStatus,
       newValue: nextStatus,
     });
+    const io = getIO();
+
+    await notificationService.createNotification(
+      {
+        user: ticket.customer,
+        title: "Ticket Status Updated",
+        message: `${ticket.ticketNumber} status changed to ${nextStatus}`,
+        type: NOTIFICATION_TYPES.STATUS_CHANGED,
+        link: `/tickets/${ticket._id}`,
+      },
+      io,
+    );
+
+    if (ticket.assignedAgent) {
+      await notificationService.createNotification(
+        {
+          user: ticket.assignedAgent,
+          title: "Ticket Status Updated",
+          message: `${ticket.ticketNumber} status changed to ${nextStatus}`,
+          type: NOTIFICATION_TYPES.STATUS_CHANGED,
+          link: `/tickets/${ticket._id}`,
+        },
+        io,
+      );
+    }
   }
 
   if (payload.assignedAgent) {
@@ -320,6 +396,19 @@ export const updateTicket = async (ticketId, payload, user) => {
       previousValue: null,
       newValue: agent._id,
     });
+
+    const io = getIO();
+
+    await notificationService.createNotification(
+      {
+        user: agent._id,
+        title: "Ticket Assigned",
+        message: `Ticket ${ticket.ticketNumber} has been assigned to you.`,
+        type: NOTIFICATION_TYPES.TICKET_ASSIGNED,
+        link: `/tickets/${ticket._id}`,
+      },
+      io,
+    );
 
     if (ticket.status === TICKET_STATUS.OPEN) {
       ticket.status = TICKET_STATUS.ASSIGNED;
@@ -374,6 +463,32 @@ export const updateTicketStatus = async (ticketId, status, user) => {
     previousValue: previousStatus,
     newValue: status,
   });
+
+  const io = getIO();
+
+  await notificationService.createNotification(
+    {
+      user: ticket.customer,
+      title: "Ticket Status Updated",
+      message: `${ticket.ticketNumber} is now ${status}`,
+      type: NOTIFICATION_TYPES.STATUS_CHANGED,
+      link: `/tickets/${ticket._id}`,
+    },
+    io,
+  );
+
+  if (ticket.assignedAgent) {
+    await notificationService.createNotification(
+      {
+        user: ticket.assignedAgent,
+        title: "Ticket Status Updated",
+        message: `${ticket.ticketNumber} is now ${status}`,
+        type: NOTIFICATION_TYPES.STATUS_CHANGED,
+        link: `/tickets/${ticket._id}`,
+      },
+      io,
+    );
+  }
 
   return ticket;
 };
@@ -490,6 +605,19 @@ export const assignAgent = async (ticketId, agentId, user) => {
     previousValue: previousAgent,
     newValue: agent._id,
   });
+
+  const io = getIO();
+
+  await notificationService.createNotification(
+    {
+      user: agent._id,
+      title: "Ticket Assigned",
+      message: `You have been assigned ticket ${ticket.ticketNumber}`,
+      type: NOTIFICATION_TYPES.TICKET_ASSIGNED,
+      link: `/tickets/${ticket._id}`,
+    },
+    io,
+  );
 
   return ticket;
 };
