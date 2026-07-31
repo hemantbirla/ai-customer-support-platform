@@ -1,6 +1,7 @@
 import axios from "axios";
 import { API, AUTH_ENDPOINTS } from "../constants/api";
 import { tokenService } from "../services/token.service";
+import { socket } from "../socket/socket";
 
 const axiosInstance = axios.create({
   baseURL: API.BASE_URL,
@@ -98,6 +99,10 @@ axiosInstance.interceptors.response.use(
 
         tokenService.setAccessToken(newAccessToken);
 
+        socket.auth = {
+          token: newAccessToken,
+        };
+
         processQueue(null, newAccessToken);
 
         originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
@@ -107,6 +112,7 @@ axiosInstance.interceptors.response.use(
         processQueue(refreshError, null);
 
         tokenService.removeAccessToken();
+        socket.disconnect();
 
         window.location.href = "/login";
 

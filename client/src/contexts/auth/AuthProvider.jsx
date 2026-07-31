@@ -10,6 +10,7 @@ import {
 } from "../../services/auth.service";
 
 import { tokenService } from "../../services/token.service";
+import { socket } from "../../socket/socket";
 
 const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
@@ -33,6 +34,7 @@ const AuthProvider = ({ children }) => {
       console.error("Failed to initialize auth:", error);
 
       tokenService.removeAccessToken();
+      socket.disconnect();
       setUser(null);
     } finally {
       setInitialized(true);
@@ -52,6 +54,12 @@ const AuthProvider = ({ children }) => {
       const { user, accessToken } = response.data;
 
       tokenService.setAccessToken(accessToken);
+
+      socket.auth = {
+        token: accessToken,
+      };
+
+      socket.connect();
 
       setUser(user);
 
