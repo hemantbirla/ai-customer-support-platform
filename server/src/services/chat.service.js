@@ -59,7 +59,60 @@ const DEFAULT_SORT = {
 
 // Service Skeleton
 class ChatService {
-  async getConversation(ticketId, user, query) {}
+  /**
+   * Get ticket conversation
+   */
+  async getConversation(ticketId, user, query = {}) {
+    // ==============================
+    // Validate Ticket
+    // ==============================
+
+    const ticket = await getTicketOrThrow(ticketId);
+
+    // ==============================
+    // Permission Check
+    // ==============================
+
+    verifyConversationAccess(user, ticket);
+
+    // ==============================
+    // Pagination
+    // ==============================
+
+    const { page, limit, skip } = getPagination(query);
+
+    // ==============================
+    // Total Messages
+    // ==============================
+
+    const total = await Message.countDocuments({
+      ticketId: ticket._id,
+    });
+
+    // ==============================
+    // Fetch Messages
+    // ==============================
+
+    const messages = await Message.find({
+      ticketId: ticket._id,
+    })
+      .populate(MESSAGE_POPULATE)
+      .sort(DEFAULT_SORT)
+      .skip(skip)
+      .limit(limit)
+      .lean();
+
+    // ==============================
+    // Pagination Response
+    // ==============================
+
+    return buildPaginationResponse({
+      data: messages,
+      total,
+      page,
+      limit,
+    });
+  }
 
   async sendMessage(ticketId, user, payload) {}
 
