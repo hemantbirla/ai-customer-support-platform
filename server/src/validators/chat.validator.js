@@ -1,43 +1,78 @@
-import { body, param } from "express-validator";
+import { z } from "zod";
 import mongoose from "mongoose";
 
-const isObjectId = (value) => mongoose.Types.ObjectId.isValid(value);
+const objectIdSchema = z
+  .string()
+  .refine((value) => mongoose.Types.ObjectId.isValid(value), {
+    message: "Invalid ObjectId",
+  });
 
 // ==========================================
-// GET Conversation
+// Get Conversation
 // ==========================================
 
-export const getConversationSchema = [
-  param("ticketId").custom(isObjectId).withMessage("Invalid ticket id"),
-];
+export const getConversationSchema = z.object({
+  params: z.object({
+    ticketId: objectIdSchema,
+  }),
+
+  query: z.object({
+    page: z.coerce.number().min(1).default(1).optional(),
+
+    limit: z.coerce.number().min(1).max(100).default(20).optional(),
+  }),
+
+  body: z.object({}).optional(),
+});
 
 // ==========================================
 // Send Message
 // ==========================================
 
-export const sendMessageSchema = [
-  param("ticketId").custom(isObjectId).withMessage("Invalid ticket id"),
+export const sendMessageSchema = z.object({
+  params: z.object({
+    ticketId: objectIdSchema,
+  }),
 
-  body("receiver").custom(isObjectId).withMessage("Invalid receiver id"),
+  body: z.object({
+    receiver: objectIdSchema,
 
-  body("message")
-    .optional()
-    .isString()
-    .isLength({ max: 5000 })
-    .withMessage("Message cannot exceed 5000 characters"),
+    message: z
+      .string()
+      .trim()
+      .max(5000, "Message cannot exceed 5000 characters")
+      .optional(),
 
-  body("attachments")
-    .optional()
-    .isArray({ max: 5 })
-    .withMessage("Maximum 5 attachments allowed"),
-];
+    attachments: z
+      .array(
+        z.object({
+          url: z.string(),
+
+          fileName: z.string(),
+
+          fileType: z.string(),
+
+          fileSize: z.number(),
+        }),
+      )
+      .max(5)
+      .optional()
+      .default([]),
+  }),
+
+  query: z.object({}).optional(),
+});
 
 // ==========================================
 // Mark Read
 // ==========================================
 
-export const markReadSchema = [
-  body("messageIds").isArray({ min: 1 }).withMessage("messageIds is required"),
+export const markReadSchema = z.object({
+  body: z.object({
+    messageIds: z.array(objectIdSchema).min(1),
+  }),
 
-  body("messageIds.*").custom(isObjectId).withMessage("Invalid message id"),
-];
+  params: z.object({}).optional(),
+
+  query: z.object({}).optional(),
+});

@@ -1,43 +1,80 @@
 import { Server } from "socket.io";
-
-import socketAuth from "./middleware/socketAuth.js";
-
-import { setSocketServer } from "./index.js";
+import jwt from "jsonwebtoken";
+import User from "../models/User.js";
 
 import registerChatHandlers from "./handlers/chat.handler.js";
 
-import { registerPresenceHandler } from "./handlers/presence.handler.js";
+let io;
 
-import { registerNotificationHandler } from "./handlers/notification.handler.js";
+const onlineUsers = new Map();
 
-export const initializeSocket = (httpServer) => {
-  const io = new Server(httpServer, {
+export const initializeSocket = (server) => {
+  io = new Server(server, {
     cors: {
-      origin: process.env.CLIENT_URL || "http://localhost:5173",
+      origin: process.env.CLIENT_URL,
       credentials: true,
-      methods: ["GET", "POST"],
     },
-
-    transports: ["websocket", "polling"],
   });
 
-  io.use(socketAuth);
+  // =============================
+  // Socket Authentication
+  // =============================
+
+  io.use(async (socket, next) => {
+    try {
+      const token =
+        socket.handshake.auth?.token ||
+        socket.handshake.headers.authorization?.replace("Bearer ", "");
+
+      if (!token) {
+        return next(new Error("Authentication required"));
+      }
+
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+      const user = await User.findById(decoded.id).select("-password");
+
+      if (!user) {
+        return next(new Error("User not found"));
+      }
+
+      socket.user = user;
+
+      next();
+    } catch (error) {
+      next(new Error("Invalid token"));
+    }
+  });
+
+  // =============================
+  // Connection
+  // =============================
 
   io.on("connection", (socket) => {
-    console.log(`🔌 Socket Connected : ${socket.user.name}`);
+    console.log(`✅ ${socket.user.name} connected`);
 
-    registerPresenceHandler(io, socket);
+    onlineUsers.set(socket.user._id.toString(), socket.id);
 
-    registerChatHandler(io, socket);
+    io.emit("user:online", {
+      userId: socket.user._id,
+    });
 
-    registerNotificationHandler(io, socket);
+    registerChatHandlers(io, socket);
 
-    socket.on("disconnect", (reason) => {
-      console.log(`❌ ${socket.user.name} disconnected (${reason})`);
+    socket.on("disconnect", () => {
+      console.log(`❌ ${socket.user.name} disconnected`);
+
+      onlineUsers.delete(socket.user._id.toString());
+
+      io.emit("user:offline", {
+        userId: socket.user._id,
+      });
     });
   });
 
-  setSocketServer(io);
-
   return io;
 };
+
+export const getIO = () => io;
+
+export const getOnlineUsers = () => onlineUsers;
