@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 import Message from "../models/Message.js";
-import Ticket from "../models/Ticket.js";
+import Ticket from "../modules/tickets/models/Ticket.js";
 
 import ApiError from "../utils/ApiError.js";
 
