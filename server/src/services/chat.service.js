@@ -177,9 +177,69 @@ class ChatService {
 
     return populatedMessage;
   }
-  async markRead(messageIds, user) {}
 
-  async markDelivered(userId) {}
+  /**
+   * Mark Messages as Read
+   */
+  async markRead(messageIds, user) {
+    if (!Array.isArray(messageIds) || messageIds.length === 0) {
+      throw new ApiError(STATUS_CODES.BAD_REQUEST, "Message ids are required");
+    }
+
+    const validIds = messageIds.filter((id) =>
+      mongoose.Types.ObjectId.isValid(id),
+    );
+
+    if (validIds.length === 0) {
+      throw new ApiError(STATUS_CODES.BAD_REQUEST, "Invalid message ids");
+    }
+
+    const now = new Date();
+
+    await Message.updateMany(
+      {
+        _id: { $in: validIds },
+        receiver: user._id,
+        readAt: null,
+      },
+      {
+        $set: {
+          readAt: now,
+        },
+      },
+    );
+
+    const updatedMessages = await Message.find({
+      _id: { $in: validIds },
+    })
+      .populate(MESSAGE_POPULATE)
+      .lean();
+
+    return updatedMessages;
+  }
+
+  /**
+   * Mark Messages as Delivered
+   */
+  async markDelivered(userId) {
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      return;
+    }
+
+    const now = new Date();
+
+    await Message.updateMany(
+      {
+        receiver: userId,
+        deliveredAt: null,
+      },
+      {
+        $set: {
+          deliveredAt: now,
+        },
+      },
+    );
+  }
 }
 
 const chatService = new ChatService();
