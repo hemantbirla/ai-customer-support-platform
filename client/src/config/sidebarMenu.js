@@ -9,9 +9,12 @@ import {
   PlusCircle,
 } from "lucide-react";
 
-import { ROLES } from "../constants/roles";
+import { ROLES } from "../constants/roles.constants";
 
 export const sidebarMenus = {
+  // ==========================================
+  // CUSTOMER
+  // ==========================================
   [ROLES.CUSTOMER]: [
     {
       id: "dashboard",
@@ -20,7 +23,7 @@ export const sidebarMenus = {
       icon: LayoutDashboard,
     },
     {
-      id: "tickets",
+      id: "my-tickets",
       label: "My Tickets",
       path: "/tickets",
       icon: Ticket,
@@ -28,12 +31,12 @@ export const sidebarMenus = {
     {
       id: "create-ticket",
       label: "Create Ticket",
-      path: "/tickets/create",
+      path: "/tickets/new",
       icon: PlusCircle,
     },
     {
       id: "chat",
-      label: "Chat",
+      label: "AI Chat",
       path: "/chat",
       icon: MessageSquare,
     },
@@ -51,6 +54,9 @@ export const sidebarMenus = {
     },
   ],
 
+  // ==========================================
+  // AGENT
+  // ==========================================
   [ROLES.AGENT]: [
     {
       id: "dashboard",
@@ -72,7 +78,7 @@ export const sidebarMenus = {
     },
     {
       id: "chat",
-      label: "Chat",
+      label: "AI Chat",
       path: "/chat",
       icon: MessageSquare,
     },
@@ -90,6 +96,9 @@ export const sidebarMenus = {
     },
   ],
 
+  // ==========================================
+  // ADMIN
+  // ==========================================
   [ROLES.ADMIN]: [
     {
       id: "dashboard",
@@ -111,7 +120,7 @@ export const sidebarMenus = {
     },
     {
       id: "tickets",
-      label: "Tickets",
+      label: "All Tickets",
       path: "/tickets",
       icon: Ticket,
     },

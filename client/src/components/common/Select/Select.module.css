@@ -1,0 +1,47 @@
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text-primary, #334155);
+}
+
+.select {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid var(--color-border, #d1d5db);
+  border-radius: var(--radius-md, 8px);
+  background: var(--color-background, #fff);
+  font-size: 15px;
+  color: var(--color-text-primary, #111827);
+  outline: none;
+  transition: 0.25s;
+}
+
+.select:hover {
+  border-color: var(--color-primary, #3b82f6);
+}
+
+.select:focus {
+  border-color: var(--color-primary, #2563eb);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+.errorBorder {
+  border-color: var(--badge-danger-text, #ef4444);
+}
+
+.error {
+  color: var(--badge-danger-text, #ef4444);
+  font-size: 13px;
+}
+
+.select:disabled {
+  background: var(--color-surface, #f8fafc);
+  opacity: 0.6;
+  cursor: not-allowed;
+}

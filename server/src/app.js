@@ -1,3 +1,4 @@
+import path from "path";
 import express from "express";
 import helmet from "helmet";
 import cors from "cors";
@@ -7,6 +8,9 @@ import authRoutes from "./routes/auth.routes.js";
 
 import { errorHandler } from "./middleware/error.middleware.js";
 import { notFound } from "./middleware/notFound.middleware.js";
+import ticketRoutes from "./modules/tickets/routes/ticket.routes.js";
+
+import uploadErrorHandler from "./middleware/uploadError.middleware.js";
 
 const app = express();
 
@@ -33,6 +37,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
+app.use("/uploads", express.static(path.join(process.cwd(), "src", "uploads")));
 // -------------------------
 // Health Check
 // -------------------------
@@ -48,9 +53,12 @@ app.get("/api/health", (req, res) => {
 // -------------------------
 app.use("/api/auth", authRoutes);
 
+app.use("/api/tickets", ticketRoutes);
+
 // -------------------------
 // 404 & Error Middlewares
 // -------------------------
+app.use(uploadErrorHandler);
 app.use(notFound);
 app.use(errorHandler);
 

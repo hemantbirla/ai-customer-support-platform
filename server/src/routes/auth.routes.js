@@ -5,6 +5,7 @@ import {
   refresh,
   logout,
   getProfile,
+  getUsers,
 } from "../controllers/auth.controller.js";
 import { validate } from "../middleware/validate.middleware.js";
 import { registerSchema, loginSchema } from "../validators/auth.validator.js";
@@ -19,6 +20,8 @@ router.post("/login", validate(loginSchema), login);
 router.post("/logout", authMiddleware, logout);
 
 router.post("/refresh", refresh);
+
+router.get("/", authMiddleware, getUsers);
 
 router.get("/profile", authMiddleware, getProfile);
 

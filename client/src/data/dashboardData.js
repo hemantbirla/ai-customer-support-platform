@@ -31,44 +31,6 @@ export const dashboardStats = [
   },
 ];
 
-export const recentTickets = [
-  {
-    id: "TKT-1001",
-    subject: "Unable to login",
-    status: "Open",
-    priority: "High",
-    createdAt: "22 Jul 2026",
-  },
-  {
-    id: "TKT-1002",
-    subject: "Payment failed",
-    status: "Pending",
-    priority: "Medium",
-    createdAt: "21 Jul 2026",
-  },
-  {
-    id: "TKT-1003",
-    subject: "Email notification issue",
-    status: "Closed",
-    priority: "Low",
-    createdAt: "20 Jul 2026",
-  },
-  {
-    id: "TKT-1004",
-    subject: "Reset password",
-    status: "Resolved",
-    priority: "Low",
-    createdAt: "19 Jul 2026",
-  },
-  {
-    id: "TKT-1005",
-    subject: "Account verification",
-    status: "Open",
-    priority: "High",
-    createdAt: "18 Jul 2026",
-  },
-];
-
 export const activityFeed = [
   {
     id: 1,
@@ -96,7 +58,7 @@ export const quickActions = [
   {
     id: 1,
     label: "Create Ticket",
-    path: "/tickets/create",
+    path: "/tickets/new",
   },
   {
     id: 2,

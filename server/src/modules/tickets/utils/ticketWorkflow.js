@@ -1,0 +1,25 @@
+import { TICKET_STATUS } from "../constants/ticket.constants.js";
+
+export const VALID_STATUS_TRANSITIONS = {
+  [TICKET_STATUS.OPEN]: [TICKET_STATUS.ASSIGNED],
+
+  [TICKET_STATUS.ASSIGNED]: [TICKET_STATUS.IN_PROGRESS],
+
+  [TICKET_STATUS.IN_PROGRESS]: [
+    TICKET_STATUS.WAITING_FOR_CUSTOMER,
+    TICKET_STATUS.RESOLVED,
+  ],
+
+  [TICKET_STATUS.WAITING_FOR_CUSTOMER]: [
+    TICKET_STATUS.IN_PROGRESS,
+    TICKET_STATUS.RESOLVED,
+  ],
+
+  [TICKET_STATUS.RESOLVED]: [TICKET_STATUS.CLOSED],
+
+  [TICKET_STATUS.CLOSED]: [],
+};
+
+export const canTransitionStatus = (currentStatus, nextStatus) => {
+  return VALID_STATUS_TRANSITIONS[currentStatus]?.includes(nextStatus) || false;
+};

@@ -1,11 +1,12 @@
 import React, { memo } from "react";
+import PropTypes from "prop-types";
 
 import Badge from "../../common/Badge/Badge";
 
 const RecentTicketRow = ({ ticket, onView }) => {
   return (
     <tr>
-      <td>{ticket.id}</td>
+      <td>{ticket.ticketNumber}</td>
 
       <td>{ticket.subject}</td>
 
@@ -17,19 +18,24 @@ const RecentTicketRow = ({ ticket, onView }) => {
         <Badge type={ticket.priority.toLowerCase()}>{ticket.priority}</Badge>
       </td>
 
-      <td>{ticket.createdAt}</td>
+      <td>{new Date(ticket.createdAt).toLocaleDateString()}</td>
 
       <td>
         <button
           type="button"
           className="view-ticket-btn"
-          onClick={() => onView(ticket.id)}
+          onClick={() => onView(ticket._id)}
         >
           View
         </button>
       </td>
     </tr>
   );
+};
+
+RecentTicketRow.propTypes = {
+  ticket: PropTypes.object.isRequired,
+  onView: PropTypes.func.isRequired,
 };
 
 export default memo(RecentTicketRow);

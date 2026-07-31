@@ -1,0 +1,90 @@
+.actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.actions button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+
+  padding: 0.45rem 0.75rem;
+
+  border: none;
+  border-radius: 8px;
+
+  cursor: pointer;
+
+  font-size: 0.875rem;
+  font-weight: 500;
+
+  transition: all 0.2s ease;
+}
+
+.actions button svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* View */
+
+.viewButton {
+  background: #eff6ff;
+  color: #2563eb;
+}
+
+.viewButton:hover {
+  background: #dbeafe;
+}
+
+/* Edit */
+
+.editButton {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.editButton:hover {
+  background: #fde68a;
+}
+
+/* Delete */
+
+.deleteButton {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.deleteButton:hover {
+  background: #fecaca;
+}
+
+/* Focus */
+
+.actions button:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+}
+
+/* Disabled */
+
+.actions button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Mobile */
+
+@media (max-width: 768px) {
+  .actions {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+  }
+
+  .actions button {
+    width: 100%;
+    justify-content: center;
+  }
+}

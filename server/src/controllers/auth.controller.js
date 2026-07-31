@@ -2,6 +2,7 @@ import authService from "../services/auth.service.js";
 import ApiResponse from "../utils/ApiResponse.js";
 import ApiError from "../utils/ApiError.js";
 import { STATUS_CODES } from "../constants/statusCodes.js";
+import User from "../models/User.js";
 
 // Utility wrapper to catch async errors cleanly without try-catch blocks
 const asyncHandler = (fn) => (req, res, next) => {
@@ -79,4 +80,26 @@ export const getProfile = asyncHandler(async (req, res) => {
   return res
     .status(STATUS_CODES.OK || 200)
     .json(new ApiResponse(200, "Profile fetched successfully", req.user));
+});
+
+// ==========================================
+// Get Users
+// ==========================================
+
+export const getUsers = asyncHandler(async (req, res) => {
+  const { role } = req.query;
+
+  const filter = {};
+
+  if (role) {
+    filter.role = role;
+  }
+
+  const users = await User.find(filter)
+    .select("_id name email role")
+    .sort({ name: 1 });
+
+  return res
+    .status(STATUS_CODES.OK || 200)
+    .json(new ApiResponse(200, "Users fetched successfully", users));
 });
