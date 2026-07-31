@@ -1,74 +1,80 @@
 import chatService from "../services/chat.service.js";
 import ApiResponse from "../utils/ApiResponse.js";
-import { STATUS_CODES } from "../constants/statusCodes.js";
+import { getIO } from "../socket/socket.js";
 
-// ==========================================
-// Async Wrapper
-// ==========================================
-
-const asyncHandler = (fn) => (req, res, next) => {
+const asyncHandler = (fn) => (req, res, next) =>
   Promise.resolve(fn(req, res, next)).catch(next);
-};
 
-// ==========================================
-// Get Conversation
-// GET /api/chat/:ticketId
-// ==========================================
+/*
+==================================================
+GET Conversation
+==================================================
+*/
 
 export const getConversation = asyncHandler(async (req, res) => {
   const { ticketId } = req.params;
 
-  const conversation = await chatService.getConversation(
-    ticketId,
-    req.user,
-    req.query,
-  );
+  const { page, limit } = req.query;
 
-  return res
-    .status(STATUS_CODES.OK)
-    .json(
-      new ApiResponse(
-        STATUS_CODES.OK,
-        "Conversation fetched successfully",
-        conversation,
-      ),
-    );
+  const conversation = await chatService.getConversation({
+    ticketId,
+    user: req.user,
+    page,
+    limit,
+  });
+
+  return res.json(
+    new ApiResponse(200, "Conversation fetched successfully", conversation),
+  );
 });
 
-// ==========================================
-// Send Message
-// POST /api/chat/:ticketId
-// ==========================================
+/*
+==================================================
+POST Send Message
+==================================================
+*/
 
 export const sendMessage = asyncHandler(async (req, res) => {
   const { ticketId } = req.params;
 
-  const message = await chatService.sendMessage(ticketId, req.user, req.body);
+  const message = await chatService.sendMessage({
+    ticketId,
+    sender: req.user,
+    receiver: req.body.receiver,
+    message: req.body.message,
+    attachments: req.body.attachments || [],
+  });
+
+  // Emit to everyone in the ticket room
+  const io = getIO();
+
+  io.to(`ticket_${ticketId}`).emit("message:new", {
+    ticketId,
+    message,
+  });
 
   return res
-    .status(STATUS_CODES.CREATED)
-    .json(
-      new ApiResponse(
-        STATUS_CODES.CREATED,
-        "Message sent successfully",
-        message,
-      ),
-    );
+    .status(201)
+    .json(new ApiResponse(201, "Message sent successfully", message));
 });
 
-// ==========================================
-// Mark Read
-// PUT /api/chat/read
-// ==========================================
+/*
+==================================================
+PUT Mark Read
+==================================================
+*/
 
 export const markRead = asyncHandler(async (req, res) => {
-  const { messageIds } = req.body;
+  const messages = await chatService.markRead(req.body.messageIds);
 
-  const messages = await chatService.markRead(messageIds, req.user);
+  const io = getIO();
 
-  return res
-    .status(STATUS_CODES.OK)
-    .json(
-      new ApiResponse(STATUS_CODES.OK, "Messages marked as read", messages),
-    );
+  messages.forEach((message) => {
+    io.to(`ticket_${message.ticketId}`).emit("message:read", {
+      messageId: message._id,
+      readAt: message.readAt,
+    });
+  });
+
+  return res.json(new ApiResponse(200, "Messages marked as read", messages));
 });
