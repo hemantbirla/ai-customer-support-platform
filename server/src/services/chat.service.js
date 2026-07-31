@@ -114,8 +114,69 @@ class ChatService {
     });
   }
 
-  async sendMessage(ticketId, user, payload) {}
+  /**
+   * Send Message
+   */
+  async sendMessage(ticketId, user, payload) {
+    // ==============================
+    // Validate Ticket
+    // ==============================
 
+    const ticket = await getTicketOrThrow(ticketId);
+
+    // ==============================
+    // Permission Check
+    // ==============================
+
+    verifyConversationAccess(user, ticket);
+
+    const { receiver, message, attachments = [] } = payload;
+
+    // ==============================
+    // Validate Content
+    // ==============================
+
+    if ((!message || message.trim().length === 0) && attachments.length === 0) {
+      throw new ApiError(
+        STATUS_CODES.BAD_REQUEST,
+        "Message or attachment is required",
+      );
+    }
+
+    // ==============================
+    // Receiver Validation
+    // ==============================
+
+    if (!mongoose.Types.ObjectId.isValid(receiver)) {
+      throw new ApiError(STATUS_CODES.BAD_REQUEST, "Invalid receiver id");
+    }
+
+    // ==============================
+    // Create Message
+    // ==============================
+
+    const chatMessage = await Message.create({
+      ticketId: ticket._id,
+      sender: user._id,
+      receiver,
+      message: message?.trim() || "",
+      attachments,
+    });
+
+    // ==============================
+    // Populate Users
+    // ==============================
+
+    const populatedMessage = await Message.findById(chatMessage._id)
+      .populate(MESSAGE_POPULATE)
+      .lean();
+
+    // ==============================
+    // Return
+    // ==============================
+
+    return populatedMessage;
+  }
   async markRead(messageIds, user) {}
 
   async markDelivered(userId) {}
