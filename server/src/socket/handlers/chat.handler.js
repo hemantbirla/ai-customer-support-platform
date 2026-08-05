@@ -5,7 +5,7 @@ import chatService from "../../services/chat.service.js";
  */
 const registerChatHandlers = (io, socket) => {
   // ==========================================
-  // Join Ticket Room
+  // Join Ticket
   // ==========================================
 
   socket.on("join-ticket", async ({ ticketId }) => {
@@ -13,18 +13,17 @@ const registerChatHandlers = (io, socket) => {
 
     socket.join(`ticket_${ticketId}`);
 
-    console.log(`${socket.user.name} joined ticket_${ticketId}`);
+    console.log(
+      `🟢 ${socket.user.name} joined`,
+      `ticket_${ticketId}`,
+      socket.rooms,
+    );
 
     await chatService.markDelivered(socket.user._id);
-
-    io.to(`ticket_${ticketId}`).emit("user:online", {
-      ticketId,
-      userId: socket.user._id,
-    });
   });
 
   // ==========================================
-  // Leave Room
+  // Leave Ticket
   // ==========================================
 
   socket.on("leave-ticket", ({ ticketId }) => {
@@ -49,6 +48,9 @@ const registerChatHandlers = (io, socket) => {
         },
       );
 
+      console.log("📤 Sending message to room:", `ticket_${payload.ticketId}`);
+      console.log("📤 Message:", message);
+
       io.to(`ticket_${payload.ticketId}`).emit("message:new", message);
 
       callback?.({
@@ -56,6 +58,8 @@ const registerChatHandlers = (io, socket) => {
         data: message,
       });
     } catch (error) {
+      console.error(error);
+
       callback?.({
         success: false,
         message: error.message,
@@ -68,13 +72,22 @@ const registerChatHandlers = (io, socket) => {
   // ==========================================
 
   socket.on("mark-read", async ({ ticketId, messageIds }) => {
-    const messages = await chatService.markRead(messageIds, socket.user);
+    try {
+      const messages = await chatService.markRead(messageIds, socket.user);
 
-    io.to(`ticket_${ticketId}`).emit("message:read", messages);
+      messages.forEach((message) => {
+        io.to(`ticket_${ticketId}`).emit("message:read", {
+          messageId: message._id,
+          readAt: message.readAt,
+        });
+      });
+    } catch (error) {
+      console.error(error);
+    }
   });
 
   // ==========================================
-  // Typing Start
+  // Typing
   // ==========================================
 
   socket.on("typing:start", ({ ticketId }) => {
@@ -83,10 +96,6 @@ const registerChatHandlers = (io, socket) => {
       isTyping: true,
     });
   });
-
-  // ==========================================
-  // Typing Stop
-  // ==========================================
 
   socket.on("typing:stop", ({ ticketId }) => {
     socket.to(`ticket_${ticketId}`).emit("typing", {

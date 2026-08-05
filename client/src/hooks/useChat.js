@@ -27,11 +27,13 @@ const useChat = (ticketId, receiverId) => {
 
       const response = await chatService.getConversation(ticketId);
 
-      setMessages(response.data.data || []);
+      const conversation = response.data;
+
+      setMessages(Array.isArray(conversation.data) ? conversation.data : []);
     } catch (err) {
       console.error(err);
 
-      setError(err.response?.data?.message || "Unable to load conversation.");
+      setError(err?.response?.data?.message || "Unable to load conversation.");
     } finally {
       setLoading(false);
     }
@@ -79,16 +81,12 @@ const useChat = (ticketId, receiverId) => {
   useEffect(() => {
     if (!ticketId) return;
 
-    socket.emit("join-ticket", {
-      ticketId,
-    });
+    socket.emit("join-ticket", { ticketId });
 
     refreshMessages();
 
     return () => {
-      socket.emit("leave-ticket", {
-        ticketId,
-      });
+      socket.emit("leave-ticket", { ticketId });
     };
   }, [ticketId, refreshMessages]);
 
@@ -98,7 +96,21 @@ const useChat = (ticketId, receiverId) => {
 
   useEffect(() => {
     const handleNewMessage = (message) => {
-      setMessages((prev) => [...prev, message]);
+      console.log("📩 Socket received:", message);
+
+      setMessages((prev) => {
+        if (!Array.isArray(prev)) {
+          return [message];
+        }
+
+        const exists = prev.some((m) => m._id === message._id);
+
+        if (exists) {
+          return prev;
+        }
+
+        return [message, ...prev];
+      });
     };
 
     socket.on("message:new", handleNewMessage);

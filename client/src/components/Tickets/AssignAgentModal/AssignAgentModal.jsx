@@ -13,9 +13,7 @@ const AssignAgentModal = ({
 }) => {
   const [selectedAgent, setSelectedAgent] = useState("");
 
-  useEffect(() => {
-    console.log("Agents:", agents);
-  }, [agents]);
+  useEffect(() => {}, [agents]);
 
   if (!open) return null;
 

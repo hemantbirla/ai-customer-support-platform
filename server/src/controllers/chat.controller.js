@@ -40,13 +40,10 @@ export const sendMessage = asyncHandler(async (req, res) => {
     attachments: req.body.attachments || [],
   });
 
-  // Emit to everyone in the ticket room
   const io = getIO();
 
-  io.to(`ticket_${ticketId}`).emit("message:new", {
-    ticketId,
-    message,
-  });
+  // Message only
+  io.to(`ticket_${ticketId}`).emit("message:new", message);
 
   return res
     .status(201)

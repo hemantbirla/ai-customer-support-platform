@@ -1,27 +1,8 @@
-import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 
-import { getTicketById } from "../../services/ticket.service";
-
-const ConversationHeader = ({ ticketId }) => {
+const ConversationHeader = ({ ticket }) => {
   const navigate = useNavigate();
-
-  const [ticket, setTicket] = useState(null);
-
-  useEffect(() => {
-    fetchTicket();
-  }, [ticketId]);
-
-  const fetchTicket = async () => {
-    try {
-      const response = await getTicketById(ticketId);
-
-      setTicket(response.data.data.ticket);
-    } catch (err) {
-      console.error(err);
-    }
-  };
 
   if (!ticket) return null;
 
@@ -35,7 +16,7 @@ const ConversationHeader = ({ ticketId }) => {
         </button>
 
         <div className="chat-avatar">
-          {customer?.name?.charAt(0).toUpperCase()}
+          {customer?.name?.charAt(0)?.toUpperCase()}
         </div>
 
         <div className="chat-user-info">

@@ -1,28 +1,112 @@
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+
 import ConversationHeader from "./ConversationHeader";
 import MessageList from "./MessageList";
 import MessageInput from "./MessageInput";
 import EmptyConversation from "./EmptyConversation";
 import ChatSkeleton from "./ChatSkeleton";
+
 import useChat from "../../hooks/useChat";
+import useAuth from "../../hooks/useAuth";
+
+import { getTicketById } from "../../services/ticket.service";
 
 import "./chat.css";
 
 const ChatPage = () => {
   const { ticketId } = useParams();
-  const { messages, loading, sending, error, sendMessage, refreshMessages } =
-    useChat(ticketId);
 
-  if (loading) {
+  const { user } = useAuth();
+
+  const [ticket, setTicket] = useState(null);
+  const [ticketLoading, setTicketLoading] = useState(true);
+  const [ticketError, setTicketError] = useState("");
+
+  // ==========================================
+  // Load Ticket
+  // ==========================================
+
+  useEffect(() => {
+    const loadTicket = async () => {
+      try {
+        setTicketLoading(true);
+        setTicketError("");
+
+        const response = await getTicketById(ticketId);
+
+        // IMPORTANT
+        setTicket(response.data.data.ticket);
+      } catch (error) {
+        console.error(error);
+
+        setTicketError(
+          error.response?.data?.message || "Unable to load ticket.",
+        );
+      } finally {
+        setTicketLoading(false);
+      }
+    };
+
+    if (ticketId) {
+      loadTicket();
+    }
+  }, [ticketId]);
+
+  // ==========================================
+  // Receiver
+  // ==========================================
+
+  let receiverId = null;
+
+  if (ticket && user) {
+    if (user.role === "CUSTOMER") {
+      receiverId = ticket.assignedAgent?._id || null;
+    }
+
+    if (user.role === "AGENT") {
+      receiverId = ticket.customer?._id || null;
+    }
+
+    if (user.role === "ADMIN") {
+      receiverId = ticket.assignedAgent?._id || ticket.customer?._id || null;
+    }
+  }
+
+  // ==========================================
+  // Chat Hook
+  // ==========================================
+
+  const {
+    messages,
+    loading,
+    sending,
+    error,
+    sendMessage,
+    refreshMessages,
+    typingUser,
+  } = useChat(ticketId, receiverId);
+
+  // ==========================================
+  // Loading
+  // ==========================================
+
+  if (loading || ticketLoading) {
     return <ChatSkeleton />;
   }
 
-  if (error) {
+  // ==========================================
+  // Error
+  // ==========================================
+
+  if (error || ticketError) {
     return (
       <div className="chat-page">
         <div className="chat-error">
           <h3>Unable to load conversation</h3>
-          <p>{error}</p>
+
+          <p>{error || ticketError}</p>
+
           <button className="chat-retry-btn" onClick={refreshMessages}>
             Retry
           </button>
@@ -31,15 +115,23 @@ const ChatPage = () => {
     );
   }
 
+  // ==========================================
+  // UI
+  // ==========================================
+
   return (
     <div className="chat-page">
-      <ConversationHeader ticketId={ticketId} />
+      <ConversationHeader ticket={ticket} />
 
       <div className="chat-body">
         {messages.length === 0 ? (
           <EmptyConversation />
         ) : (
           <MessageList messages={messages} />
+        )}
+
+        {typingUser && (
+          <div className="typing-indicator">{typingUser.name} is typing...</div>
         )}
       </div>
 
