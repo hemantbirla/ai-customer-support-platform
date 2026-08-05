@@ -1,6 +1,7 @@
 import { Server } from "socket.io";
-import jwt from "jsonwebtoken";
 import User from "../models/User.js";
+
+import { verifyAccessToken } from "../utils/jwt.js";
 
 import registerChatHandlers from "./handlers/chat.handler.js";
 
@@ -16,9 +17,9 @@ export const initializeSocket = (server) => {
     },
   });
 
-  // =============================
+  // ==========================================
   // Socket Authentication
-  // =============================
+  // ==========================================
 
   io.use(async (socket, next) => {
     try {
@@ -30,7 +31,7 @@ export const initializeSocket = (server) => {
         return next(new Error("Authentication required"));
       }
 
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      const decoded = verifyAccessToken(token);
 
       const user = await User.findById(decoded.id).select("-password");
 
@@ -42,16 +43,18 @@ export const initializeSocket = (server) => {
 
       next();
     } catch (error) {
-      next(new Error("Invalid token"));
+      console.error("Socket Authentication Error:", error.message);
+
+      next(error);
     }
   });
 
-  // =============================
-  // Connection
-  // =============================
+  // ==========================================
+  // Socket Connection
+  // ==========================================
 
   io.on("connection", (socket) => {
-    console.log(`✅ ${socket.user.name} connected`);
+    console.log(`🟢 ${socket.user.name} connected`);
 
     onlineUsers.set(socket.user._id.toString(), socket.id);
 
@@ -61,8 +64,8 @@ export const initializeSocket = (server) => {
 
     registerChatHandlers(io, socket);
 
-    socket.on("disconnect", () => {
-      console.log(`❌ ${socket.user.name} disconnected`);
+    socket.on("disconnect", (reason) => {
+      console.log(`🔴 ${socket.user.name} disconnected (${reason})`);
 
       onlineUsers.delete(socket.user._id.toString());
 

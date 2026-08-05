@@ -30,6 +30,14 @@ const AuthProvider = ({ children }) => {
     try {
       const response = await getProfile();
       setUser(response.data);
+      const token = tokenService.getAccessToken();
+      socket.auth = {
+        token,
+      };
+
+      if (!socket.connected) {
+        socket.connect();
+      }
     } catch (error) {
       console.error("Failed to initialize auth:", error);
 
@@ -87,6 +95,7 @@ const AuthProvider = ({ children }) => {
     } catch (error) {
       console.error("Logout failed:", error);
     } finally {
+      socket.disconnect();
       tokenService.removeAccessToken();
       setUser(null);
       setLoading(false);
