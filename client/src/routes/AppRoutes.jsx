@@ -12,13 +12,10 @@ import ForgotPassword from "../pages/auth/ForgotPassword";
 import ResetPassword from "../pages/auth/ResetPassword";
 
 // Lazy Loaded Pages
-import {
-  DashboardHome,
-  Analytics,
-  Chat,
-  Profile,
-  Settings,
-} from "./lazyRoutes";
+import { DashboardHome, Analytics, Profile, Settings } from "./lazyRoutes";
+
+// Chat Page
+import ChatPage from "../pages/chat/ChatPage";
 
 // Ticket Pages
 import TicketList from "../pages/Tickets/TicketList";
@@ -110,6 +107,16 @@ const AppRoutes = createBrowserRouter([
                 path: "/tickets/:ticketId",
                 element: <TicketDetails />,
               },
+
+              // ==========================================
+              // Ticket Chat
+              // Customer | Agent | Admin
+              // ==========================================
+
+              {
+                path: "/tickets/:ticketId/chat",
+                element: <ChatPage />,
+              },
             ],
           },
 
@@ -145,15 +152,6 @@ const AppRoutes = createBrowserRouter([
                 element: <EditTicket />,
               },
             ],
-          },
-
-          // ==========================================
-          // Chat
-          // ==========================================
-
-          {
-            path: "/chat",
-            element: <Chat />,
           },
 
           // ==========================================

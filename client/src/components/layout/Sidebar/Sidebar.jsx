@@ -1,4 +1,7 @@
 import { useEffect, useMemo } from "react";
+import { useLocation } from "react-router-dom";
+import { MessageSquare } from "lucide-react";
+
 import { sidebarMenus } from "../../../config/sidebarMenu";
 import { useAuth } from "../../../hooks/useAuth";
 import { useSidebar } from "../../../hooks/useSidebar";
@@ -13,10 +16,32 @@ const Sidebar = () => {
   const { user } = useAuth();
 
   const { isCollapsed, isMobileOpen, closeMobileSidebar } = useSidebar();
+  const location = useLocation();
 
   const menuItems = useMemo(() => {
-    return sidebarMenus[user?.role] || [];
-  }, [user?.role]);
+    const menus = [...(sidebarMenus[user?.role] || [])];
+
+    const chatMatch = location.pathname.match(/^\/tickets\/([^/]+)\/chat$/);
+
+    const ticketMatch = location.pathname.match(/^\/tickets\/([^/]+)$/);
+
+    const ticketId = chatMatch?.[1] || ticketMatch?.[1];
+
+    if (ticketId) {
+      const exists = menus.some((menu) => menu.id === "ticket-chat");
+
+      if (!exists) {
+        menus.splice(3, 0, {
+          id: "ticket-chat",
+          label: "Ticket Chat",
+          path: `/tickets/${ticketId}/chat`,
+          icon: MessageSquare,
+        });
+      }
+    }
+
+    return menus;
+  }, [user?.role, location.pathname]);
 
   // Close drawer on Escape
   useEffect(() => {

@@ -125,12 +125,30 @@ class ChatService {
     const ticket = await getTicketOrThrow(ticketId);
 
     // ==============================
+    // Receiver Validate
+    // ==============================
+    let receiver;
+
+    if (user.role === "CUSTOMER") {
+      if (!ticket.assignedAgent) {
+        throw new ApiError(
+          STATUS_CODES.BAD_REQUEST,
+          "Ticket has not been assigned to an agent yet",
+        );
+      }
+
+      receiver = ticket.assignedAgent._id;
+    } else {
+      receiver = ticket.customer._id;
+    }
+
+    // ==============================
     // Permission Check
     // ==============================
 
     verifyConversationAccess(user, ticket);
 
-    const { receiver, message, attachments = [] } = payload;
+    const { message, attachments = [] } = payload;
 
     // ==============================
     // Validate Content
@@ -141,14 +159,6 @@ class ChatService {
         STATUS_CODES.BAD_REQUEST,
         "Message or attachment is required",
       );
-    }
-
-    // ==============================
-    // Receiver Validation
-    // ==============================
-
-    if (!mongoose.Types.ObjectId.isValid(receiver)) {
-      throw new ApiError(STATUS_CODES.BAD_REQUEST, "Invalid receiver id");
     }
 
     // ==============================

@@ -35,13 +35,11 @@ export const sendMessageSchema = z.object({
   }),
 
   body: z.object({
-    receiver: objectIdSchema,
-
     message: z
       .string()
       .trim()
-      .max(5000, "Message cannot exceed 5000 characters")
-      .optional(),
+      .min(1, "Message is required")
+      .max(5000, "Message cannot exceed 5000 characters"),
 
     attachments: z
       .array(

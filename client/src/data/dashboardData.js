@@ -67,11 +67,6 @@ export const quickActions = [
   },
   {
     id: 3,
-    label: "Chat Support",
-    path: "/chat",
-  },
-  {
-    id: 4,
     label: "Profile",
     path: "/profile",
   },
