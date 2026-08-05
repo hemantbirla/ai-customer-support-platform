@@ -4,7 +4,7 @@ import MessageList from "./MessageList";
 import MessageInput from "./MessageInput";
 import EmptyConversation from "./EmptyConversation";
 import ChatSkeleton from "./ChatSkeleton";
-import { useChat } from "../../hooks/useChat";
+import useChat from "../../hooks/useChat";
 
 import "./chat.css";
 
