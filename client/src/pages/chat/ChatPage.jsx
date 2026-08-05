@@ -60,12 +60,7 @@ const ChatPage = () => {
         )}
       </div>
 
-      <MessageInput
-        onSend={async (payload) => {
-          await sendMessage(payload);
-          refreshMessages();
-        }}
-      />
+      <MessageInput onSend={sendMessage} sending={sending} />
     </div>
   );
 };
