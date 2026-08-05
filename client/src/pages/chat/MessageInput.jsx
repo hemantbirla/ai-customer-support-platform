@@ -1,10 +1,13 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Send } from "lucide-react";
+
+import { socket } from "../../socket/socket";
 
 import "./chat.css";
 
-const MessageInput = ({ onSend, sending }) => {
+const MessageInput = ({ onSend, sending, ticketId }) => {
   const [message, setMessage] = useState("");
+  const typingTimeout = useRef(null);
 
   const handleSubmit = async () => {
     const value = message.trim();
@@ -12,10 +15,12 @@ const MessageInput = ({ onSend, sending }) => {
     if (!value || sending) {
       return;
     }
-
     await onSend(value);
-
     setMessage("");
+
+    socket.emit("typing:stop", {
+      ticketId,
+    });
   };
 
   const handleKeyDown = (event) => {
@@ -26,12 +31,29 @@ const MessageInput = ({ onSend, sending }) => {
     }
   };
 
+  const emitTyping = () => {
+    socket.emit("typing:start", {
+      ticketId,
+    });
+
+    clearTimeout(typingTimeout.current);
+
+    typingTimeout.current = setTimeout(() => {
+      socket.emit("typing:stop", {
+        ticketId,
+      });
+    }, 1000);
+  };
+
   return (
     <div className="message-input">
       <textarea
         value={message}
         placeholder="Type your message..."
-        onChange={(event) => setMessage(event.target.value)}
+        onChange={(event) => {
+          setMessage(event.target.value);
+          emitTyping();
+        }}
         onKeyDown={handleKeyDown}
         disabled={sending}
         maxLength={5000}

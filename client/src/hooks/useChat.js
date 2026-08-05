@@ -125,8 +125,14 @@ const useChat = (ticketId, receiverId) => {
   // ==========================================
 
   useEffect(() => {
-    const handleTyping = ({ user, isTyping }) => {
-      setTypingUser(isTyping ? user : null);
+    const handleTyping = (payload) => {
+      if (payload.user._id === user._id) return;
+
+      if (payload.isTyping) {
+        setTypingUser(payload.user);
+      } else {
+        setTypingUser(null);
+      }
     };
 
     socket.on("typing", handleTyping);
@@ -134,7 +140,7 @@ const useChat = (ticketId, receiverId) => {
     return () => {
       socket.off("typing", handleTyping);
     };
-  }, []);
+  }, [user]);
 
   return {
     messages,

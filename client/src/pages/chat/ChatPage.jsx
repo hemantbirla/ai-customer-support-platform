@@ -1,14 +1,15 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 
+import useChat from "../../hooks/useChat";
+import useAuth from "../../hooks/useAuth";
+
 import ConversationHeader from "./ConversationHeader";
 import MessageList from "./MessageList";
 import MessageInput from "./MessageInput";
 import EmptyConversation from "./EmptyConversation";
 import ChatSkeleton from "./ChatSkeleton";
-
-import useChat from "../../hooks/useChat";
-import useAuth from "../../hooks/useAuth";
+import TypingIndicator from "./TypingIndicator";
 
 import { getTicketById } from "../../services/ticket.service";
 
@@ -80,11 +81,11 @@ const ChatPage = () => {
   const {
     messages,
     loading,
-    sending,
     error,
+    sending,
+    typingUser,
     sendMessage,
     refreshMessages,
-    typingUser,
   } = useChat(ticketId, receiverId);
 
   // ==========================================
@@ -134,8 +135,12 @@ const ChatPage = () => {
           <div className="typing-indicator">{typingUser.name} is typing...</div>
         )}
       </div>
-
-      <MessageInput onSend={sendMessage} sending={sending} />
+      {typingUser && <TypingIndicator user={typingUser} />}
+      <MessageInput
+        onSend={sendMessage}
+        sending={sending}
+        ticketId={ticketId}
+      />
     </div>
   );
 };
