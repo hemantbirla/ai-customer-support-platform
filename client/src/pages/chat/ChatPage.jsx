@@ -13,7 +13,7 @@ import "./chat.css";
 const ChatPage = () => {
   const { ticketId } = useParams();
 
-  const { messages, loading, error, sendMessage, refreshMessages } =
+  const { messages, loading, sending, error, sendMessage, refreshMessages } =
     useChat(ticketId);
 
   // ==========================
