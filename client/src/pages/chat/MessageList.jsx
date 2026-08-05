@@ -1,18 +1,23 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
+
 import MessageBubble from "./MessageBubble";
 
 const MessageList = ({ messages }) => {
   const bottomRef = useRef(null);
 
+  const orderedMessages = useMemo(() => {
+    return [...messages].reverse();
+  }, [messages]);
+
   useEffect(() => {
     bottomRef.current?.scrollIntoView({
       behavior: "smooth",
     });
-  }, [messages]);
+  }, [orderedMessages]);
 
   return (
     <div className="message-list">
-      {messages.map((message) => (
+      {orderedMessages.map((message) => (
         <MessageBubble key={message._id} message={message} />
       ))}
 

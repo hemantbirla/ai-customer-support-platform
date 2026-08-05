@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Send } from "lucide-react";
 
+import "./chat.css";
+
 const MessageInput = ({ onSend, sending }) => {
   const [message, setMessage] = useState("");
 
@@ -38,11 +40,11 @@ const MessageInput = ({ onSend, sending }) => {
 
       <button
         type="button"
-        className="message-send-btn"
-        disabled={!message.trim() || sending}
         onClick={handleSubmit}
+        disabled={sending || !message.trim()}
+        className="message-send-btn"
       >
-        {sending ? "Sending..." : <Send size={18} />}
+        <Send size={18} />
       </button>
     </div>
   );

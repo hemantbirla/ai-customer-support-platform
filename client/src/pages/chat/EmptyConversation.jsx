@@ -1,11 +1,13 @@
+import { MessageSquare } from "lucide-react";
+
 const EmptyConversation = () => {
   return (
     <div className="empty-chat">
-      <div className="empty-chat-icon">💬</div>
-
-      <h2>No messages yet</h2>
-
-      <p>Start the conversation by sending your first message.</p>
+      <div className="empty-chat-content">
+        <MessageSquare size={48} />
+        <h3>No messages yet</h3>
+        <p>Start the conversation by typing a message below.</p>
+      </div>
     </div>
   );
 };

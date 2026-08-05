@@ -1,72 +1,63 @@
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "react-toastify";
-
 import chatService from "../services/chatService";
+import useAuth from "./useAuth";
 
 export const useChat = (ticketId) => {
+  const { user } = useAuth();
   const [messages, setMessages] = useState([]);
-
   const [loading, setLoading] = useState(true);
-
   const [sending, setSending] = useState(false);
-
   const [error, setError] = useState("");
 
-  // ==========================================
-  // Fetch Conversation
-  // ==========================================
-
   const refreshMessages = useCallback(async () => {
-    if (!ticketId) {
-      return;
-    }
+    if (!ticketId) return;
 
     try {
       setLoading(true);
       setError("");
 
       const response = await chatService.getConversation(ticketId);
-
-      setMessages(response.data.data || []);
-    } catch (error) {
-      const message =
-        error.response?.data?.message || "Unable to load conversation.";
-
-      setError(message);
+      // Cleaned up duplicate state setting
+      setMessages(response?.data?.data ?? []);
+    } catch (err) {
+      console.error(err);
+      setError(err.response?.data?.message || "Unable to load conversation.");
     } finally {
       setLoading(false);
     }
   }, [ticketId]);
 
-  // ==========================================
-  // Send Message
-  // ==========================================
-
-  const sendMessage = async (message) => {
-    if (!message.trim()) {
-      return;
-    }
+  const sendMessage = async (text) => {
+    if (!text.trim()) return;
 
     try {
       setSending(true);
 
-      await chatService.sendMessage(ticketId, {
-        message,
-      });
+      const optimisticMessage = {
+        _id: `temp-${Date.now()}`,
+        message: text,
+        sender: {
+          _id: user?._id,
+          name: user?.name,
+        },
+        createdAt: new Date().toISOString(),
+        pending: true,
+      };
 
-      toast.success("Message sent");
+      setMessages((prev) => [...prev, optimisticMessage]);
+
+      // Removed undefined `receiverId` payload property
+      await chatService.sendMessage(ticketId, { message: text });
 
       await refreshMessages();
-    } catch (error) {
-      toast.error(error.response?.data?.message || "Unable to send message.");
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Unable to send message.");
+      await refreshMessages();
     } finally {
       setSending(false);
     }
   };
-
-  // ==========================================
-  // Initial Load
-  // ==========================================
 
   useEffect(() => {
     refreshMessages();
@@ -74,15 +65,10 @@ export const useChat = (ticketId) => {
 
   return {
     messages,
-
     loading,
-
     sending,
-
     error,
-
     sendMessage,
-
     refreshMessages,
   };
 };

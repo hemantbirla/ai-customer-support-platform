@@ -1,4 +1,5 @@
 import { useAuth } from "../../hooks/useAuth";
+import "./chat.css";
 
 const MessageBubble = ({ message }) => {
   const { user } = useAuth();
