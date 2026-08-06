@@ -32,6 +32,8 @@ const MessageInput = ({ onSend, sending, ticketId }) => {
   };
 
   const emitTyping = () => {
+    console.log("Typing Start", ticketId);
+
     socket.emit("typing:start", {
       ticketId,
     });
@@ -39,6 +41,8 @@ const MessageInput = ({ onSend, sending, ticketId }) => {
     clearTimeout(typingTimeout.current);
 
     typingTimeout.current = setTimeout(() => {
+      console.log("Typing Stop");
+
       socket.emit("typing:stop", {
         ticketId,
       });

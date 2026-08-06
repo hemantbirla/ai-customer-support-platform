@@ -453,3 +453,19 @@
     opacity: 1;
   }
 }
+
+/* ==========================================
+   Footer
+========================================== */
+
+.message-footer {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.message-footer svg {
+  flex-shrink: 0;
+}

@@ -17,7 +17,6 @@ import "./chat.css";
 
 const ChatPage = () => {
   const { ticketId } = useParams();
-
   const { user } = useAuth();
 
   const [ticket, setTicket] = useState(null);
@@ -36,7 +35,6 @@ const ChatPage = () => {
 
         const response = await getTicketById(ticketId);
 
-        // IMPORTANT
         setTicket(response.data.data.ticket);
       } catch (error) {
         console.error(error);
@@ -55,22 +53,27 @@ const ChatPage = () => {
   }, [ticketId]);
 
   // ==========================================
-  // Receiver
+  // Receiver Id
   // ==========================================
 
   let receiverId = null;
 
   if (ticket && user) {
-    if (user.role === "CUSTOMER") {
-      receiverId = ticket.assignedAgent?._id || null;
-    }
+    switch (user.role) {
+      case "CUSTOMER":
+        receiverId = ticket.assignedAgent?._id || null;
+        break;
 
-    if (user.role === "AGENT") {
-      receiverId = ticket.customer?._id || null;
-    }
+      case "AGENT":
+        receiverId = ticket.customer?._id || null;
+        break;
 
-    if (user.role === "ADMIN") {
-      receiverId = ticket.assignedAgent?._id || ticket.customer?._id || null;
+      case "ADMIN":
+        receiverId = ticket.assignedAgent?._id || ticket.customer?._id || null;
+        break;
+
+      default:
+        receiverId = null;
     }
   }
 
@@ -89,10 +92,26 @@ const ChatPage = () => {
   } = useChat(ticketId, receiverId);
 
   // ==========================================
+  // Refresh on Window Focus
+  // ==========================================
+
+  useEffect(() => {
+    const handleFocus = () => {
+      refreshMessages();
+    };
+
+    window.addEventListener("focus", handleFocus);
+
+    return () => {
+      window.removeEventListener("focus", handleFocus);
+    };
+  }, [refreshMessages]);
+
+  // ==========================================
   // Loading
   // ==========================================
 
-  if (loading || ticketLoading) {
+  if (ticketLoading || loading) {
     return <ChatSkeleton />;
   }
 
@@ -100,13 +119,13 @@ const ChatPage = () => {
   // Error
   // ==========================================
 
-  if (error || ticketError) {
+  if (ticketError || error) {
     return (
       <div className="chat-page">
         <div className="chat-error">
           <h3>Unable to load conversation</h3>
 
-          <p>{error || ticketError}</p>
+          <p>{ticketError || error}</p>
 
           <button className="chat-retry-btn" onClick={refreshMessages}>
             Retry
@@ -131,11 +150,9 @@ const ChatPage = () => {
           <MessageList messages={messages} />
         )}
 
-        {typingUser && (
-          <div className="typing-indicator">{typingUser.name} is typing...</div>
-        )}
+        {typingUser && <TypingIndicator user={typingUser} />}
       </div>
-      {typingUser && <TypingIndicator user={typingUser} />}
+
       <MessageInput
         onSend={sendMessage}
         sending={sending}

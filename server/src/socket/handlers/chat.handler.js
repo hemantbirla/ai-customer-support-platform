@@ -1,4 +1,5 @@
 import chatService from "../../services/chat.service.js";
+import { getOnlineUsers } from "../socket.js";
 
 /**
  * Register Chat Socket Events
@@ -14,12 +15,9 @@ const registerChatHandlers = (io, socket) => {
     socket.join(`ticket_${ticketId}`);
 
     console.log(
-      `🟢 ${socket.user.name} joined`,
-      `ticket_${ticketId}`,
+      `🟢 ${socket.user.name} joined ticket_${ticketId}`,
       socket.rooms,
     );
-
-    await chatService.markDelivered(socket.user._id);
   });
 
   // ==========================================
@@ -42,14 +40,10 @@ const registerChatHandlers = (io, socket) => {
         payload.ticketId,
         socket.user,
         {
-          receiver: payload.receiver,
           message: payload.message,
           attachments: payload.attachments || [],
         },
       );
-
-      console.log("📤 Sending message to room:", `ticket_${payload.ticketId}`);
-      console.log("📤 Message:", message);
 
       io.to(`ticket_${payload.ticketId}`).emit("message:new", message);
 
@@ -58,12 +52,34 @@ const registerChatHandlers = (io, socket) => {
         data: message,
       });
     } catch (error) {
-      console.error(error);
-
       callback?.({
         success: false,
         message: error.message,
       });
+    }
+  });
+
+  // ==========================================
+  // Message Delivered
+  // ==========================================
+
+  socket.on("message:delivered", async ({ messageId }) => {
+    try {
+      const message = await chatService.markMessageDelivered(messageId);
+
+      if (!message) return;
+
+      const onlineUsers = getOnlineUsers();
+
+      const senderSocketId = onlineUsers.get(message.sender._id.toString());
+
+      if (senderSocketId) {
+        socket.emit("message:delivered", {
+          messageId: message._id,
+        });
+      }
+    } catch (err) {
+      console.error(err);
     }
   });
 
@@ -75,12 +91,18 @@ const registerChatHandlers = (io, socket) => {
     try {
       const messages = await chatService.markRead(messageIds, socket.user);
 
-      messages.forEach((message) => {
-        io.to(`ticket_${ticketId}`).emit("message:read", {
-          messageId: message._id,
-          readAt: message.readAt,
-        });
-      });
+      const onlineUsers = getOnlineUsers();
+
+      for (const message of messages) {
+        const senderSocketId = onlineUsers.get(message.sender._id.toString());
+
+        if (senderSocketId) {
+          io.to(senderSocketId).emit("message:read", {
+            messageId: message._id.toString(),
+            readAt: message.readAt,
+          });
+        }
+      }
     } catch (error) {
       console.error(error);
     }

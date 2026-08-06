@@ -5,7 +5,7 @@ import chatService from "../services/chatService";
 import { socket } from "../socket/socket";
 import useAuth from "./useAuth";
 
-const useChat = (ticketId, receiverId) => {
+const useChat = (ticketId) => {
   const { user } = useAuth();
 
   const [messages, setMessages] = useState([]);
@@ -47,18 +47,12 @@ const useChat = (ticketId, receiverId) => {
     (text) => {
       if (!text.trim()) return;
 
-      if (!receiverId) {
-        toast.error("Receiver not found");
-        return;
-      }
-
       setSending(true);
 
       socket.emit(
         "send-message",
         {
           ticketId,
-          receiver: receiverId,
           message: text,
           attachments: [],
         },
@@ -71,11 +65,11 @@ const useChat = (ticketId, receiverId) => {
         },
       );
     },
-    [ticketId, receiverId],
+    [ticketId],
   );
 
   // ==========================================
-  // Join Room
+  // Join Ticket Room
   // ==========================================
 
   useEffect(() => {
@@ -91,26 +85,28 @@ const useChat = (ticketId, receiverId) => {
   }, [ticketId, refreshMessages]);
 
   // ==========================================
-  // New Message
+  // Receive New Message
   // ==========================================
 
   useEffect(() => {
     const handleNewMessage = (message) => {
-      console.log("📩 Socket received:", message);
-
       setMessages((prev) => {
-        if (!Array.isArray(prev)) {
-          return [message];
-        }
-
         const exists = prev.some((m) => m._id === message._id);
 
-        if (exists) {
-          return prev;
-        }
+        if (exists) return prev;
 
         return [message, ...prev];
       });
+
+      // Notify server that receiver got the message
+      if (user && String(message.receiver?._id) === String(user._id)) {
+        console.log("Receiver", message.receiver?._id, "Current", user._id);
+        console.log(message.deliveredAt);
+        socket.emit("message:delivered", {
+          messageId: message._id,
+          ticketId,
+        });
+      }
     };
 
     socket.on("message:new", handleNewMessage);
@@ -118,21 +114,72 @@ const useChat = (ticketId, receiverId) => {
     return () => {
       socket.off("message:new", handleNewMessage);
     };
-  }, []);
+  }, [ticketId, user]);
 
   // ==========================================
-  // Typing
+  // Message Delivered
   // ==========================================
 
   useEffect(() => {
-    const handleTyping = (payload) => {
-      if (payload.user._id === user._id) return;
+    const handleDelivered = ({ messageId, deliveredAt }) => {
+      console.log("📦 Delivered:", {
+        messageId,
+        deliveredAt,
+      });
 
-      if (payload.isTyping) {
-        setTypingUser(payload.user);
-      } else {
-        setTypingUser(null);
-      }
+      setMessages((prev) =>
+        prev.map((msg) =>
+          String(msg._id) === String(messageId)
+            ? {
+                ...msg,
+                deliveredAt,
+              }
+            : msg,
+        ),
+      );
+    };
+
+    socket.on("message:delivered", handleDelivered);
+
+    return () => {
+      socket.off("message:delivered", handleDelivered);
+    };
+  }, []);
+
+  // ==========================================
+  // Message Read
+  // ==========================================
+
+  useEffect(() => {
+    const handleRead = ({ messageId, readAt }) => {
+      setMessages((prev) =>
+        prev.map((message) =>
+          String(message._id) === String(messageId)
+            ? {
+                ...message,
+                readAt,
+              }
+            : message,
+        ),
+      );
+    };
+
+    socket.on("message:read", handleRead);
+
+    return () => {
+      socket.off("message:read", handleRead);
+    };
+  }, []);
+
+  // ==========================================
+  // Typing Indicator
+  // ==========================================
+
+  useEffect(() => {
+    const handleTyping = ({ user: typingUser, isTyping }) => {
+      if (String(typingUser._id) === String(user?._id)) return;
+
+      setTypingUser(isTyping ? typingUser : null);
     };
 
     socket.on("typing", handleTyping);

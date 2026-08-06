@@ -231,24 +231,29 @@ class ChatService {
   /**
    * Mark Messages as Delivered
    */
-  async markDelivered(userId) {
-    if (!mongoose.Types.ObjectId.isValid(userId)) {
-      return;
+
+  async markMessageDelivered(messageId) {
+    if (!mongoose.Types.ObjectId.isValid(messageId)) {
+      return null;
     }
 
-    const now = new Date();
-
-    await Message.updateMany(
+    return await Message.findOneAndUpdate(
       {
-        receiver: userId,
+        _id: messageId,
         deliveredAt: null,
       },
       {
         $set: {
-          deliveredAt: now,
+          deliveredAt: new Date(),
         },
       },
-    );
+      {
+        new: true,
+      },
+    )
+      .populate("sender", "name email avatar role")
+      .populate("receiver", "name email avatar role")
+      .lean();
   }
 }
 
