@@ -1,5 +1,4 @@
 import chatService from "../../services/chat.service.js";
-import { getOnlineUsers } from "../socket.js";
 
 /**
  * Register Chat Socket Events

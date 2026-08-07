@@ -1,51 +1,55 @@
-import { NOTIFICATION_EVENTS } from "../events/notification.events.js";
+import onlineUsers from "../onlineUsers.js";
 
-const onlineUsers = new Map();
+const registerPresenceHandler = async (io, socket) => {
+  const userId = socket.user._id.toString();
 
-/**
- * Handle User Presence
- */
-export const registerPresenceHandler = (io, socket) => {
-  const userId = socket.user.id;
+  let sockets = onlineUsers.get(userId);
 
-  // Multiple browser tabs support
-  const connections = onlineUsers.get(userId) || new Set();
+  if (!sockets) {
+    sockets = new Set();
+  }
 
-  connections.add(socket.id);
+  sockets.add(socket.id);
 
-  onlineUsers.set(userId, connections);
+  onlineUsers.set(userId, sockets);
 
-  console.log(
-    `🟢 ${socket.user.name} connected (${connections.size} connections)`,
-  );
+  console.log("ONLINE USERS");
+  console.log([...onlineUsers.keys()]);
 
-  io.emit(NOTIFICATION_EVENTS.USER_ONLINE, {
+  // Send current online list to the newly connected user
+  socket.emit("presence:sync", {
+    onlineUsers: [...onlineUsers.keys()],
+  });
+
+  // Notify everyone else
+  socket.broadcast.emit("presence:update", {
     userId,
+    online: true,
   });
 
   socket.on("disconnect", () => {
-    const sockets = onlineUsers.get(userId);
+    const currentSockets = onlineUsers.get(userId);
 
-    if (!sockets) return;
+    if (!currentSockets) {
+      return;
+    }
 
-    sockets.delete(socket.id);
+    currentSockets.delete(socket.id);
 
-    if (sockets.size === 0) {
+    if (currentSockets.size === 0) {
       onlineUsers.delete(userId);
 
-      io.emit(NOTIFICATION_EVENTS.USER_OFFLINE, {
-        userId,
-      });
+      console.log("ONLINE USERS");
+      console.log([...onlineUsers.keys()]);
 
-      console.log(`⚫ ${socket.user.name} disconnected`);
+      socket.broadcast.emit("presence:update", {
+        userId,
+        online: false,
+      });
     } else {
-      onlineUsers.set(userId, sockets);
+      onlineUsers.set(userId, currentSockets);
     }
   });
 };
 
-export const isUserOnline = (userId) => {
-  return onlineUsers.has(userId.toString());
-};
-
-export default onlineUsers;
+export default registerPresenceHandler;

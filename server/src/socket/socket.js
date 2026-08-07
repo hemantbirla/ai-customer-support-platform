@@ -1,24 +1,25 @@
 import { Server } from "socket.io";
+
 import User from "../models/User.js";
 
+import { env } from "../config/env.js";
 import { verifyAccessToken } from "../utils/jwt.js";
 
 import registerChatHandlers from "./handlers/chat.handler.js";
+import registerPresenceHandler from "./handlers/presence.handler.js";
 
 let io;
-
-const onlineUsers = new Map();
 
 export const initializeSocket = (server) => {
   io = new Server(server, {
     cors: {
-      origin: process.env.CLIENT_URL,
+      origin: env.CLIENT_URL,
       credentials: true,
     },
   });
 
   // ==========================================
-  // Socket Authentication
+  // Authentication
   // ==========================================
 
   io.use(async (socket, next) => {
@@ -43,41 +44,29 @@ export const initializeSocket = (server) => {
 
       next();
     } catch (error) {
-      console.error("Socket Authentication Error:", error.message);
+      console.error(error);
 
-      next(error);
+      next(new Error("Invalid token"));
     }
   });
 
   // ==========================================
-  // Socket Connection
+  // Connection
   // ==========================================
 
-  io.on("connection", (socket) => {
+  io.on("connection", async (socket) => {
     console.log(`🟢 ${socket.user.name} connected`);
 
-    onlineUsers.set(socket.user._id.toString(), socket.id);
-
-    io.emit("user:online", {
-      userId: socket.user._id,
+    await User.findByIdAndUpdate(socket.user._id, {
+      lastSeen: new Date(),
     });
+
+    registerPresenceHandler(io, socket);
 
     registerChatHandlers(io, socket);
-
-    socket.on("disconnect", (reason) => {
-      console.log(`🔴 ${socket.user.name} disconnected (${reason})`);
-
-      onlineUsers.delete(socket.user._id.toString());
-
-      io.emit("user:offline", {
-        userId: socket.user._id,
-      });
-    });
   });
 
   return io;
 };
 
 export const getIO = () => io;
-
-export const getOnlineUsers = () => onlineUsers;
