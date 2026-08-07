@@ -6,6 +6,7 @@ import { AuthProvider } from "./contexts/auth";
 import { SidebarProvider } from "./contexts/sidebar";
 import { ThemeProvider } from "./contexts/theme";
 import { NotificationProvider } from "./contexts/notification";
+import { PresenceProvider } from "./contexts/presence";
 
 import AppRoutes from "./routes/AppRoutes";
 
@@ -17,10 +18,13 @@ function App() {
       <ThemeProvider>
         <SidebarProvider>
           <NotificationProvider>
-            <RouterProvider router={AppRoutes} />
+            <PresenceProvider>
+              <RouterProvider router={AppRoutes} />
+            </PresenceProvider>
           </NotificationProvider>
         </SidebarProvider>
       </ThemeProvider>
+
       <ToastContainer position="top-right" autoClose={3000} theme="colored" />
     </AuthProvider>
   );
