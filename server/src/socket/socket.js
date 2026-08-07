@@ -10,6 +10,10 @@ import registerPresenceHandler from "./handlers/presence.handler.js";
 
 let io;
 
+/**
+ * Initialize Socket Server
+ */
+
 export const initializeSocket = (server) => {
   io = new Server(server, {
     cors: {
@@ -18,9 +22,9 @@ export const initializeSocket = (server) => {
     },
   });
 
-  // ==========================================
-  // Authentication
-  // ==========================================
+  /**
+   * Authentication
+   */
 
   io.use(async (socket, next) => {
     try {
@@ -44,24 +48,28 @@ export const initializeSocket = (server) => {
 
       next();
     } catch (error) {
-      console.error(error);
+      console.error("Socket Authentication Error:", error.message);
 
-      next(new Error("Invalid token"));
+      next(error);
     }
   });
 
-  // ==========================================
-  // Connection
-  // ==========================================
+  /**
+   * Connection
+   */
 
-  io.on("connection", async (socket) => {
+  io.on("connection", (socket) => {
     console.log(`🟢 ${socket.user.name} connected`);
 
-    await User.findByIdAndUpdate(socket.user._id, {
-      lastSeen: new Date(),
-    });
+    /**
+     * Presence
+     */
 
     registerPresenceHandler(io, socket);
+
+    /**
+     * Chat
+     */
 
     registerChatHandlers(io, socket);
   });

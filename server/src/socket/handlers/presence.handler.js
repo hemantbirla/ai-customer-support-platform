@@ -1,54 +1,62 @@
-import onlineUsers from "../onlineUsers.js";
+import {
+  addOnlineUser,
+  removeOnlineUser,
+  getOnlineUsers,
+} from "../onlineUsers.js";
 
-const registerPresenceHandler = async (io, socket) => {
+/**
+ * Register Presence Events
+ */
+
+const registerPresenceHandler = (io, socket) => {
   const userId = socket.user._id.toString();
 
-  let sockets = onlineUsers.get(userId);
+  /**
+   * Add user
+   */
 
-  if (!sockets) {
-    sockets = new Set();
-  }
+  addOnlineUser(userId, socket.id);
 
-  sockets.add(socket.id);
+  console.log(`🟢 ${socket.user.name} is online`);
 
-  onlineUsers.set(userId, sockets);
+  /**
+   * Send full online list to everyone
+   */
 
-  console.log("ONLINE USERS");
-  console.log([...onlineUsers.keys()]);
-
-  // Send current online list to the newly connected user
-  socket.emit("presence:sync", {
-    onlineUsers: [...onlineUsers.keys()],
+  io.emit("presence:sync", {
+    onlineUsers: getOnlineUsers(),
   });
 
-  // Notify everyone else
-  socket.broadcast.emit("presence:update", {
+  /**
+   * Broadcast online event
+   */
+
+  io.emit("presence:update", {
     userId,
     online: true,
   });
 
-  socket.on("disconnect", () => {
-    const currentSockets = onlineUsers.get(userId);
+  /**
+   * Disconnect
+   */
 
-    if (!currentSockets) {
+  socket.on("disconnect", () => {
+    const disconnected = removeOnlineUser(userId, socket.id);
+
+    if (!disconnected) {
       return;
     }
 
-    currentSockets.delete(socket.id);
+    console.log(`🔴 ${socket.user.name} is offline`);
 
-    if (currentSockets.size === 0) {
-      onlineUsers.delete(userId);
+    io.emit("presence:update", {
+      userId,
+      online: false,
+    });
 
-      console.log("ONLINE USERS");
-      console.log([...onlineUsers.keys()]);
-
-      socket.broadcast.emit("presence:update", {
-        userId,
-        online: false,
-      });
-    } else {
-      onlineUsers.set(userId, currentSockets);
-    }
+    io.emit("presence:sync", {
+      onlineUsers: getOnlineUsers(),
+    });
   });
 };
 

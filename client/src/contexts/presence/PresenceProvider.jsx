@@ -7,15 +7,17 @@ const PresenceProvider = ({ children }) => {
   const [onlineUsers, setOnlineUsers] = useState([]);
 
   useEffect(() => {
-    const handleSync = ({ onlineUsers }) => {
-      console.log("Presence Sync:", onlineUsers);
-
+    /**
+     * Initial online users
+     */
+    const handlePresenceSync = ({ onlineUsers }) => {
       setOnlineUsers(onlineUsers);
     };
 
+    /**
+     * User online/offline
+     */
     const handlePresenceUpdate = ({ userId, online }) => {
-      console.log("Presence Update:", userId, online);
-
       setOnlineUsers((prev) => {
         if (online) {
           if (prev.includes(userId)) {
@@ -29,17 +31,19 @@ const PresenceProvider = ({ children }) => {
       });
     };
 
-    socket.on("presence:sync", handleSync);
+    socket.on("presence:sync", handlePresenceSync);
     socket.on("presence:update", handlePresenceUpdate);
 
     return () => {
-      socket.off("presence:sync", handleSync);
+      socket.off("presence:sync", handlePresenceSync);
       socket.off("presence:update", handlePresenceUpdate);
     };
   }, []);
 
   const isOnline = (userId) => {
-    if (!userId) return false;
+    if (!userId) {
+      return false;
+    }
 
     return onlineUsers.includes(userId.toString());
   };
