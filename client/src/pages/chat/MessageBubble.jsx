@@ -1,42 +1,45 @@
-import { Check, CheckCheck } from "lucide-react";
 import { useAuth } from "../../hooks/useAuth";
+import usePresence from "../../hooks/usePresence";
+
 import "./chat.css";
 
 const MessageBubble = ({ message }) => {
   const { user } = useAuth();
+  const { isOnline } = usePresence();
 
-  const isMine = String(message.sender?._id) === String(user?._id);
+  const mine = message.sender?._id === user?._id;
 
-  const renderReceipt = () => {
-    if (!isMine) return null;
-
-    if (message.readAt) {
-      return <CheckCheck size={14} color="#0ea5e9" strokeWidth={2.5} />;
-    }
-
-    if (message.deliveredAt) {
-      return <CheckCheck size={14} strokeWidth={2.5} />;
-    }
-
-    return <Check size={14} strokeWidth={2.5} />;
-  };
+  const online = isOnline(message.sender?._id);
 
   return (
-    <div className={`message-row ${isMine ? "message-self" : "message-other"}`}>
+    <div className={`message-row ${mine ? "message-self" : "message-other"}`}>
+      {!mine && (
+        <div className="message-avatar-wrapper">
+          <img
+            src={
+              message.sender?.avatar ||
+              `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                message.sender?.name || "User",
+              )}`
+            }
+            className="message-avatar"
+            alt={message.sender?.name}
+          />
+
+          <span className={`presence-dot ${online ? "online" : "offline"}`} />
+        </div>
+      )}
+
       <div className="message-bubble">
         <div className="message-author">{message.sender?.name}</div>
 
         <div className="message-text">{message.message}</div>
 
-        <div className="message-footer">
-          <span className="message-time">
-            {new Date(message.createdAt).toLocaleTimeString([], {
-              hour: "2-digit",
-              minute: "2-digit",
-            })}
-          </span>
-
-          {renderReceipt()}
+        <div className="message-time">
+          {new Date(message.createdAt).toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+          })}
         </div>
       </div>
     </div>

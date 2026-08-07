@@ -469,3 +469,63 @@
 .message-footer svg {
   flex-shrink: 0;
 }
+
+/* ==========================================
+   Presence
+========================================== */
+
+.chat-avatar-wrapper,
+.message-avatar-wrapper {
+  position: relative;
+  display: inline-flex;
+}
+
+.chat-avatar,
+.message-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.message-avatar {
+  width: 34px;
+  height: 34px;
+}
+
+.presence-dot {
+  position: absolute;
+  right: 1px;
+  bottom: 1px;
+
+  width: 11px;
+  height: 11px;
+
+  border-radius: 50%;
+  border: 2px solid #fff;
+}
+
+.presence-dot.online {
+  background: #22c55e;
+}
+
+.presence-dot.offline {
+  background: #9ca3af;
+}
+
+.chat-user {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.chat-user-info h3 {
+  margin: 0;
+  font-size: 15px;
+}
+
+.chat-user-info p {
+  margin: 0;
+  font-size: 12px;
+  color: #6b7280;
+}

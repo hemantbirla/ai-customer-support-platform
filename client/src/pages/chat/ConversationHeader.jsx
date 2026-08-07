@@ -1,37 +1,62 @@
-import { useNavigate } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
+import useAuth from "../../hooks/useAuth";
+import usePresence from "../../hooks/usePresence";
+
+import "./chat.css";
 
 const ConversationHeader = ({ ticket }) => {
-  const navigate = useNavigate();
+  const { user } = useAuth();
+  const { isOnline } = usePresence();
 
-  if (!ticket) return null;
+  if (!ticket || !user) return null;
 
-  const customer = ticket.customer;
+  let otherUser = null;
+
+  switch (user.role) {
+    case "CUSTOMER":
+      otherUser = ticket.assignedAgent;
+      break;
+
+    case "AGENT":
+      otherUser = ticket.customer;
+      break;
+
+    case "ADMIN":
+      otherUser = ticket.assignedAgent || ticket.customer;
+      break;
+
+    default:
+      otherUser = null;
+  }
+
+  const online = otherUser?._id ? isOnline(otherUser._id.toString()) : false;
 
   return (
     <header className="chat-header">
-      <div className="chat-header-left">
-        <button className="chat-back-btn" onClick={() => navigate(-1)}>
-          <ArrowLeft size={18} />
-        </button>
+      <div className="chat-user">
+        <div className="chat-avatar-wrapper">
+          <img
+            className="chat-avatar"
+            src={
+              otherUser?.avatar ||
+              `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                otherUser?.name || "Support",
+              )}`
+            }
+            alt={otherUser?.name || "Support"}
+          />
 
-        <div className="chat-avatar">
-          {customer?.name?.charAt(0)?.toUpperCase()}
+          <span className={`presence-dot ${online ? "online" : "offline"}`} />
         </div>
 
         <div className="chat-user-info">
-          <h3>{customer?.name}</h3>
+          <h3>{otherUser?.name || "Support"}</h3>
 
-          <p>{customer?.email}</p>
+          <p>{online ? "Online" : "Offline"}</p>
         </div>
       </div>
 
-      <div className="chat-header-right">
-        <div className="ticket-number">{ticket.ticketNumber}</div>
-
-        <div className={`ticket-status status-${ticket.status.toLowerCase()}`}>
-          {ticket.status}
-        </div>
+      <div className="chat-ticket">
+        #{ticket.ticketNumber || ticket._id.slice(-6)}
       </div>
     </header>
   );
