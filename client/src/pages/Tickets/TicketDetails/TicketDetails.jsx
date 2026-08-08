@@ -2,6 +2,8 @@ import { useCallback, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { toast } from "react-toastify";
+import { Link } from "react-router-dom";
+import { MessageCircle } from "lucide-react";
 
 import PageLoader from "../../../components/common/PageLoader/PageLoader";
 import EmptyState from "../../../components/Common/EmptyState/EmptyState";
@@ -133,10 +135,17 @@ const TicketDetails = () => {
 
   return (
     <div className={styles.container}>
-      <button className={styles.backButton} onClick={() => navigate(-1)}>
-        <ArrowLeft size={18} />
-        Back
-      </button>
+      <div className={styles.pageActions}>
+        <button className={styles.backButton} onClick={() => navigate(-1)}>
+          <ArrowLeft size={18} />
+          Back
+        </button>
+
+        <Link to={`/tickets/${ticket._id}/chat`} className={styles.chatButton}>
+          <MessageCircle size={18} />
+          Open Chat
+        </Link>
+      </div>
 
       <div className={styles.grid}>
         <div className={styles.left}>

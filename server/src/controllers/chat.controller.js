@@ -16,9 +16,7 @@ export const getConversation = asyncHandler(async (req, res) => {
 
   const { page, limit } = req.query;
 
-  const conversation = await chatService.getConversation({
-    ticketId,
-    user: req.user,
+  const conversation = await chatService.getConversation(ticketId, req.user, {
     page,
     limit,
   });
@@ -37,21 +35,15 @@ POST Send Message
 export const sendMessage = asyncHandler(async (req, res) => {
   const { ticketId } = req.params;
 
-  const message = await chatService.sendMessage({
-    ticketId,
-    sender: req.user,
-    receiver: req.body.receiver,
+  const message = await chatService.sendMessage(ticketId, req.user, {
     message: req.body.message,
     attachments: req.body.attachments || [],
   });
 
-  // Emit to everyone in the ticket room
   const io = getIO();
 
-  io.to(`ticket_${ticketId}`).emit("message:new", {
-    ticketId,
-    message,
-  });
+  // Message only
+  io.to(`ticket_${ticketId}`).emit("message:new", message);
 
   return res
     .status(201)
@@ -65,8 +57,7 @@ PUT Mark Read
 */
 
 export const markRead = asyncHandler(async (req, res) => {
-  const messages = await chatService.markRead(req.body.messageIds);
-
+  const messages = await chatService.markRead(req.body.messageIds, req.user);
   const io = getIO();
 
   messages.forEach((message) => {

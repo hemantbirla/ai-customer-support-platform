@@ -1,51 +1,51 @@
 import chatService from "../../services/chat.service.js";
+import { getOnlineUsers } from "../socket.js";
 
 /**
  * Register Chat Socket Events
  */
 const registerChatHandlers = (io, socket) => {
-  /**
-   * Join Ticket Room
-   */
+  // ==========================================
+  // Join Ticket
+  // ==========================================
+
   socket.on("join-ticket", async ({ ticketId }) => {
     if (!ticketId) return;
 
     socket.join(`ticket_${ticketId}`);
 
-    console.log(`${socket.user.name} joined ticket_${ticketId}`);
-
-    // Mark pending messages delivered
-    await chatService.markDelivered(socket.user._id);
-
-    io.to(`ticket_${ticketId}`).emit("user:online", {
-      userId: socket.user._id,
-      ticketId,
-    });
+    console.log(
+      `🟢 ${socket.user.name} joined ticket_${ticketId}`,
+      socket.rooms,
+    );
   });
 
-  /**
-   * Leave Ticket Room
-   */
+  // ==========================================
+  // Leave Ticket
+  // ==========================================
+
   socket.on("leave-ticket", ({ ticketId }) => {
     socket.leave(`ticket_${ticketId}`);
 
     console.log(`${socket.user.name} left ticket_${ticketId}`);
   });
 
-  /**
-   * Send Message
-   */
+  // ==========================================
+  // Send Message
+  // ==========================================
+
   socket.on("send-message", async (payload, callback) => {
     try {
-      const { ticketId } = payload;
-
       const message = await chatService.sendMessage(
-        ticketId,
+        payload.ticketId,
         socket.user,
-        payload,
+        {
+          message: payload.message,
+          attachments: payload.attachments || [],
+        },
       );
 
-      io.to(`ticket_${ticketId}`).emit("message:new", message);
+      io.to(`ticket_${payload.ticketId}`).emit("message:new", message);
 
       callback?.({
         success: true,
@@ -59,18 +59,59 @@ const registerChatHandlers = (io, socket) => {
     }
   });
 
-  /**
-   * Mark Read
-   */
-  socket.on("mark-read", async ({ messageIds, ticketId }) => {
-    const messages = await chatService.markRead(messageIds, socket.user);
+  // ==========================================
+  // Message Delivered
+  // ==========================================
 
-    io.to(`ticket_${ticketId}`).emit("message:read", messages);
+  socket.on("message:delivered", async ({ messageId }) => {
+    try {
+      const message = await chatService.markMessageDelivered(messageId);
+
+      if (!message) return;
+
+      const onlineUsers = getOnlineUsers();
+
+      const senderSocketId = onlineUsers.get(message.sender._id.toString());
+
+      if (senderSocketId) {
+        socket.emit("message:delivered", {
+          messageId: message._id,
+        });
+      }
+    } catch (err) {
+      console.error(err);
+    }
   });
 
-  /**
-   * Typing Start
-   */
+  // ==========================================
+  // Mark Read
+  // ==========================================
+
+  socket.on("mark-read", async ({ ticketId, messageIds }) => {
+    try {
+      const messages = await chatService.markRead(messageIds, socket.user);
+
+      const onlineUsers = getOnlineUsers();
+
+      for (const message of messages) {
+        const senderSocketId = onlineUsers.get(message.sender._id.toString());
+
+        if (senderSocketId) {
+          io.to(senderSocketId).emit("message:read", {
+            messageId: message._id.toString(),
+            readAt: message.readAt,
+          });
+        }
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  });
+
+  // ==========================================
+  // Typing
+  // ==========================================
+
   socket.on("typing:start", ({ ticketId }) => {
     socket.to(`ticket_${ticketId}`).emit("typing", {
       user: socket.user,
@@ -78,9 +119,6 @@ const registerChatHandlers = (io, socket) => {
     });
   });
 
-  /**
-   * Typing Stop
-   */
   socket.on("typing:stop", ({ ticketId }) => {
     socket.to(`ticket_${ticketId}`).emit("typing", {
       user: socket.user,

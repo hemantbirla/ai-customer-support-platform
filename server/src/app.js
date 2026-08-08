@@ -13,6 +13,7 @@ import ticketRoutes from "./modules/tickets/routes/ticket.routes.js";
 import uploadErrorHandler from "./middleware/uploadError.middleware.js";
 
 import chatRoutes from "./routes/chat.routes.js";
+import notificationRoutes from "./routes/notification.routes.js";
 
 const app = express();
 
@@ -58,6 +59,9 @@ app.use("/api/auth", authRoutes);
 app.use("/api/tickets", ticketRoutes);
 
 app.use("/api/chat", chatRoutes);
+console.log("Registering notification routes...");
+app.use("/api/notifications", notificationRoutes);
+console.log("✅ notification.routes.js loaded");
 
 // -------------------------
 // 404 & Error Middlewares

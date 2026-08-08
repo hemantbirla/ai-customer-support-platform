@@ -35,12 +35,6 @@ export const sidebarMenus = {
       icon: PlusCircle,
     },
     {
-      id: "chat",
-      label: "AI Chat",
-      path: "/chat",
-      icon: MessageSquare,
-    },
-    {
       id: "profile",
       label: "Profile",
       path: "/profile",
@@ -75,12 +69,6 @@ export const sidebarMenus = {
       label: "Customers",
       path: "/customers",
       icon: Users,
-    },
-    {
-      id: "chat",
-      label: "AI Chat",
-      path: "/chat",
-      icon: MessageSquare,
     },
     {
       id: "analytics",
