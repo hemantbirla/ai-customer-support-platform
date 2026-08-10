@@ -52,7 +52,7 @@
   height: 46px;
   border-radius: 50%;
   background: var(--color-primary);
-  color: white;
+  color: #ffffff;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -121,7 +121,7 @@
   flex-direction: column;
   min-height: 0;
   overflow: hidden;
-  background: var(--color-background);
+  background: var(--color-surface);
 }
 
 /* ==========================================
@@ -173,40 +173,56 @@
   padding: 14px 18px;
   border-radius: var(--radius-lg);
   word-break: break-word;
-  box-shadow: var(--shadow-sm);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
 }
 
 .message-self .message-bubble {
-  background: var(--color-primary);
-  color: white;
-  border-bottom-right-radius: var(--radius-sm);
+  background: var(--chat-self-bg);
+  color: var(--chat-self-text);
+  border-bottom-right-radius: 6px;
+  transition: 0.25s;
+}
+
+.message-self .message-bubble:hover {
+  background: var(--chat-self-hover);
 }
 
 .message-other .message-bubble {
-  background: var(--color-surface);
-  color: var(--color-text-primary);
-  border: 1px solid var(--color-border);
-  border-bottom-left-radius: var(--radius-sm);
+  background: var(--chat-other-bg);
+  color: var(--chat-other-text);
+  border: 1px solid var(--chat-other-border);
+  border-bottom-left-radius: 6px;
 }
 
 .message-author {
   font-size: 13px;
   font-weight: 700;
-  margin-bottom: 8px;
-  opacity: 0.85;
+  opacity: 0.9;
 }
 
 .message-text {
+  line-height: 1.55;
   font-size: 15px;
-  line-height: 1.6;
-  white-space: pre-wrap;
+}
+
+.message-footer {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 5px;
+  margin-top: 8px;
 }
 
 .message-time {
-  margin-top: 10px;
-  text-align: right;
   font-size: 12px;
-  opacity: 0.7;
+}
+
+.message-self .message-time {
+  color: var(--chat-time-self);
+}
+
+.message-other .message-time {
+  color: var(--chat-time-other);
 }
 
 /* ==========================================
@@ -227,20 +243,21 @@
   resize: none;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
-  background: var(--color-background);
+  background: var(--color-surface);
   color: var(--color-text-primary);
   font-size: 15px;
   padding: 14px 16px;
   outline: none;
-  transition: 0.25s;
+  transition: border-color 0.25s ease;
 }
 
 .message-input textarea:focus {
   border-color: var(--color-primary);
 }
 
-.message-input textarea::placeholder {
-  color: var(--color-text-secondary);
+.message-input textarea:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
 }
 
 .message-send-btn {
@@ -249,12 +266,14 @@
   border: none;
   border-radius: 50%;
   background: var(--color-primary);
-  color: white;
+  color: #ffffff;
   cursor: pointer;
   display: flex;
   justify-content: center;
   align-items: center;
-  transition: 0.2s;
+  transition:
+    transform 0.2s ease,
+    background-color 0.2s ease;
 }
 
 .message-send-btn:hover:not(:disabled) {
@@ -275,7 +294,7 @@
   width: 18px;
   height: 18px;
   border: 2px solid rgba(255, 255, 255, 0.3);
-  border-top-color: white;
+  border-top-color: #ffffff;
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
@@ -337,7 +356,7 @@
 
 .chat-retry-btn {
   background: var(--color-primary);
-  color: white;
+  color: #ffffff;
   border: none;
   padding: 10px 22px;
   border-radius: var(--radius-sm);
@@ -397,7 +416,7 @@
   height: 34px;
   border-radius: 50%;
   background: var(--color-primary);
-  color: #fff;
+  color: #ffffff;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -466,8 +485,31 @@
   margin-top: 6px;
 }
 
-.message-footer svg {
-  flex-shrink: 0;
+.message-status {
+  display: flex;
+  align-items: center;
+}
+
+.message-status {
+  display: flex;
+  align-items: center;
+}
+
+.message-status svg {
+  width: 16px;
+  height: 16px;
+}
+
+.message-status.sent {
+  color: var(--chat-status-sent);
+}
+
+.message-status.delivered {
+  color: var(--chat-status-delivered);
+}
+
+.message-status.read {
+  color: var(--chat-status-read);
 }
 
 /* ==========================================
@@ -502,15 +544,15 @@
   height: 11px;
 
   border-radius: 50%;
-  border: 2px solid #fff;
+  border: 2px solid var(--color-surface);
 }
 
 .presence-dot.online {
-  background: #22c55e;
+  background: var(--color-success);
 }
 
 .presence-dot.offline {
-  background: #9ca3af;
+  background: var(--color-text-secondary);
 }
 
 .chat-user {
@@ -522,10 +564,11 @@
 .chat-user-info h3 {
   margin: 0;
   font-size: 15px;
+  color: var(--color-text-primary);
 }
 
 .chat-user-info p {
   margin: 0;
   font-size: 12px;
-  color: #6b7280;
+  color: var(--color-text-secondary);
 }

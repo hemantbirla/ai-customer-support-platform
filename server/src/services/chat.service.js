@@ -192,23 +192,14 @@ class ChatService {
    * Mark Messages as Read
    */
   async markRead(messageIds, user) {
-    if (!Array.isArray(messageIds) || messageIds.length === 0) {
-      throw new ApiError(STATUS_CODES.BAD_REQUEST, "Message ids are required");
-    }
-
-    const validIds = messageIds.filter((id) =>
-      mongoose.Types.ObjectId.isValid(id),
-    );
-
-    if (validIds.length === 0) {
-      throw new ApiError(STATUS_CODES.BAD_REQUEST, "Invalid message ids");
-    }
+    console.log("User:", user._id);
+    console.log("MessageIds:", messageIds);
 
     const now = new Date();
 
-    await Message.updateMany(
+    const result = await Message.updateMany(
       {
-        _id: { $in: validIds },
+        _id: { $in: messageIds },
         receiver: user._id,
         readAt: null,
       },
@@ -219,13 +210,17 @@ class ChatService {
       },
     );
 
-    const updatedMessages = await Message.find({
-      _id: { $in: validIds },
+    console.log("Update Result:", result);
+
+    const messages = await Message.find({
+      _id: { $in: messageIds },
     })
       .populate(MESSAGE_POPULATE)
       .lean();
 
-    return updatedMessages;
+    console.log("Messages After Update:", messages);
+
+    return messages;
   }
 
   /**

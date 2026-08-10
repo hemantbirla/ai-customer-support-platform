@@ -2,7 +2,7 @@ import {
   addOnlineUser,
   removeOnlineUser,
   getOnlineUsers,
-} from "../onlineUsers.js";
+} from "../presence.js";
 
 /**
  * Register Presence Events

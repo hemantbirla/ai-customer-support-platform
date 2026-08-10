@@ -100,7 +100,7 @@ const ChatPage = () => {
       refreshMessages();
     };
 
-    window.addEventListener("focus", handleFocus);
+    // window.addEventListener("focus", handleFocus);
 
     return () => {
       window.removeEventListener("focus", handleFocus);

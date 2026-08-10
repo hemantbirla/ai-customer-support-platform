@@ -1,10 +1,14 @@
 const onlineUsers = new Map();
 
 /**
- * Store socket connection
- * Supports multiple browser tabs
+ * Add socket connection for a user
+ *
+ * Structure:
+ *
+ * userId -> Set(socketId)
+ *
+ * This supports multiple browser tabs/windows.
  */
-
 export const addOnlineUser = (userId, socketId) => {
   const id = userId.toString();
 
@@ -16,44 +20,58 @@ export const addOnlineUser = (userId, socketId) => {
 };
 
 /**
- * Remove socket connection
+ * Remove one socket connection
  */
-
 export const removeOnlineUser = (userId, socketId) => {
   const id = userId.toString();
 
   const sockets = onlineUsers.get(id);
 
   if (!sockets) {
-    return false;
+    return;
   }
 
   sockets.delete(socketId);
 
   if (sockets.size === 0) {
     onlineUsers.delete(id);
-    return true;
+  } else {
+    onlineUsers.set(id, sockets);
   }
-
-  onlineUsers.set(id, sockets);
-
-  return false;
 };
 
 /**
- * Is user online
+ * Check whether user is online
  */
-
 export const isUserOnline = (userId) => {
   return onlineUsers.has(userId.toString());
 };
 
 /**
- * Get all online users
+ * Get all socket IDs for a user
  */
+export const getUserSocketIds = (userId) => {
+  const sockets = onlineUsers.get(userId.toString());
 
+  if (!sockets) {
+    return [];
+  }
+
+  return [...sockets];
+};
+
+/**
+ * Get all online user IDs
+ */
 export const getOnlineUsers = () => {
   return [...onlineUsers.keys()];
 };
 
-export default onlineUsers;
+/**
+ * Get complete registry
+ *
+ * Useful for debugging.
+ */
+export const getOnlineUsersMap = () => {
+  return onlineUsers;
+};

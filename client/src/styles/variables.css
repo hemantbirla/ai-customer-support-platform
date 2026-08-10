@@ -56,6 +56,27 @@
 
   --badge-gray-bg: #f3f4f6;
   --badge-gray-text: #374151;
+
+  /* ============================
+   Chat
+  ============================ */
+
+  --chat-self-bg: #3b82f6;
+  --chat-self-hover: #2563eb;
+
+  --chat-other-bg: #ffffff;
+  --chat-other-border: #dbe3ee;
+
+  --chat-self-text: #ffffff;
+  --chat-other-text: #111827;
+
+  --chat-time-self: rgba(255, 255, 255, 0.85);
+  --chat-time-other: #6b7280;
+
+  --chat-status-sent: rgba(255, 255, 255, 0.75);
+  --chat-status-delivered: rgba(255, 255, 255, 0.75);
+
+  --chat-status-read: green;
 }
 
 /* ===========================
@@ -96,6 +117,26 @@
 
   --badge-gray-bg: #374151;
   --badge-gray-text: #f9fafb;
+
+  /* ============================
+   Chat
+  ============================ */
+  --chat-self-bg: #2563eb;
+  --chat-self-hover: #1d4ed8;
+
+  --chat-other-bg: #1f2937;
+  --chat-other-border: #374151;
+
+  --chat-self-text: #ffffff;
+  --chat-other-text: #f9fafb;
+
+  --chat-time-self: rgba(255, 255, 255, 0.8);
+  --chat-time-other: #9ca3af;
+
+  --chat-status-sent: rgba(255, 255, 255, 0.65);
+  --chat-status-delivered: rgba(255, 255, 255, 0.65);
+
+  --chat-status-read: green;
 }
 
 *,

@@ -1,22 +1,18 @@
 import chatService from "../../services/chat.service.js";
 
-/**
- * Register Chat Socket Events
- */
 const registerChatHandlers = (io, socket) => {
   // ==========================================
   // Join Ticket
   // ==========================================
 
-  socket.on("join-ticket", async ({ ticketId }) => {
+  socket.on("join-ticket", ({ ticketId }) => {
     if (!ticketId) return;
 
-    socket.join(`ticket_${ticketId}`);
+    const room = `ticket_${ticketId}`;
 
-    console.log(
-      `🟢 ${socket.user.name} joined ticket_${ticketId}`,
-      socket.rooms,
-    );
+    socket.join(room);
+
+    console.log(`🟢 ${socket.user.name} joined ${room}`);
   });
 
   // ==========================================
@@ -24,9 +20,13 @@ const registerChatHandlers = (io, socket) => {
   // ==========================================
 
   socket.on("leave-ticket", ({ ticketId }) => {
-    socket.leave(`ticket_${ticketId}`);
+    if (!ticketId) return;
 
-    console.log(`${socket.user.name} left ticket_${ticketId}`);
+    const room = `ticket_${ticketId}`;
+
+    socket.leave(room);
+
+    console.log(`🔴 ${socket.user.name} left ${room}`);
   });
 
   // ==========================================
@@ -44,13 +44,19 @@ const registerChatHandlers = (io, socket) => {
         },
       );
 
-      io.to(`ticket_${payload.ticketId}`).emit("message:new", message);
+      const room = `ticket_${payload.ticketId}`;
+
+      console.log(`📨 Broadcasting message to ${room}`);
+
+      io.to(room).emit("message:new", message);
 
       callback?.({
         success: true,
         data: message,
       });
     } catch (error) {
+      console.error("Send message error:", error);
+
       callback?.({
         success: false,
         message: error.message,
@@ -59,7 +65,7 @@ const registerChatHandlers = (io, socket) => {
   });
 
   // ==========================================
-  // Message Delivered
+  // Delivered
   // ==========================================
 
   socket.on("message:delivered", async ({ messageId }) => {
@@ -68,17 +74,18 @@ const registerChatHandlers = (io, socket) => {
 
       if (!message) return;
 
-      const onlineUsers = getOnlineUsers();
+      const senderId = message.sender._id.toString();
 
-      const senderSocketId = onlineUsers.get(message.sender._id.toString());
+      console.log(`📦 Message delivered: ${messageId}`);
 
-      if (senderSocketId) {
-        socket.emit("message:delivered", {
-          messageId: message._id,
-        });
-      }
-    } catch (err) {
-      console.error(err);
+      console.log(`📤 Sending delivered event to user_${senderId}`);
+
+      io.to(`user_${senderId}`).emit("message:delivered", {
+        messageId: message._id.toString(),
+        deliveredAt: message.deliveredAt,
+      });
+    } catch (error) {
+      console.error("Message delivered error:", error);
     }
   });
 
@@ -88,37 +95,51 @@ const registerChatHandlers = (io, socket) => {
 
   socket.on("mark-read", async ({ ticketId, messageIds }) => {
     try {
+      console.log("👀 SERVER mark-read:", messageIds);
+
       const messages = await chatService.markRead(messageIds, socket.user);
 
-      const onlineUsers = getOnlineUsers();
+      console.log(`✅ Marked ${messages.length} messages as read`);
+
+      // ==========================================
+      // Notify Message Sender
+      // ==========================================
 
       for (const message of messages) {
-        const senderSocketId = onlineUsers.get(message.sender._id.toString());
+        const senderId = message.sender._id.toString();
 
-        if (senderSocketId) {
-          io.to(senderSocketId).emit("message:read", {
-            messageId: message._id.toString(),
-            readAt: message.readAt,
-          });
-        }
+        console.log("📤 Sending read event to:", senderId);
+
+        io.to(`user_${senderId}`).emit("message:read", {
+          messageId: message._id.toString(),
+          readAt: message.readAt,
+        });
       }
     } catch (error) {
-      console.error(error);
+      console.error("Mark read error:", error);
     }
   });
 
   // ==========================================
-  // Typing
+  // Typing Start
   // ==========================================
 
   socket.on("typing:start", ({ ticketId }) => {
+    if (!ticketId) return;
+
     socket.to(`ticket_${ticketId}`).emit("typing", {
       user: socket.user,
       isTyping: true,
     });
   });
 
+  // ==========================================
+  // Typing Stop
+  // ==========================================
+
   socket.on("typing:stop", ({ ticketId }) => {
+    if (!ticketId) return;
+
     socket.to(`ticket_${ticketId}`).emit("typing", {
       user: socket.user,
       isTyping: false,
