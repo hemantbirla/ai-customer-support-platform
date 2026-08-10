@@ -490,11 +490,6 @@
   align-items: center;
 }
 
-.message-status {
-  display: flex;
-  align-items: center;
-}
-
 .message-status svg {
   width: 16px;
   height: 16px;
@@ -509,7 +504,7 @@
 }
 
 .message-status.read {
-  color: var(--chat-status-read);
+  color: #000000; /* 👈 Updated to black */
 }
 
 /* ==========================================

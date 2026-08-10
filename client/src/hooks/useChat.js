@@ -105,11 +105,22 @@ const useChat = (ticketId) => {
 
           if (!response?.success) {
             toast.error(response?.message || "Unable to send message.");
-
             return;
           }
 
           console.log("✅ Message sent:", response.data);
+
+          setMessages((prev) => {
+            const exists = prev.some(
+              (item) => String(item._id) === String(response.data._id),
+            );
+
+            if (exists) {
+              return prev;
+            }
+
+            return [response.data, ...prev];
+          });
         },
       );
     },
@@ -149,10 +160,6 @@ const useChat = (ticketId) => {
 
     let mounted = true;
 
-    // ==========================================
-    // Socket Connected
-    // ==========================================
-
     const handleConnect = async () => {
       if (!mounted) {
         return;
@@ -165,48 +172,28 @@ const useChat = (ticketId) => {
       await refreshMessages();
     };
 
-    // ==========================================
-    // Socket Disconnect
-    // ==========================================
-
     const handleDisconnect = (reason) => {
       console.log("🔴 Chat socket disconnected:", reason);
     };
-
-    // ==========================================
-    // Socket Error
-    // ==========================================
 
     const handleConnectError = (error) => {
       console.error("❌ Socket connection error:", error.message);
     };
 
     socket.on("connect", handleConnect);
-
     socket.on("disconnect", handleDisconnect);
-
     socket.on("connect_error", handleConnectError);
-
-    // ==========================================
-    // Already Connected
-    // ==========================================
 
     if (socket.connected) {
       joinTicket();
       refreshMessages();
     }
 
-    // ==========================================
-    // Cleanup
-    // ==========================================
-
     return () => {
       mounted = false;
 
       socket.off("connect", handleConnect);
-
       socket.off("disconnect", handleDisconnect);
-
       socket.off("connect_error", handleConnectError);
 
       if (socket.connected) {
@@ -243,19 +230,11 @@ const useChat = (ticketId) => {
         return [message, ...prev];
       });
 
-      // ==========================================
-      // Current User Is Receiver
-      // ==========================================
-
       const isReceiver = String(message.receiver?._id) === String(user._id);
 
       if (!isReceiver) {
         return;
       }
-
-      // ==========================================
-      // Delivered
-      // ==========================================
 
       if (socket.connected) {
         console.log("📦 Sending delivered:", message._id);
@@ -264,10 +243,6 @@ const useChat = (ticketId) => {
           messageId: message._id,
         });
       }
-
-      // ==========================================
-      // Read
-      // ==========================================
 
       if (socket.connected) {
         console.log("👀 Sending read:", message._id);
@@ -365,7 +340,6 @@ const useChat = (ticketId) => {
         return;
       }
 
-      // Ignore own typing event
       if (String(typingUserData._id) === String(user._id)) {
         return;
       }
@@ -381,6 +355,24 @@ const useChat = (ticketId) => {
       socket.off("typing", handleTyping);
     };
   }, [user]);
+
+  // ==========================================
+  // Presence Update Listener
+  // ==========================================
+
+  useEffect(() => {
+    const handlePresenceChange = (data) => {
+      console.log("🟢/🔴 Presence update received:", data);
+    };
+
+    socket.on("presence:update", handlePresenceChange);
+    socket.on("user:offline", handlePresenceChange);
+
+    return () => {
+      socket.off("presence:update", handlePresenceChange);
+      socket.off("user:offline", handlePresenceChange);
+    };
+  }, []);
 
   // ==========================================
   // Return

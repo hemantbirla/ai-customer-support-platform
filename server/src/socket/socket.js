@@ -96,6 +96,9 @@ export const initializeSocket = (server) => {
       await User.findByIdAndUpdate(userId, {
         lastSeen: new Date(),
       });
+
+      // 👇 FIX: Broadcast to everyone (or specific rooms) that this user is offline
+      io.emit("presence:offline", { userId });
     });
   });
 
