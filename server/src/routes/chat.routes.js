@@ -7,6 +7,7 @@ import {
   getConversation,
   sendMessage,
   markRead,
+  uploadChatAttachments,
 } from "../controllers/chat.controller.js";
 
 import {
@@ -15,7 +16,46 @@ import {
   markReadSchema,
 } from "../validators/chat.validator.js";
 
+import uploadChatFile from "../middleware/upload.middleware.js";
+
 const router = express.Router();
+
+/*
+=========================================
+Upload Chat Attachments
+=========================================
+IMPORTANT:
+
+This route MUST come before:
+
+/:ticketId
+
+Otherwise:
+
+/chat/attachments
+
+will be interpreted as:
+
+ticketId = "attachments"
+
+and sendMessageSchema will run.
+=========================================
+*/
+
+router.post(
+  "/attachments",
+  authMiddleware,
+  uploadChatFile.array("files", 5),
+  uploadChatAttachments,
+);
+
+/*
+=========================================
+Read Receipt
+=========================================
+*/
+
+router.put("/read", authMiddleware, validate(markReadSchema), markRead);
 
 /*
 =========================================
@@ -42,13 +82,5 @@ router.post(
   validate(sendMessageSchema),
   sendMessage,
 );
-
-/*
-=========================================
-Read Receipt
-=========================================
-*/
-
-router.put("/read", authMiddleware, validate(markReadSchema), markRead);
 
 export default router;

@@ -5,21 +5,25 @@ const attachmentSchema = new mongoose.Schema(
     url: {
       type: String,
       required: true,
+      trim: true,
     },
 
-    fileName: {
+    name: {
       type: String,
       required: true,
+      trim: true,
     },
 
-    fileType: {
+    type: {
       type: String,
       required: true,
+      trim: true,
     },
 
-    fileSize: {
+    size: {
       type: Number,
       required: true,
+      min: 0,
     },
   },
   {
@@ -40,18 +44,20 @@ const messageSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
+      index: true,
     },
 
     receiver: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
+      index: true,
     },
 
     message: {
       type: String,
       trim: true,
-      maxlength: [5000, "Message cannot exceed 5000 characters"],
+      maxlength: 5000,
       default: "",
     },
 
@@ -72,21 +78,17 @@ const messageSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-    versionKey: false,
   },
 );
 
 messageSchema.index({
   ticketId: 1,
-  createdAt: 1,
-});
-
-messageSchema.index({
-  sender: 1,
+  createdAt: -1,
 });
 
 messageSchema.index({
   receiver: 1,
+  readAt: 1,
 });
 
 const Message = mongoose.model("Message", messageSchema);

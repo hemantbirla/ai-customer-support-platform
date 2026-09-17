@@ -1,47 +1,81 @@
 import multer from "multer";
-import fs from "fs";
 import path from "path";
-import { v4 as uuid } from "uuid";
+import fs from "fs";
 
-// Upload directory
-const uploadPath = path.join(process.cwd(), "src", "uploads", "tickets");
+// ==========================================
+// Upload Directory
+// ==========================================
 
-// Create directory if it doesn't exist
-if (!fs.existsSync(uploadPath)) {
-  fs.mkdirSync(uploadPath, { recursive: true });
+const uploadDirectory = path.resolve("uploads/chat");
+
+if (!fs.existsSync(uploadDirectory)) {
+  fs.mkdirSync(uploadDirectory, {
+    recursive: true,
+  });
 }
 
-// Allowed MIME types
-const allowedMimeTypes = [
-  "application/pdf",
-  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-  "image/png",
-  "image/jpeg",
-];
+// ==========================================
+// Storage
+// ==========================================
 
-// Multer Storage
 const storage = multer.diskStorage({
-  destination(req, file, cb) {
-    cb(null, uploadPath);
+  destination: (_req, _file, cb) => {
+    cb(null, uploadDirectory);
   },
 
-  filename(req, file, cb) {
-    const uniqueName = `${uuid()}-${file.originalname.replace(/\s+/g, "-")}`;
-    cb(null, uniqueName);
+  filename: (_req, file, cb) => {
+    const extension = path.extname(file.originalname);
+
+    const filename = `${Date.now()}-${Math.round(
+      Math.random() * 1e9,
+    )}${extension}`;
+
+    cb(null, filename);
   },
 });
 
-// File Validation
-const fileFilter = (req, file, cb) => {
-  if (allowedMimeTypes.includes(file.mimetype)) {
-    return cb(null, true);
+// ==========================================
+// Allowed MIME Types
+// ==========================================
+
+export const ALLOWED_CHAT_FILE_TYPES = [
+  "image/jpeg",
+  "image/png",
+  "image/gif",
+  "image/webp",
+  "application/pdf",
+  "text/plain",
+  "application/msword",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+];
+
+// ==========================================
+// File Filter
+// ==========================================
+
+const fileFilter = (_req, file, cb) => {
+  console.log("📎 Multer received file:", {
+    name: file.originalname,
+    mimetype: file.mimetype,
+    fieldname: file.fieldname,
+    size: file.size,
+  });
+
+  if (!ALLOWED_CHAT_FILE_TYPES.includes(file.mimetype)) {
+    return cb(
+      new Error(`File type "${file.mimetype}" is not supported.`),
+      false,
+    );
   }
 
-  cb(new Error("Only PDF, DOCX, PNG and JPG files are allowed"));
+  cb(null, true);
 };
 
-// Upload Middleware
-const upload = multer({
+// ==========================================
+// Multer Configuration
+// ==========================================
+
+const uploadChatFile = multer({
   storage,
 
   fileFilter,
@@ -52,4 +86,4 @@ const upload = multer({
   },
 });
 
-export default upload;
+export default uploadChatFile;

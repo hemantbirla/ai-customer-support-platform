@@ -42,7 +42,12 @@ export const sendMessage = asyncHandler(async (req, res) => {
 
   const io = getIO();
 
-  // Message only
+  /*
+  ================================================
+  Broadcast new message
+  ================================================
+  */
+
   io.to(`ticket_${ticketId}`).emit("message:new", message);
 
   return res
@@ -58,14 +63,75 @@ PUT Mark Read
 
 export const markRead = asyncHandler(async (req, res) => {
   const messages = await chatService.markRead(req.body.messageIds, req.user);
+
   const io = getIO();
 
+  /*
+  ================================================
+  Notify original sender
+  ================================================
+  */
+
   messages.forEach((message) => {
-    io.to(`ticket_${message.ticketId}`).emit("message:read", {
-      messageId: message._id,
+    const senderId = message.sender?._id?.toString();
+
+    if (!senderId) {
+      return;
+    }
+
+    console.log(`📖 Message read: ${message._id}`);
+
+    console.log(`📤 Sending read event to user_${senderId}`);
+
+    io.to(`user_${senderId}`).emit("message:read", {
+      messageId: message._id.toString(),
+
       readAt: message.readAt,
     });
   });
 
   return res.json(new ApiResponse(200, "Messages marked as read", messages));
 });
+
+/*
+==================================================
+POST Upload Chat Attachments
+==================================================
+*/
+
+export const uploadChatAttachments = asyncHandler(async (req, res) => {
+  console.log("========== CHAT ATTACHMENT UPLOAD ==========");
+  console.log("Content-Type:", req.headers["content-type"]);
+  console.log("Body:", req.body);
+  console.log("Files:", req.files);
+  console.log("============================================");
+
+  const files = req.files || [];
+
+  if (files.length === 0) {
+    return res.status(400).json({
+      success: false,
+      message: "At least one attachment is required.",
+    });
+  }
+
+  const attachments = files.map((file) => ({
+    name: file.originalname,
+    url: `/uploads/chat/${file.filename}`,
+    type: file.mimetype,
+    size: file.size,
+  }));
+
+  return res.status(200).json({
+    success: true,
+    message: "Attachments uploaded successfully.",
+    data: attachments,
+  });
+});
+
+export default {
+  getConversation,
+  sendMessage,
+  markRead,
+  uploadChatAttachments,
+};

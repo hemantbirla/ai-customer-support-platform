@@ -29,16 +29,16 @@ const useChat = (ticketId) => {
 
       const response = await chatService.getConversation(ticketId);
 
-      const conversation = response.data;
+      const conversation = response?.data;
 
-      const conversationMessages = Array.isArray(conversation.data)
+      const conversationMessages = Array.isArray(conversation?.data)
         ? conversation.data
         : [];
 
       setMessages(conversationMessages);
 
       // ==========================================
-      // Mark Existing Unread Messages as Read
+      // Mark Existing Unread Messages As Read
       // ==========================================
 
       const unreadMessageIds = conversationMessages
@@ -49,15 +49,13 @@ const useChat = (ticketId) => {
         )
         .map((message) => message._id);
 
-      if (unreadMessageIds.length > 0) {
+      if (unreadMessageIds.length > 0 && socket.connected) {
         console.log("👀 Marking existing messages as read:", unreadMessageIds);
 
-        if (socket.connected) {
-          socket.emit("mark-read", {
-            ticketId,
-            messageIds: unreadMessageIds,
-          });
-        }
+        socket.emit("mark-read", {
+          ticketId,
+          messageIds: unreadMessageIds,
+        });
       }
     } catch (err) {
       console.error("❌ Load conversation error:", err);
@@ -73,21 +71,24 @@ const useChat = (ticketId) => {
   // ==========================================
 
   const sendMessage = useCallback(
-    (text) => {
-      const value = text?.trim();
+    (text, attachments = []) => {
+      const value = text?.trim() || "";
 
-      if (!value) {
+      if (!value && attachments.length === 0) {
         return;
       }
 
       if (!ticketId) {
         toast.error("Ticket not found.");
+
         return;
       }
 
       if (!socket.connected) {
         toast.error("Chat connection unavailable.");
+
         console.error("❌ Socket is not connected.");
+
         return;
       }
 
@@ -97,30 +98,21 @@ const useChat = (ticketId) => {
         "send-message",
         {
           ticketId,
+
           message: value,
-          attachments: [],
+
+          attachments,
         },
         (response) => {
           setSending(false);
 
           if (!response?.success) {
             toast.error(response?.message || "Unable to send message.");
+
             return;
           }
 
           console.log("✅ Message sent:", response.data);
-
-          setMessages((prev) => {
-            const exists = prev.some(
-              (item) => String(item._id) === String(response.data._id),
-            );
-
-            if (exists) {
-              return prev;
-            }
-
-            return [response.data, ...prev];
-          });
         },
       );
     },
@@ -142,7 +134,9 @@ const useChat = (ticketId) => {
       return;
     }
 
-    console.log("🚪 Joining ticket room:", `ticket_${ticketId}`);
+    const room = `ticket_${ticketId}`;
+
+    console.log("🚪 Joining ticket room:", room);
 
     socket.emit("join-ticket", {
       ticketId,
@@ -150,7 +144,7 @@ const useChat = (ticketId) => {
   }, [ticketId]);
 
   // ==========================================
-  // Socket Connection + Ticket Room
+  // Socket Connection
   // ==========================================
 
   useEffect(() => {
@@ -169,6 +163,7 @@ const useChat = (ticketId) => {
 
       joinTicket();
 
+      // Re-sync after reconnect.
       await refreshMessages();
     };
 
@@ -236,6 +231,10 @@ const useChat = (ticketId) => {
         return;
       }
 
+      // ==========================================
+      // Delivered
+      // ==========================================
+
       if (socket.connected) {
         console.log("📦 Sending delivered:", message._id);
 
@@ -243,6 +242,10 @@ const useChat = (ticketId) => {
           messageId: message._id,
         });
       }
+
+      // ==========================================
+      // Read
+      // ==========================================
 
       if (socket.connected) {
         console.log("👀 Sending read:", message._id);
@@ -262,7 +265,7 @@ const useChat = (ticketId) => {
   }, [ticketId, user]);
 
   // ==========================================
-  // Message Delivered
+  // Delivered
   // ==========================================
 
   useEffect(() => {
@@ -295,7 +298,7 @@ const useChat = (ticketId) => {
   }, []);
 
   // ==========================================
-  // Message Read
+  // Read
   // ==========================================
 
   useEffect(() => {
@@ -327,7 +330,7 @@ const useChat = (ticketId) => {
   }, []);
 
   // ==========================================
-  // Typing Indicator
+  // Typing
   // ==========================================
 
   useEffect(() => {
@@ -357,7 +360,7 @@ const useChat = (ticketId) => {
   }, [user]);
 
   // ==========================================
-  // Presence Update Listener
+  // Presence
   // ==========================================
 
   useEffect(() => {
@@ -366,10 +369,12 @@ const useChat = (ticketId) => {
     };
 
     socket.on("presence:update", handlePresenceChange);
+
     socket.on("user:offline", handlePresenceChange);
 
     return () => {
       socket.off("presence:update", handlePresenceChange);
+
       socket.off("user:offline", handlePresenceChange);
     };
   }, []);

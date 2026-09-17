@@ -1,4 +1,5 @@
 import axiosInstance from "../api/axiosInstance";
+
 // ==========================================
 // Get Conversation
 // ==========================================
@@ -36,10 +37,42 @@ export const markMessagesRead = async (messageIds) => {
   return response.data;
 };
 
+// ==========================================
+// Upload Attachments
+// ==========================================
+
+export const uploadAttachments = async (files) => {
+  const formData = new FormData();
+
+  files.forEach((file) => {
+    formData.append("files", file);
+  });
+
+  console.log("📎 Uploading files:");
+
+  for (const [key, value] of formData.entries()) {
+    console.log("FormData:", {
+      key,
+      name: value?.name,
+      type: value?.type,
+      size: value?.size,
+    });
+  }
+
+  const response = await axiosInstance.post("/chat/attachments", formData);
+
+  return response.data;
+};
+
+// ==========================================
+// Chat Service
+// ==========================================
+
 const chatService = {
   getConversation,
   sendMessage,
   markMessagesRead,
+  uploadAttachments,
 };
 
 export default chatService;
