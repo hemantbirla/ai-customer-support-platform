@@ -1,0 +1,24 @@
+export const AI_OPERATIONS = {
+  SUMMARY: "SUMMARY",
+  REPLY: "REPLY",
+  CATEGORY: "CATEGORY",
+  PRIORITY: "PRIORITY",
+  SENTIMENT: "SENTIMENT",
+  TAGS: "TAGS",
+  ANALYZE: "ANALYZE",
+};
+
+export const TICKET_CATEGORIES = [
+  "BILLING",
+  "TECHNICAL",
+  "ACCOUNT",
+  "REFUND",
+  "SHIPPING",
+  "GENERAL",
+];
+
+export const TICKET_PRIORITIES = ["LOW", "MEDIUM", "HIGH", "CRITICAL"];
+
+export const SENTIMENTS = ["POSITIVE", "NEUTRAL", "NEGATIVE", "ANGRY"];
+
+export const MAX_AI_TAGS = 5;
