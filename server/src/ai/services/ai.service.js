@@ -1,4 +1,6 @@
-// server/src/ai/services/ai.service.js
+import getAIProvider from "./ai.provider.factory.js";
+
+const aiProvider = getAIProvider("GEMINI");
 
 const aiService = {
   async generateTicketSummary(_ticket) {
@@ -25,5 +27,7 @@ const aiService = {
     throw new Error("AI tag generation is not implemented yet.");
   },
 };
+
+export { aiProvider };
 
 export default aiService;

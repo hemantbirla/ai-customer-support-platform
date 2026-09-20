@@ -1,3 +1,8 @@
+export const AI_PROVIDERS = {
+  GEMINI: "GEMINI",
+  OPENAI: "OPENAI",
+};
+
 export const AI_OPERATIONS = {
   SUMMARY: "SUMMARY",
   REPLY: "REPLY",
